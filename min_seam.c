@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 //calculate minimum of an array (returning both value and index)
 double min(double *in, int size, int *idx) {
@@ -17,11 +18,26 @@ double min(double *in, int size, int *idx) {
 	return min;
 }
 
-void min_seam() {
-	//placeholders for variables
-	double img[100][100];
-	int rsize = 100;
-	int csize = 100;
+double **create_2d_array(int rsize, int csize) {
+	double **ret = (double **) malloc(rsize * sizeof(double *));
+
+	for (int i = 0; i < rsize; i++) {
+		ret[i] = (double *) malloc(csize * sizeof(double));
+	}
+
+	return ret;
+}
+
+void delete_2d_array(int rsize, int csize, double **mat) {
+
+	for (int i = 0; i < rsize; i++) {
+		free(mat[i]);
+	}
+
+	free(mat);
+}
+
+void min_seam(int rsize, int csize, double **img) {
 	double M[100][100];
 	int backtrack[100][100];
 	double e1[100][100];
