@@ -37,12 +37,11 @@ void delete_2d_array(int rsize, int csize, double **mat) {
 	free(mat);
 }
 
-void min_seam(int rsize, int csize, double **img) {
-	double M[100][100];
-	int backtrack[100][100];
-	double e1[100][100];
+void min_seam(int rsize, int csize, double **img, double **e1, double ***retM, int ***retBacktrack) {
+	double **theM = (*retM);
+	int **backtrack = (*retBacktrack);
 
-	for (int i = 1; i < rsize; i++) {
+	for (int i = 1; i < rsize; i++) { //start from second row
 		
 		for (int j = 0; j < csize; j++) {
 			int minIdx;
@@ -59,7 +58,7 @@ void min_seam(int rsize, int csize, double **img) {
 				minEnergy = img[i - 1][minIdx + j - 1];
 			}
 
-			M[i][j] = e1[i][j] + minEnergy;
+			theM[i][j] = e1[i][j] + minEnergy;
 		}
 
 	}
