@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 //calculate minimum of an array (returning both value and index)
-double min(double *in, int size, int *idx) {
+double min(const double *in, int size, int *idx) {
 	double min = in[0]; //could potentially cause errors if size = 0
 	(*idx) = 0;
 
@@ -37,7 +37,7 @@ void delete_2d_array(int rsize, int csize, double **mat) {
 	free(mat);
 }
 
-void min_seam(int rsize, int csize, double **img, double **e1, double ***retM, int ***retBacktrack) {
+void min_seam(int rsize, int csize, const double **img, const double **e1, double ***retM, int ***retBacktrack) {
 	double **theM = (*retM);
 	int **backtrack = (*retBacktrack);
 
