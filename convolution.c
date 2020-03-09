@@ -4,7 +4,7 @@
 //assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
 
-void calc_energy(int n, int m, int k, double F[n][m] , double** part_grad , double** H ){
+void calc_energy(int n, int m, int k, double F[n][m] , double part_grad[n][m] , double H[3][3] ){
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
     for(int i = 1 ; i < n-k ; i++){
@@ -23,7 +23,7 @@ void calc_energy(int n, int m, int k, double F[n][m] , double** part_grad , doub
 //calculates the cumulative sum over the individual channel energies
 //each channel is padded with a 0  frame 
 //returns the energy map result over color image of size 3 x n x m 
-void calc_RGB_energy(int n, int m, int k, double channels[3][n][m], double result[3][n][m]){
+void calc_RGB_energy(int n, int m, double channels[3][n][m], double result[3][n][m]){
 
     //fixed kernels 
     double H_y[3][3] = {
@@ -59,14 +59,14 @@ void calc_RGB_energy(int n, int m, int k, double channels[3][n][m], double resul
 
 
 //first method called before anything else to create a 0 frame aronund original image 
-void padd0_image(double channels[3][n][m]){
+void padd0_image(int n, int m, double channels[3][n][m]){
   double padded_image[3][n+2][m+2];
   for(int i = 0 ; i < 3 ; i++){
     for(int j = 0 ; j < n+2 ; j++){
       for(int k = 0 ; k < m+2 ; k++){
         //if the column is 0 or m+1 or the row is 0 or n+1 we set 0 otherwise copy the value 
         if(i == 0 || j == 0 || j == n+1 || i == m+1){
-          pardded_padded_image[i][j][k] = 0;
+          padded_image[i][j][k] = 0;
         }else
         padded_image[i][j][k] = channels[i][j][k];
       }
