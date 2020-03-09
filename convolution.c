@@ -1,102 +1,81 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//size of neighbourhood;
-int k=1;
-
-
-//testing RGB matrices 
-//red matrix 
-double R[4][4] = {
-    {0,0,0,0},
-    {0, 11, 12, 0},
-    {0, 15, 16, 0},
-    {0,0,0,0}
-}; 
-
-//green matrix
-double G[4][4] = {
-    {0,0,0,0},
-    {0, 11, 12, 0},
-    {0, 15, 16, 0},
-    {0,0,0,0}
-}; 
-
-//blue matrix
-double B[4][4] = {
-    {0,0,0,0},
-    {0, 11, 12, 0},
-    {0, 15, 16, 0},
-    {0,0,0,0}
-}; 
-
-double H_y[3][3] = {
-  {1,2,1},
-  {0,0,0},
-  {-1,-2,-1}
-};
-
-double H_x[3][3] = {
-  {-1,0,1},
-  {-2,0,2},
-  {-1,0,1}
-};
-
-
 //assuming that preprocessing is made of 0 padding 
-//n rows, m columns of channel F
-double** calc_energy(int n, int m, int k, double F[n][m]){
-    double part_grad_x[n][m];
-    double part_grad_y[n][m];
-    double** energy;
-    
-    energy = malloc(n*sizeof(*energy));
-    for(int i = 0; i < n; ++i)
-        energy[i] = malloc(m*sizeof(**energy));
-    
+// Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
+
+void calc_energy(int n, int m, int k, double F[n][m] , double** part_grad , double** H ){
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
     for(int i = 1 ; i < n-k ; i++){
         for(int j = 1 ; j < m-k ; j++){
             for(int u = -k ; u <= k; u++){
                 for(int v = -k ; v <= k ; v++){
-                    part_grad_x[i][j] += H_x[u+k][v+k]*F[i+u][j+v];
-                    part_grad_x[i][j] += H_y[u+k][v+k]*F[i+u][j+v];
+                    part_grad[i][j] += H[u+k][v+k]*F[i+u][j+v];
                 }
             }
-            //calculate energy of pixel i,j in channel F
-            energy[i][j] = abs(part_grad_x[i][j]) + abs(part_grad_y[i][j]);
+          //calculate absolute value of each element in partial derivative of channel F 
+          part_grad[i][j] = abs(part_grad[i][j]);
         }
     }
-    return energy; 
 }
 
 //calculates the cumulative sum over the individual channel energies
 //each channel is padded with a 0  frame 
-//retuns the energy map over color image of size n x m 
-double** calc_RGB_energy(int n, int m, int k, double channels[3][n][m]){
-    double** channel_energy;
-    //energy matrix
-    double** result;
+//returns the energy map result over color image of size 3 x n x m 
+void calc_RGB_energy(int n, int m, int k, double channels[3][n][m], double result[3][n][m]){
+
+    //fixed kernels 
+    double H_y[3][3] = {
+    {-1,2,-1},
+    {0,0,0},
+    {1,2,1}};
+
+  double H_x[3][3] = {
+    {-1,0,1},
+    {-2,0,2},
+    {-1,0,1}};
     
-    result = malloc(n*sizeof(*result));
-    for(int i = 0; i < n; ++i)
-        result[i] = malloc(m*sizeof(**result));
-     
+    int k= 1;
+
+    double partial_x[3][n][m]; //3d parital derivative in x
+    double partial_y[3][n][m]; //3d partial derivative in y 
+
+    //calculate the parital derivatives 
     for(int i = 0 ; i < 3 ; i ++){
-       channel_energy = calc_energy(n,m,k,channels[i]);
-       for(int j = 0 ; j < n ; j++){
-           for(int z = 0 ; z < m ; z++){
-               result[j][z] += channel_energy[j][z];
-           }
-       }
-       free(channel_energy);
+       calc_energy(n,m,k,channels[i], partial_x[i], H_x);
+       calc_energy(n,m,k,channels[i], partial_y[i], H_y);
     }
-    return result; 
+
+    //calculate the total 3d energy 
+    for(int i = 0 ; i < 3 ; i ++){
+      for(int j = 0 ; j < n ; j ++){
+        for(int k = 0 ; k < m ; k++){
+          result[i][j][k] = partial_x[i][j][k] + partial_y[i][j][k];
+        }
+      } 
+    }
+}
+
+
+//first method called before anything else to create a 0 frame aronund original image 
+void padd0_image(double channels[3][n][m]){
+  double padded_image[3][n+2][m+2];
+  for(int i = 0 ; i < 3 ; i++){
+    for(int j = 0 ; j < n+2 ; j++){
+      for(int k = 0 ; k < m+2 ; k++){
+        //if the column is 0 or m+1 or the row is 0 or n+1 we set 0 otherwise copy the value 
+        if(i == 0 || j == 0 || j == n+1 || i == m+1){
+          pardded_padded_image[i][j][k] = 0;
+        }else
+        padded_image[i][j][k] = channels[i][j][k];
+      }
+    }
+  }
+
 }
 
 int main()
 {
-    //need to free the array returned by calc_RGB_energy
     return 0;
 }
