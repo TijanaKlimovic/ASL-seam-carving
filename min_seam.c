@@ -1,22 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//calculate minimum of an array (returning both value and index)
-double min(const double *in, int size, int *idx) {
-	double min = in[0]; //could potentially cause errors if size = 0
-	(*idx) = 0;
-
-	for (int i = 1; i < size; i++) {
-
-		if (in[i] < min) {
-			min = in[i];
-			(*idx) = i;
-		}
-
-	}
-
-	return min;
-}
+#define MIN2_IDX(X, Y) ((X < Y) ? (0) : (1))
+#define MIN3_IDX(X, Y, Z) ( ((Z < X) && (Z < Y)) ? (2) : MIN2_IDX(X, Y) )
 
 
 void min_seam(int rsize, int csize, const double *img, const double *e1, double **retM, int **retBacktrack) {
@@ -31,11 +17,13 @@ void min_seam(int rsize, int csize, const double *img, const double *e1, double 
 			double minEnergy;
 
 			if (j == 0) {
-				minVal = min(&img[(i - 1) * csize + j], 2, &minIdx);
+				minIdx = MIN2_IDX(img[(i - 1) * csize + j], img[(i - 1) * csize + j + 1]);
+				minVal = img[(i - 1) * csize + j + minIdx];
 				backtrack[i * csize + j] = minIdx;
 				minEnergy = img[(i - 1) * csize + minIdx];
 			} else {
-				minVal = min(&img[(i - 1) * csize + j - 1], 3, &minIdx);
+				minIdx = MIN3_IDX(img[(i - 1) * csize + j - 1], img[(i - 1) * csize + j], img[(i - 1) * csize + j + 1]);
+				minVal = img[(i - 1) * csize + j - 1 + minIdx];
 				backtrack[i * csize + j] = minIdx + j - 1;
 				minEnergy = img[(i - 1) * csize + minIdx + j - 1];
 			}
@@ -48,10 +36,9 @@ void min_seam(int rsize, int csize, const double *img, const double *e1, double 
 }
 
 void test() {
-	double a[] = {4.1, 2.3, 5.5, 4.5, 8.2, 0.9, 10, 1.2, 3.3, 3, 3, 2, 9.0};
-	int idx;
-	double m = min(a, 13, &idx);
-	printf("[%d] = %lf\n", idx, m);
+	int idx = MIN2_IDX(1, 10);
+	int idx2 = MIN3_IDX(-4, 9, -5);
+	printf("0 =?= %d\n2 =?= %d\n", idx, idx2);
 	double *mat = (double *) malloc(5 * 3 * sizeof(double));
 
 	for (int i = 0; i < 5; i++) {
