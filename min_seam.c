@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MIN2_IDX(X, Y) ((X < Y) ? (0) : (1))
-#define MIN3_IDX(X, Y, Z) ( ((Z < X) && (Z < Y)) ? (2) : MIN2_IDX(X, Y) )
+#define MIN2(X, Y, M, IDX) if (X < Y) {M = X; IDX = 0;} else {M = Y; IDX = 1;}
+
+#define MIN3(X, Y, Z, M, IDX) if ((Z < X) && (Z < Y)) {M = Z; IDX = 2;} else {MIN2(X, Y, M, IDX)}
 
 
-void min_seam(int rsize, int csize, const double *img, const double *e1, double **retM, int **retBacktrack) {
-	double *theM = (*retM);
+void min_seam(int rsize, int csize, const double *img, const double *e1, int isVer, int **retBacktrack) {
+	double *theM = (double *) malloc(rsize * csize * sizeof(double));
 	int *backtrack = (*retBacktrack);
 
 	for (int i = 1; i < rsize; i++) { //start from second row
@@ -17,12 +18,17 @@ void min_seam(int rsize, int csize, const double *img, const double *e1, double 
 			double minEnergy;
 
 			if (j == 0) {
-				minIdx = MIN2_IDX(img[(i - 1) * csize + j], img[(i - 1) * csize + j + 1]);
+				MIN2(img[(i - 1) * csize + j], 
+					img[(i - 1) * csize + j + 1], 
+					minVal, minIdx)
 				minVal = img[(i - 1) * csize + j + minIdx];
 				backtrack[i * csize + j] = minIdx;
 				minEnergy = img[(i - 1) * csize + minIdx];
 			} else {
-				minIdx = MIN3_IDX(img[(i - 1) * csize + j - 1], img[(i - 1) * csize + j], img[(i - 1) * csize + j + 1]);
+				MIN3(img[(i - 1) * csize + j - 1], 
+					img[(i - 1) * csize + j], 
+					img[(i - 1) * csize + j + 1], 
+					minVal, minIdx)
 				minVal = img[(i - 1) * csize + j - 1 + minIdx];
 				backtrack[i * csize + j] = minIdx + j - 1;
 				minEnergy = img[(i - 1) * csize + minIdx + j - 1];
@@ -33,12 +39,16 @@ void min_seam(int rsize, int csize, const double *img, const double *e1, double 
 
 	}
 
+
+	free(theM);
 }
 
 void test() {
-	int idx = MIN2_IDX(1, 10);
-	int idx2 = MIN3_IDX(-4, 9, -5);
-	printf("0 =?= %d\n2 =?= %d\n", idx, idx2);
+	int idx, idx2;
+	double val, val2;
+	MIN2(1, 10, val, idx)
+	MIN3(-4, 9, -5, val2, idx2)
+	printf("[%d] = %lf\n[%d] = %lf\n", idx, val, idx2, val2);
 	double *mat = (double *) malloc(5 * 3 * sizeof(double));
 
 	for (int i = 0; i < 5; i++) {
@@ -58,6 +68,7 @@ void test() {
 		printf("\n");
 	}
 
+	free(mat);
 }
 
 int main(int argc, char const *argv[]) {
