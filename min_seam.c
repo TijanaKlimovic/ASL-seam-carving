@@ -1,53 +1,111 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #define MIN2(X, Y, M, IDX) if (X < Y) {M = X; IDX = 0;} else {M = Y; IDX = 1;}
 
-#define MIN3(X, Y, Z, M, IDX) if ((Z < X) && (Z < Y)) {M = Z; IDX = 2;} else {MIN2(X, Y, M, IDX)}
+#define MIN3(X, Y, Z, M, IDX) if ((X < Y) && (X < Z)) {M = X; IDX = -1;} else {MIN2(Y, Z, M, IDX)}
 
 
-void min_seam(int rsize, int csize, const double *img, const double *e1, int isVer, int **retBacktrack) {
-	double *theM = (double *) malloc(rsize * csize * sizeof(double));
-	int *backtrack = (*retBacktrack);
+double min_seam(int rsize, int csize, const double *img, int is_ver, int **ret_backtrack) {
+	double *the_m = (double *) malloc(rsize * csize * sizeof(double));
+	//TODO call Tijana's energy function to set the_m (M matrix starts as a copy of e1)
+	int *backtrack = (int *) malloc(rsize * csize * sizeof(int)); //different from what we return
+	int out_cnt, in_cnt; //counters for loops
+	int *row_ptr, *col_ptr; //for calculating where in the img we are (based on is_ver)
+	int out_lim, in_lim; //limits for the counters of the loops
+	int step, other_step; //step for calculating the neighbor pixel location (in the same row/col)
 
-	for (int i = 1; i < rsize; i++) { //start from second row
+	if (is_ver == 1) {
+		out_lim = rsize;
+		in_lim = csize;
+		row_ptr = &out_cnt;
+		col_ptr = &in_cnt;
+		step = 1;
+		other_step = csize;
+	} else {
+		out_lim = csize;
+		in_lim = rsize;
+		row_ptr = &in_cnt;
+		col_ptr = &out_cnt;
+		step = csize;
+		other_step = 1;
+	}
+
+	for (out_cnt = 1; out_cnt < out_lim; out_cnt++) { //start from second row/col
 		
-		for (int j = 0; j < csize; j++) {
-			int minIdx;
-			double minVal;
-			double minEnergy;
+		for (in_cnt = 0; in_cnt < in_lim; in_cnt++) {
+			//determine the location of the pixel based on is_ver
+			int where = (*row_ptr) * csize + (*col_ptr);
+			int where_before = where - other_step;
+			int min_idx;
+			double min_val;
+			double min_energy;
 
-			if (j == 0) {
-				MIN2(img[(i - 1) * csize + j], 
-					img[(i - 1) * csize + j + 1], 
-					minVal, minIdx)
-				minVal = img[(i - 1) * csize + j + minIdx];
-				backtrack[i * csize + j] = minIdx;
-				minEnergy = img[(i - 1) * csize + minIdx];
+			if (in_cnt == 0) {
+
+				MIN2(the_m[where_before], 
+					 the_m[where_before + step], 
+					 min_val, 
+					 min_idx)
+
+				backtrack[where] = min_idx;
 			} else {
-				MIN3(img[(i - 1) * csize + j - 1], 
-					img[(i - 1) * csize + j], 
-					img[(i - 1) * csize + j + 1], 
-					minVal, minIdx)
-				minVal = img[(i - 1) * csize + j - 1 + minIdx];
-				backtrack[i * csize + j] = minIdx + j - 1;
-				minEnergy = img[(i - 1) * csize + minIdx + j - 1];
+
+				MIN3(the_m[where_before - step], 
+					 the_m[where_before], 
+					 the_m[where_before + step], 
+					 min_val, 
+					 min_idx)
+
+				backtrack[where] = in_cnt + min_idx;
 			}
 
-			theM[i * csize + j] = e1[i * csize + j] + minEnergy;
+			min_energy = the_m[where_before + min_idx * step];
+			the_m[where] += min_energy;
 		}
 
 	}
 
+	//process the data to return in appropriate format
+	double ret = LONG_MAX;
+	int direction = -1; //used in turning 2D backtrack into 1D
 
-	free(theM);
+	//find the minimum of last row/col of the_m
+	//set the counters to the beginning of the last row/col
+	out_cnt--;
+	in_cnt = 0;
+	int last_start = (*row_ptr) * csize + (*col_ptr);
+	
+	for (int cnt = 0; cnt < in_lim; cnt++) {
+		int current = last_start + cnt * step;
+
+		if (the_m[current] < ret) {
+			ret = the_m[current];
+			direction = current;
+		}
+
+	}
+
+	//return the 1D backtrack (only the min seam)
+
+	for (int i = in_lim - 1; i >= 0; i--) {
+		(*ret_backtrack)[i] = backtrack[direction];
+		out_cnt--;
+		in_cnt = backtrack[direction];
+		direction = (*row_ptr) * csize + (*col_ptr);
+	}
+
+	free(the_m);
+	free(backtrack);
+	return ret;
 }
 
 void test() {
 	int idx, idx2;
 	double val, val2;
 	MIN2(1, 10, val, idx)
-	MIN3(-4, 9, -5, val2, idx2)
+	MIN3(-4, 9, 0, val2, idx2)
 	printf("[%d] = %lf\n[%d] = %lf\n", idx, val, idx2, val2);
 	double *mat = (double *) malloc(5 * 3 * sizeof(double));
 
