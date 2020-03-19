@@ -26,7 +26,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_width = width - T_width + 1;
 		int image_height = height - T_height;
 
-		int *backtrack = (double *)malloc(image_width * sizeof(double));
+		int *backtrack = (int *)malloc(image_width * sizeof(int));
 		double optimal_cost = min_seam(image_height, image_width, image_left, 1, backtrack);
 
 		T[T_index].optimal_cost = T[T_index_left].optimal_cost + optimal_cost;
@@ -52,7 +52,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_width = width - T_width;
 		int image_height = height - T_height + 1;
 
-		int *backtrack = (double *)malloc(image_height * sizeof(double));
+		int *backtrack = (int *)malloc(image_height * sizeof(int));
 		double optimal_cost = min_seam(image_height, image_width, image_up, 0, backtrack);
 
 		T[T_index].optimal_cost = T[T_index_up].optimal_cost + optimal_cost;
@@ -77,7 +77,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_left_width = width - T_width + 1;
 		int image_left_height = height - T_height;
 
-		int *backtrack_left = (double *)malloc(image_left_width * sizeof(double));
+		int *backtrack_left = (int *)malloc(image_left_width * sizeof(int));
 		double optimal_cost_left = min_seam(image_left_height, image_left_width, image_left, 1, backtrack_left);
 
 		int T_index_up = (T_height - 1) * wanted_width + T_width;
@@ -85,7 +85,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_up_width = width - T_width;
 		int image_up_height = height - T_height + 1;
 
-		int *backtrack_up = (double *)malloc(image_up_height * sizeof(double));
+		int *backtrack_up = (int *)malloc(image_up_height * sizeof(int));
 		double optimal_cost_up = min_seam(image_up_height, image_up_width, image_up, 1, backtrack_up);
 	
 		if (T[T_index_left].optimal_cost + optimal_cost_left <=
