@@ -25,10 +25,8 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_width = width - T_width + 1;
 		int image_height = height - T_height;
 
-		double *energy_left = (double *)malloc(image_height * image_width * sizeof(double));
-		calc_RGB_energy(image_height, image_width, image, energy_left);
 		double *backtrack = (double *)malloc(image_width * sizeof(double));
-		double optimal_cost = min_seam(image_height, image_width, energy_left, 1, backtrack);
+		double optimal_cost = min_seam(image_height, image_width, image_left, 1, backtrack);
 
 		T[T_index].optimal_cost = T[T_index_left].optimal_cost + optimal_cost;
 		T[T_index].i = (double *)malloc(3 * image_height * (image_width - 1) * sizeof(double));
@@ -53,10 +51,8 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_width = width - T_width;
 		int image_height = height - T_height + 1;
 
-		double *energy_up = (double *)malloc(image_height * image_width * sizeof(double));
-		calc_RGB_energy(image_height, image_width, image, energy_up);
 		double *backtrack = (double *)malloc(image_height * sizeof(double));
-		double optimal_cost = min_seam(image_height, image_width, energy_up, 0, backtrack);
+		double optimal_cost = min_seam(image_height, image_width, image_up, 0, backtrack);
 
 		T[T_index].optimal_cost = T[T_index_up].optimal_cost + optimal_cost;
 		T[T_index].i = (double *)malloc(3 * (image_height - 1) * image_width * sizeof(double));
@@ -80,20 +76,16 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_left_width = width - T_width + 1;
 		int image_left_height = height - T_height;
 
-		double *energy_left = (double *)malloc(image_left_height * image_left_width * sizeof(double));
-		calc_RGB_energy(image_left_height, image_left_width, image_left, energy_left);
 		double *backtrack_left = (double *)malloc(image_left_width * sizeof(double));
-		double optimal_cost_left = min_seam(image_left_height, image_left_width, energy_left, 1, backtrack_left);
+		double optimal_cost_left = min_seam(image_left_height, image_left_width, image_left, 1, backtrack_left);
 
 		int T_index_up = (T_height - 1) * wanted_width + T_width;
 		double *image_up = T[T_index_up];
 		int image_up_width = width - T_width;
 		int image_up_height = height - T_height + 1;
 
-		double *energy_up = (double *)malloc(image_up_height * image_up_width * sizeof(double));
-		calc_RGB_energy(image_up_height, image_up_width, image_up, energy_up);
 		double *backtrack_up = (double *)malloc(image_up_height * sizeof(double));
-		double optimal_cost_up = min_seam(image_up_height, image_up_width, energy_up, 1, backtrack_up);
+		double optimal_cost_up = min_seam(image_up_height, image_up_width, image_up, 1, backtrack_up);
 	
 		if (T[T_index_left].optimal_cost + optimal_cost_left <=
 			T[T_index_up].optimal_cost + optimal_cost_up) {
