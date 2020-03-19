@@ -73,7 +73,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		}
 	} else {
 		int T_index_left = T_height * wanted_width + T_width - 1;
-		double *image_left = T[T_index_left];
+		double *image_left = T[T_index_left].i;
 		int image_left_width = width - T_width + 1;
 		int image_left_height = height - T_height;
 
@@ -81,7 +81,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		double optimal_cost_left = min_seam(image_left_height, image_left_width, image_left, 1, backtrack_left);
 
 		int T_index_up = (T_height - 1) * wanted_width + T_width;
-		double *image_up = T[T_index_up];
+		double *image_up = T[T_index_up].i;
 		int image_up_width = width - T_width;
 		int image_up_height = height - T_height + 1;
 
@@ -99,7 +99,7 @@ void calculate(int width, int height, int T_width, int T_height,
 					if (l != backtrack_left[k]) { // check for elem to remove
 						T[T_index].i[k*(image_left_width-1)+crr_col]
 							= T[T_index_left].i[k*image_left_width + l];
-						T[T_index].i[image_left_height*(image_width-1)+k*(image_left_width-1)+crr_col]
+						T[T_index].i[image_left_height*(image_left_width-1)+k*(image_left_width-1)+crr_col]
 							= T[T_index_left].i[image_left_height*(image_left_width-1)+k*image_left_width + l];
 						T[T_index].i[2*image_left_height*(image_left_width-1)+k*(image_left_width-1)+crr_col]
 							= T[T_index_left].i[2*image_left_height*(image_left_width-1)+k*image_left_width + l];
@@ -139,7 +139,7 @@ double *optimal_image(int width, int height, int wanted_width,
 		calculate(width, height, j, 0, wanted_width, wanted_height, T);
 	for (j = 1; j < wanted_height; ++j)
 		for (k = 0; k < wanted_width; ++k)
-			calculate(width, height, i, 0, wanted_width, wanted_height, T);
+			calculate(width, height, j, k, wanted_width, wanted_height, T);
 
 	return T[wanted_width * wanted_height - 1].i;
 }
