@@ -18,6 +18,6 @@ int main(int argc, char const *argv[]) {
 	}
 
 	output = optimal_image(width, height, width - 50, height - 50, output);
-	save_image("output.png");
+	save_image("output.png", width - 50, height - 50);
 	return 0;
 }

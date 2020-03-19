@@ -17,19 +17,22 @@ int width, height;
 unsigned char *original, *saved;
 double *output;
 
-void convert_double(unsigned char *src, double *dst) {
+void convert_double(unsigned char *src, double *dst, int width, int height) {
 	int i, j, k;
 	for (i = 0; i < height; ++i) {
 		for (j = 0; j < width; ++j) {
 			for (k = 0; k < C; ++k) {
 				dst[i * width * C + j * C + k] = 
 				(double)src[i * width * C + j * C + k];
+				//printf("%lf ", dst[i * width * C + j * C + k]);
 			}
+			//printf("\n");
 		}
+		//printf("\n\n");
 	}
 }
 
-void convert_uchar(double *src, unsigned char *dst) {
+void convert_uchar(double *src, unsigned char *dst, int width, int height) {
 	int i, j, k;
 	for (i = 0; i < height; ++i) {
 		for (j = 0; j < width; ++j) {
@@ -71,15 +74,15 @@ int load_image(const char *filename) {
 	if (!allocate_double_buffer(width, height, &output)) 
 		return 0;
 	printf("Allocated buffer\n");
-	convert_double(original, output);
+	convert_double(original, output, width, height);
 	printf("Converted to double\n");
 	return 1;
 }
 
-void save_image(char *filename) {
-	allocate_uchar_buffer(width, height, &saved);
-	convert_uchar(output, saved);
-	stbi_write_png(filename, width, height, C, saved, width * C);
+void save_image(char *filename, int new_width, int new_height) {
+	allocate_uchar_buffer(new_width, new_height, &saved);
+	convert_uchar(output, saved, new_width, new_height);
+	stbi_write_png(filename, new_width, new_height, C, saved, new_width * C);
 }
 
 // int main(int argc, char **argv) {
