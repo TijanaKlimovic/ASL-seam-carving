@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 //assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
@@ -15,7 +16,7 @@ void calc_energy(int n, int m, int k, double* F , double part_grad[n][m] , doubl
                 }
             }
           //calculate absolute value of each element in partial derivative of channel F 
-          part_grad[i][j] = abs(part_grad[i][j]);
+          part_grad[i][j] = fabs(part_grad[i][j]);
         }
     }
 }

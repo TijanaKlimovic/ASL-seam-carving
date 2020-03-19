@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <time.h>
+#include "min_seam.h"
 
 // Data structure to hold information in a T cell
 struct cell_T {
