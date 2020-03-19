@@ -7,7 +7,7 @@
 #define MIN3(X, Y, Z, M, IDX) if ((X < Y) && (X < Z)) {M = X; IDX = -1;} else {MIN2(Y, Z, M, IDX)}
 
 
-double min_seam(int rsize, int csize, const double *img, int is_ver, int **ret_backtrack) {
+double min_seam(int rsize, int csize, const double *img, int is_ver, int *ret_backtrack) {
 	double *the_m = (double *) malloc(rsize * csize * sizeof(double));
 	//TODO call Tijana's energy function to set the_m (M matrix starts as a copy of e1)
 	int *backtrack = (int *) malloc(rsize * csize * sizeof(int)); //different from what we return
@@ -90,7 +90,7 @@ double min_seam(int rsize, int csize, const double *img, int is_ver, int **ret_b
 	//return the 1D backtrack (only the min seam)
 
 	for (int i = in_lim - 1; i >= 0; i--) {
-		(*ret_backtrack)[i] = backtrack[direction];
+		ret_backtrack[i] = backtrack[direction];
 		out_cnt--;
 		in_cnt = backtrack[direction];
 		direction = (*row_ptr) * csize + (*col_ptr);
