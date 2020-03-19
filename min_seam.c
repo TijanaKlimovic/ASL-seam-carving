@@ -9,6 +9,7 @@
 
 
 double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrack) {
+	// printf("AYDIN CALLED!\n");
 	double *the_m = (double *) malloc(rsize * csize * sizeof(double));
 	//call Tijana's energy function to set the_m (M matrix starts as a copy of e1)
 	double *padded_img = padd0_image(rsize, csize, img);
@@ -18,6 +19,16 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 	int *row_ptr, *col_ptr; //for calculating where in the img we are (based on is_ver)
 	int out_lim, in_lim; //limits for the counters of the loops
 	int step, other_step; //step for calculating the neighbor pixel location (in the same row/col)
+
+	// for (int i = 0; i < rsize; i++) {
+
+	// 	for (int j = 0; j < csize; j++) {
+	// 		printf("%lf ", the_m[i * csize + j]);
+	// 	}
+
+	// 	printf("\n");
+	// }
+	// printf("End of Conv\n");
 
 	if (is_ver == 1) {
 		out_lim = rsize;
@@ -70,6 +81,16 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 
 	}
 
+	// printf ("[rsize] = %d, [csize] = %d\n", rsize, csize);
+	// for (int i = 0; i < rsize; i++) {
+		
+	// 	for (int j = 0; j < csize; j++) {
+	// 		printf("%d ", backtrack[i * csize + j]);
+	// 	}
+
+	// 	printf("\n");
+	// }
+
 	//process the data to return in appropriate format
 	double ret = LONG_MAX;
 	int direction = -1; //used in turning 2D backtrack into 1D
@@ -91,17 +112,30 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 	}
 
 	//return the 1D backtrack (only the min seam)
+	direction -= last_start;
 
-	for (int i = in_lim - 1; i >= 0; i--) {
-		ret_backtrack[i] = backtrack[direction];
-		out_cnt--;
-		in_cnt = backtrack[direction];
-		direction = (*row_ptr) * csize + (*col_ptr);
+	for (int i = out_lim - 1; i >= 0; i--) {
+		// printf("[%d] = %d\n", i, direction);
+		ret_backtrack[i] = direction;
+		// printf("{%d %d %d}\n", backtrack[last_start + direction - 1], backtrack[last_start + direction], backtrack[last_start + direction + 1]);
+		direction = backtrack[last_start + direction];
+		// printf("last_start = %d\n", last_start);
+		last_start -= other_step;
+		// printf("new last_start = %d\n", last_start);
 	}
+
+	// for (int i = in_lim - 2; i >= 0; i--) {
+	// 	printf("[i] = %d, [direction] = %d\n", i, direction);
+	// 	ret_backtrack[i] = backtrack[direction];
+	// 	out_cnt--;
+	// 	in_cnt = backtrack[direction];
+	// 	direction = (*row_ptr) * csize + (*col_ptr);
+	// }
 
 	free(the_m);
 	free(backtrack);
 	free(padded_img);
+	// printf("DONE!\n");
 	return ret;
 }
 
