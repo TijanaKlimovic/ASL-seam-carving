@@ -58,7 +58,7 @@ int allocate_uchar_buffer(int width, int height, unsigned char **buffer) {
 	return 1;
 }
 
-int load_image(char *filename) {
+int load_image(const char *filename) {
 	int n;
 	original = stbi_load(filename, &width, &height, &n, C);
 	if (original == NULL) {

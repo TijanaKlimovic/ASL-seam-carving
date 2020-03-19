@@ -1,15 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "convolution.h"
 
 #define MIN2(X, Y, M, IDX) if (X < Y) {M = X; IDX = 0;} else {M = Y; IDX = 1;}
 
 #define MIN3(X, Y, Z, M, IDX) if ((X < Y) && (X < Z)) {M = X; IDX = -1;} else {MIN2(Y, Z, M, IDX)}
 
 
-double min_seam(int rsize, int csize, const double *img, int is_ver, int *ret_backtrack) {
+double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrack) {
 	double *the_m = (double *) malloc(rsize * csize * sizeof(double));
-	//TODO call Tijana's energy function to set the_m (M matrix starts as a copy of e1)
+	//call Tijana's energy function to set the_m (M matrix starts as a copy of e1)
+	double *padded_img = padd0_image(rsize, csize, img);
+	calc_RGB_energy(rsize + 2, csize + 2, padded_img, the_m);
 	int *backtrack = (int *) malloc(rsize * csize * sizeof(int)); //different from what we return
 	int out_cnt, in_cnt; //counters for loops
 	int *row_ptr, *col_ptr; //for calculating where in the img we are (based on is_ver)
@@ -98,6 +101,7 @@ double min_seam(int rsize, int csize, const double *img, int is_ver, int *ret_ba
 
 	free(the_m);
 	free(backtrack);
+	free(padded_img);
 	return ret;
 }
 
