@@ -25,7 +25,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_width = width - T_width + 1;
 		int image_height = height - T_height;
 
-		double *backtrack = (double *)malloc(image_width * sizeof(double));
+		int *backtrack = (double *)malloc(image_width * sizeof(double));
 		double optimal_cost = min_seam(image_height, image_width, image_left, 1, backtrack);
 
 		T[T_index].optimal_cost = T[T_index_left].optimal_cost + optimal_cost;
@@ -34,7 +34,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		for (k = 0; k < image_height; ++k) { // construct each row at a time
 			int crr_col = 0;
 			for (l = 0; l < image_width; ++l)
-				if (k*image_width + l != backtrack[k]) { // check for elem to remove
+				if (l != backtrack[k]) { // check for elem to remove
 					T[T_index].i[k*(image_width-1)+crr_col]
 						= T[T_index_left].i[k*image_width + l];
 					T[T_index].i[image_height*(image_width-1)+k*(image_width-1)+crr_col]
@@ -51,7 +51,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_width = width - T_width;
 		int image_height = height - T_height + 1;
 
-		double *backtrack = (double *)malloc(image_height * sizeof(double));
+		int *backtrack = (double *)malloc(image_height * sizeof(double));
 		double optimal_cost = min_seam(image_height, image_width, image_up, 0, backtrack);
 
 		T[T_index].optimal_cost = T[T_index_up].optimal_cost + optimal_cost;
@@ -60,7 +60,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		for (k = 0; k < image_width; ++k) { // construct each column at a time
 			int crr_row = 0;
 			for (l = 0; l < image_height; ++l)
-				if (l*image_width + k != path[k]) { // check for elem to remove
+				if (l != backtrack[k]) { // check for elem to remove
 					T[T_index].i[crr_row*image_width+k]
 						= T[T_index_up].i[l*image_width + k];
 					T[T_index].i[(image_height-1)*image_width+crr_row*image_width+k]
@@ -76,7 +76,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_left_width = width - T_width + 1;
 		int image_left_height = height - T_height;
 
-		double *backtrack_left = (double *)malloc(image_left_width * sizeof(double));
+		int *backtrack_left = (double *)malloc(image_left_width * sizeof(double));
 		double optimal_cost_left = min_seam(image_left_height, image_left_width, image_left, 1, backtrack_left);
 
 		int T_index_up = (T_height - 1) * wanted_width + T_width;
@@ -84,7 +84,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_up_width = width - T_width;
 		int image_up_height = height - T_height + 1;
 
-		double *backtrack_up = (double *)malloc(image_up_height * sizeof(double));
+		int *backtrack_up = (double *)malloc(image_up_height * sizeof(double));
 		double optimal_cost_up = min_seam(image_up_height, image_up_width, image_up, 1, backtrack_up);
 	
 		if (T[T_index_left].optimal_cost + optimal_cost_left <=
@@ -95,7 +95,7 @@ void calculate(int width, int height, int T_width, int T_height,
 			for (k = 0; k < image_left_height; ++k) { // construct each row at a time
 				int crr_col = 0;
 				for (l = 0; l < image_left_width; ++l)
-					if (k*image_left_width + l != backtrack[k]) { // check for elem to remove
+					if (l != backtrack_left[k]) { // check for elem to remove
 						T[T_index].i[k*(image_left_width-1)+crr_col]
 							= T[T_index_left].i[k*image_left_width + l];
 						T[T_index].i[image_left_height*(image_width-1)+k*(image_left_width-1)+crr_col]
@@ -112,7 +112,7 @@ void calculate(int width, int height, int T_width, int T_height,
 			for (k = 0; k < image_up_width; ++k) { // construct each column at a time
 				int crr_row = 0;
 				for (l = 0; l < image_up_height; ++l)
-					if (l*image_up_width + k != path[k]) { // check for elem to remove
+					if (l != backtrack_up[k]) { // check for elem to remove
 						T[T_index].i[crr_row*image_up_width+k]
 							= T[T_index_up].i[l*image_up_width + k];
 						T[T_index].i[(image_up_height-1)*image_up_width+crr_row*image_up_width+k]
