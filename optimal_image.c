@@ -150,13 +150,3 @@ double *optimal_image(int width, int height, int wanted_width,
 
 	return T[wanted_width * wanted_height - 1].i;
 }
-
-int main() {
-	srand(time(NULL));
-	
-	double *i = (double *)malloc(16 * sizeof(double));
-	create_i(i);
-	optimal_seam(4, 4, i);
-
-	return 0;
-}
