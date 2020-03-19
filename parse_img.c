@@ -81,13 +81,13 @@ void save_image(char *filename) {
 	stbi_write_png(filename, width, height, C, saved, width * C);
 }
 
-int main(int argc, char **argv) {
-	if (argc < 2) {
-		printf("Usage: %s <image_path>\n", argv[0]);
-	}
-	if (!load_image(argv[1])) {
-		return 1;
-	}
-	save_image("saved.png");
-	return 0;
-}
+// int main(int argc, char **argv) {
+// 	if (argc < 2) {
+// 		printf("Usage: %s <image_path>\n", argv[0]);
+// 	}
+// 	if (!load_image(argv[1])) {
+// 		return 1;
+// 	}
+// 	save_image("saved.png");
+// 	return 0;
+// }

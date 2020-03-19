@@ -128,9 +128,9 @@ void test_padding(){
 
 // ========================== TESTING FUNCTIONS =================================
 
-int main()
-{
-    test_computation();
-    //test_padding();
+// int main()
+// {
+//     test_computation();
+//     //test_padding();
     
-}
+// }
