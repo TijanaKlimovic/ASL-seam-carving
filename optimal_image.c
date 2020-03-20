@@ -45,6 +45,7 @@ void calculate(int width, int height, int T_width, int T_height,
 					crr_col++;
 				}
 		}
+		free(backtrack);
 	} else if (T_width == 0) {
 		// first column -> horizontal seam only
 		int T_index_up = (T_height - 1) * wanted_width + T_width;
@@ -71,6 +72,7 @@ void calculate(int width, int height, int T_width, int T_height,
 					crr_row++;
 				}
 		}
+		free(backtrack);
 	} else {
 		int T_index_left = T_height * wanted_width + T_width - 1;
 		double *image_left = T[T_index_left].i;
@@ -124,6 +126,8 @@ void calculate(int width, int height, int T_width, int T_height,
 					}
 			}
 		}
+		free(backtrack_left);
+		free(backtrack_up);
 	}
 }
 
@@ -140,6 +144,8 @@ double *optimal_image(int width, int height, int wanted_width,
 	for (j = 1; j < wanted_height; ++j)
 		for (k = 0; k < wanted_width; ++k)
 			calculate(width, height, j, k, wanted_width, wanted_height, T);
-
+	for (int i = 0; i < wanted_width * wanted_height - 1; ++i) {
+		free(T[i].i);
+	}
 	return T[wanted_width * wanted_height - 1].i;
 }

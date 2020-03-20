@@ -52,8 +52,8 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 			//determine the location of the pixel based on is_ver
 			int where = (*row_ptr) * csize + (*col_ptr);
 			int where_before = where - other_step;
-			int min_idx;
-			double min_val;
+			int min_idx = -1;
+			double min_val = 1000000000000000.; //TODO fix to real double max
 			double min_energy;
 
 			if (in_cnt == 0) {
@@ -131,7 +131,6 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 	// 	in_cnt = backtrack[direction];
 	// 	direction = (*row_ptr) * csize + (*col_ptr);
 	// }
-
 	free(the_m);
 	free(backtrack);
 	free(padded_img);
@@ -163,7 +162,6 @@ void test() {
 
 		printf("\n");
 	}
-
 	free(mat);
 }
 

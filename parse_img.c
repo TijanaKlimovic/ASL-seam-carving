@@ -17,18 +17,26 @@ int width, height;
 unsigned char *original, *saved;
 double *output;
 
+void print_matrix(double *matrix, int width, int height) {
+	for (int k = 0; k < 3; ++k) {
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j) {
+				printf("%lf ", matrix[k * width * height + i * width + j]);
+			}
+			printf("\n");
+		}
+		printf("\n\n");	
+	}
+}
+
 void convert_double(unsigned char *src, double *dst, int width, int height) {
 	int i, j, k;
 	for (i = 0; i < height; ++i) {
 		for (j = 0; j < width; ++j) {
 			for (k = 0; k < C; ++k) {
-				dst[i * width * C + j * C + k] = 
-				(double)src[i * width * C + j * C + k];
-				//printf("%lf ", dst[i * width * C + j * C + k]);
+				dst[k * width * height + i * width + j] = (double)src[i * width * C + j * C + k];
 			}
-			//printf("\n");
 		}
-		//printf("\n\n");
 	}
 }
 
@@ -37,8 +45,7 @@ void convert_uchar(double *src, unsigned char *dst, int width, int height) {
 	for (i = 0; i < height; ++i) {
 		for (j = 0; j < width; ++j) {
 			for (k = 0; k < C; ++k) {
-				dst[i * width * C + j * C + k] = 
-				(unsigned char)src[i * width * C + j * C + k];
+				dst[k * width * height + i * width + j] = (unsigned char)src[i * width * C + j * C + k];
 			}
 		}
 	}
@@ -92,6 +99,7 @@ void save_image(char *filename, int new_width, int new_height) {
 // 	if (!load_image(argv[1])) {
 // 		return 1;
 // 	}
-// 	save_image("saved.png");
+// 	print_matrix(output, width, height);
+// 	save_image("saved.png", width, height);
 // 	return 0;
 // }
