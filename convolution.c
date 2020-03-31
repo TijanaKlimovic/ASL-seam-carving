@@ -8,6 +8,13 @@
 void calc_energy(int n, int m, int k, double* F , double part_grad[n][m] , double H[3][3] ){
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
+
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            part_grad[i][j] = 0;
+        }
+    }
+
     for(int i = 1 ; i < n-k ; i++){
         for(int j = 1 ; j < m-k ; j++){
             for(int u = -k ; u <= k; u++){
@@ -48,6 +55,12 @@ void calc_RGB_energy(int n, int m, double* channels, double* result){
       //pass the ith channel for energy calculation
        calc_energy(n,m,k,channels + n*m*i, partial_x[i], H_x);
        calc_energy(n,m,k,channels + n*m*i, partial_y[i], H_y);
+    }
+
+    for (int i = 0; i < n - 2; i++) {
+        for (int j = 0; j < m - 2; j++) {
+            result[(m - 2) * i + j] = 0;
+        }
     }
 
     //calculate the total 3d energy 
