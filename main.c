@@ -18,7 +18,7 @@ int main(int argc, char const *argv[]) {
 		return 1;
 	}
 
-	output = optimal_image(width, height, width - diff, height - diff, output);
+	output = optimal_image(width, height, diff, diff, output);
 	printf("finished optimal image\n");
 	save_image("output.png", width - diff, height - diff);
 	free(output);
