@@ -7,6 +7,9 @@
 
 #define MIN3(X, Y, Z, M, IDX) if ((X < Y) && (X < Z)) {M = X; IDX = -1;} else {MIN2(Y, Z, M, IDX)}
 
+// #define LOG(X) X
+#define LOG(X)
+
 
 double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrack) {
 	double *the_m = (double *) malloc(rsize * csize * sizeof(double));
@@ -63,6 +66,15 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 					 min_idx)
 
 				backtrack[where] = min_idx;
+			} else if (in_cnt == in_lim - 1) {
+
+				MIN2(the_m[where_before - step],
+					 the_m[where_before],
+					 min_val,
+					 min_idx)
+
+				min_idx--;
+				backtrack[where] = in_cnt + min_idx;
 			} else {
 
 				MIN3(the_m[where_before - step], 
@@ -74,23 +86,24 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 				backtrack[where] = in_cnt + min_idx;
 			}
 
-			min_energy = the_m[where_before + min_idx * step];
+			min_energy = min_val;
 			the_m[where] += min_energy;
 		}
 
 	}
 
-	// printf ("[rsize] = %d, [csize] = %d\n", rsize, csize);
+	LOG(
+	printf ("[rsize] = %d, [csize] = %d\n", rsize, csize);
 	
-	// for (int i = 0; i < rsize; i++) {
+	for (int i = 0; i < rsize; i++) {
 		
-	// 	for (int j = 0; j < csize; j++) {
-	// 		printf("%d ", backtrack[i * csize + j]);
-	// 	}
+		for (int j = 0; j < csize; j++) {
+			printf("%d ", backtrack[i * csize + j]);
+		}
 
-	// 	printf("\n");
-	// }
-
+		printf("\n");
+	}
+	)
 	//process the data to return in appropriate format
 	double ret = LONG_MAX;
 	int direction = -1; //used in turning 2D backtrack into 1D
@@ -115,17 +128,17 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 	direction -= last_start;
 
 	for (int i = out_lim - 1; i >= 0; i--) {
-		// printf("[%d] = %d\n", i, direction);
+		LOG(printf("[%d] = %d\n", i, direction);)
 		ret_backtrack[i] = direction;
-		// printf("{%d %d %d}\n", backtrack[last_start + direction - 1], backtrack[last_start + direction], backtrack[last_start + direction + 1]);
-		direction = backtrack[last_start + direction];
 		last_start -= other_step;
+		LOG(printf("{%d %d %d}\n", backtrack[last_start + direction - 1], backtrack[last_start + direction], backtrack[last_start + direction + 1]);)
+		direction = backtrack[last_start + direction];
 	}
 
 	free(the_m);
 	free(backtrack);
 	free(padded_img);
-	// printf("DONE!\n");
+	LOG(printf("DONE!\n");)
 	return ret;
 }
 
