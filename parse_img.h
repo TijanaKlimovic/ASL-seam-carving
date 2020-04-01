@@ -9,3 +9,4 @@
 int load_image(const char *filename);
 
 void save_image(char *filename, int width, int height, double *from, unsigned char *to);
+void save_grayscale_image(char *filename, int new_width, int new_height, double *buffer, unsigned char *output);
