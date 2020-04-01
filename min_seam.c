@@ -9,7 +9,6 @@
 
 
 double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrack) {
-	// printf("AYDIN CALLED!\n");
 	double *the_m = (double *) malloc(rsize * csize * sizeof(double));
 	//call Tijana's energy function to set the_m (M matrix starts as a copy of e1)
 	double *padded_img = padd0_image(rsize, csize, img);
@@ -52,8 +51,8 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 			//determine the location of the pixel based on is_ver
 			int where = (*row_ptr) * csize + (*col_ptr);
 			int where_before = where - other_step;
-			int min_idx = -1;
-			double min_val = 1000000000000000.; //TODO fix to real double max
+			int min_idx;
+			double min_val;
 			double min_energy;
 
 			if (in_cnt == 0) {
@@ -82,6 +81,7 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 	}
 
 	// printf ("[rsize] = %d, [csize] = %d\n", rsize, csize);
+	
 	// for (int i = 0; i < rsize; i++) {
 		
 	// 	for (int j = 0; j < csize; j++) {
@@ -119,18 +119,9 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 		ret_backtrack[i] = direction;
 		// printf("{%d %d %d}\n", backtrack[last_start + direction - 1], backtrack[last_start + direction], backtrack[last_start + direction + 1]);
 		direction = backtrack[last_start + direction];
-		// printf("last_start = %d\n", last_start);
 		last_start -= other_step;
-		// printf("new last_start = %d\n", last_start);
 	}
 
-	// for (int i = in_lim - 2; i >= 0; i--) {
-	// 	printf("[i] = %d, [direction] = %d\n", i, direction);
-	// 	ret_backtrack[i] = backtrack[direction];
-	// 	out_cnt--;
-	// 	in_cnt = backtrack[direction];
-	// 	direction = (*row_ptr) * csize + (*col_ptr);
-	// }
 	free(the_m);
 	free(backtrack);
 	free(padded_img);
@@ -162,6 +153,7 @@ void test() {
 
 		printf("\n");
 	}
+
 	free(mat);
 }
 
