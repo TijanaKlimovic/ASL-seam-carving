@@ -45,7 +45,7 @@ void convert_uchar(double *src, unsigned char *dst, int width, int height) {
 	for (i = 0; i < height; ++i) {
 		for (j = 0; j < width; ++j) {
 			for (k = 0; k < C; ++k) {
-				dst[k * width * height + i * width + j] = (unsigned char)src[i * width * C + j * C + k];
+				dst[C * width * i + C * j + k] = (unsigned char)src[k * width * height + i * width + j];
 			}
 		}
 	}
@@ -86,10 +86,10 @@ int load_image(const char *filename) {
 	return 1;
 }
 
-void save_image(char *filename, int new_width, int new_height) {
-	allocate_uchar_buffer(new_width, new_height, &saved);
-	convert_uchar(output, saved, new_width, new_height);
-	stbi_write_png(filename, new_width, new_height, C, saved, new_width * C);
+void save_image(char *filename, int new_width, int new_height, double *buffer, unsigned char *output) {
+	allocate_uchar_buffer(new_width, new_height, &output);
+	convert_uchar(buffer, output, new_width, new_height);
+	stbi_write_png(filename, new_width, new_height, C, output, new_width * C);
 }
 
 // int main(int argc, char **argv) {

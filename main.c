@@ -20,9 +20,10 @@ int main(int argc, char const *argv[]) {
 
 	output = optimal_image(width, height, diff, diff, output);
 	printf("finished optimal image\n");
-	save_image("output.png", width - diff, height - diff);
+	save_image("output.png", width - diff, height - diff, output, saved);
 	free(output);
 	free(saved);
 	free(original);
 	return 0;
+
 }

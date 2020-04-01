@@ -8,4 +8,4 @@
 
 int load_image(const char *filename);
 
-void save_image(char *filename, int width, int height);
+void save_image(char *filename, int width, int height, double *from, unsigned char *to);

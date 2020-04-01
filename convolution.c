@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "parse_img.h"
 
 //assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
@@ -33,7 +34,6 @@ void calc_energy(int n, int m, int k, double* F , double part_grad[n][m] , doubl
 //calculates the cumulative sum over the individual channel energies
 //returns the energy map result over color image of size  n-2 x m-2 
 void calc_RGB_energy(int n, int m, double* channels, double* result){
-
     //fixed kernels 
     double H_y[3][3] = {
     {-1,-2,-1},
