@@ -130,9 +130,9 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 	for (int i = out_lim - 1; i >= 0; i--) {
 		LOG(printf("[%d] = %d\n", i, direction);)
 		ret_backtrack[i] = direction;
+		last_start -= other_step;
 		LOG(printf("{%d %d %d}\n", backtrack[last_start + direction - 1], backtrack[last_start + direction], backtrack[last_start + direction + 1]);)
 		direction = backtrack[last_start + direction];
-		last_start -= other_step;
 	}
 
 	free(the_m);
