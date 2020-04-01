@@ -9,8 +9,8 @@ void calc_energy(int n, int m, int k, double* F , double part_grad[n][m] , doubl
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
 
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
             part_grad[i][j] = 0;
         }
     }
