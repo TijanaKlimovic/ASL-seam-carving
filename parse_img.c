@@ -51,6 +51,15 @@ void convert_uchar(double *src, unsigned char *dst, int width, int height) {
 	}
 }
 
+void convert_grayscale_uchar(double *src, unsigned char *dst, int width, int height) {
+	int i, j;
+	for (i = 0; i < height; ++i) {
+		for (j = 0; j < width; ++j) {
+			dst[width * i + j] = (unsigned char)src[i * width + j];
+		}
+	}
+}
+
 int allocate_double_buffer(int width, int height, double **buffer) {
 	*buffer = malloc(width * height * C * sizeof(double));
 	if (*buffer == NULL) {
@@ -90,6 +99,12 @@ void save_image(char *filename, int new_width, int new_height, double *buffer, u
 	allocate_uchar_buffer(new_width, new_height, &output);
 	convert_uchar(buffer, output, new_width, new_height);
 	stbi_write_png(filename, new_width, new_height, C, output, new_width * C);
+}
+
+void save_grayscale_image(char *filename, int new_width, int new_height, double *buffer, unsigned char *output) {
+	allocate_uchar_buffer(new_width, new_height, &output);
+	convert_grayscale_uchar(buffer, output, new_width, new_height);
+	stbi_write_png(filename, new_width, new_height, 1, output, new_width);
 }
 
 // int main(int argc, char **argv) {

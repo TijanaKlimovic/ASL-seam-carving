@@ -3,6 +3,7 @@
 #include <math.h>
 #include "parse_img.h"
 
+int debug = 0;
 //assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
 
@@ -73,6 +74,14 @@ void calc_RGB_energy(int n, int m, double* channels, double* result){
         }
       } 
     }
+  // save img
+
+  unsigned char *energy_map;
+  if (!debug) {
+    save_grayscale_image("energy_map.png", m-2, n-2, result, energy_map);
+    printf("called save energy map\n");
+    debug = 1;
+  }
 }
 
 
