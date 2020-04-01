@@ -44,9 +44,9 @@ void calculate(int width, int height, int T_width, int T_height,
 					T[T_index].i[k*(image_width-1)+crr_col]
 						= T[T_index_left].i[k*image_width + l];
 					T[T_index].i[image_height*(image_width-1)+k*(image_width-1)+crr_col]
-						= T[T_index_left].i[image_height*(image_width-0)+k*image_width + l];
+						= T[T_index_left].i[image_height*(image_width-1)+k*image_width + l];
 					T[T_index].i[2*image_height*(image_width-1)+k*(image_width-1)+crr_col]
-						= T[T_index_left].i[2*image_height*(image_width-0)+k*image_width + l];
+						= T[T_index_left].i[2*image_height*(image_width-1)+k*image_width + l];
 					crr_col++;
 				}
 		}
@@ -76,9 +76,9 @@ void calculate(int width, int height, int T_width, int T_height,
 					T[T_index].i[crr_row*image_width+k]
 						= T[T_index_up].i[l*image_width + k];
 					T[T_index].i[(image_height-1)*image_width+crr_row*image_width+k]
-						= T[T_index_up].i[(image_height-0)*image_width+l*image_width + k];
+						= T[T_index_up].i[(image_height-1)*image_width+l*image_width + k];
 					T[T_index].i[2*(image_height-1)*image_width+crr_row*image_width+k]
-						= T[T_index_up].i[2*(image_height-0)*image_width+l*image_width + k];
+						= T[T_index_up].i[2*(image_height-1)*image_width+l*image_width + k];
 					crr_row++;
 				}
 		}
@@ -87,7 +87,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int T_index_left = T_height * wanted_width + T_width - 1;
 		double *image_left = T[T_index_left].i;
 		int image_left_width = width - T_width + 1;
-		int image_left_height = height - T_height + 1;
+		int image_left_height = height - T_height;
 
 		int *backtrack_left = (int *)malloc(image_left_height * sizeof(int));
 		double optimal_cost_left = min_seam(image_left_height, image_left_width, image_left, 1, backtrack_left);
@@ -122,9 +122,9 @@ void calculate(int width, int height, int T_width, int T_height,
 						T[T_index].i[k*(image_left_width-1)+crr_col]
 							= T[T_index_left].i[k*image_left_width + l];
 						T[T_index].i[image_left_height*(image_left_width-1)+k*(image_left_width-1)+crr_col]
-							= T[T_index_left].i[image_left_height*(image_left_width-0)+k*image_left_width + l];
+							= T[T_index_left].i[image_left_height*(image_left_width-1)+k*image_left_width + l];
 						T[T_index].i[2*image_left_height*(image_left_width-1)+k*(image_left_width-1)+crr_col]
-							= T[T_index_left].i[2*image_left_height*(image_left_width-0)+k*image_left_width + l];
+							= T[T_index_left].i[2*image_left_height*(image_left_width-1)+k*image_left_width + l];
 						crr_col++;
 					}
 			}
@@ -139,9 +139,9 @@ void calculate(int width, int height, int T_width, int T_height,
 						T[T_index].i[crr_row*image_up_width+k]
 							= T[T_index_up].i[l*image_up_width + k];
 						T[T_index].i[(image_up_height-1)*image_up_width+crr_row*image_up_width+k]
-							= T[T_index_up].i[(image_up_height-0)*image_up_width+l*image_up_width + k];
+							= T[T_index_up].i[(image_up_height-1)*image_up_width+l*image_up_width + k];
 						T[T_index].i[2*(image_up_height-1)*image_up_width+crr_row*image_up_width+k]
-							= T[T_index_up].i[2*(image_up_height-0)*image_up_width+l*image_up_width + k];
+							= T[T_index_up].i[2*(image_up_height-1)*image_up_width+l*image_up_width + k];
 						crr_row++;
 					}
 			}
