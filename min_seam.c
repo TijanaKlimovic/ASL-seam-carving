@@ -56,7 +56,7 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 			int where_before = where - other_step;
 			int min_idx;
 			double min_val;
-			double min_energy;
+			//double min_energy;
 
 			if (in_cnt == 0) {
 
@@ -86,8 +86,8 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 				backtrack[where] = in_cnt + min_idx;
 			}
 
-			min_energy = min_val;
-			the_m[where] += min_energy;
+			//min_energy = min_val;
+			the_m[where] += min_val;
 		}
 
 	}
