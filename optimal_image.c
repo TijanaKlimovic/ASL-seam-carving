@@ -16,12 +16,12 @@ struct cell_T {
 // height -> horizontal seam -> row
 // width -> vertical seam -> column
 void calculate(int width, int height, int T_width, int T_height, 
-	int wanted_width, int wanted_height, struct cell_T *T) {
-	int T_index = T_height * wanted_width + T_width;
+	int width_diff, struct cell_T *T) {
+	int T_index = T_height * width_diff + T_width;
 
 	if (T_height == 0) {
 		// first row -> vertical seam only
-		int T_index_left = T_height * wanted_width + T_width - 1;
+		int T_index_left = T_height * width_diff + T_width - 1;
 		double *image_left = T[T_index_left].i;
 		int image_width = width - T_width + 1;
 		int image_height = height - T_height;
@@ -53,7 +53,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		free(backtrack);
 	} else if (T_width == 0) {
 		// first column -> horizontal seam only
-		int T_index_up = (T_height - 1) * wanted_width + T_width;
+		int T_index_up = (T_height - 1) * width_diff + T_width;
 		double *image_up = T[T_index_up].i;
 		int image_width = width - T_width;
 		int image_height = height - T_height + 1;
@@ -84,7 +84,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		}
 		free(backtrack);
 	} else {
-		int T_index_left = T_height * wanted_width + T_width - 1;
+		int T_index_left = T_height * width_diff + T_width - 1;
 		double *image_left = T[T_index_left].i;
 		int image_left_width = width - T_width + 1;
 		int image_left_height = height - T_height;
@@ -97,7 +97,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		// 	printf("%d ", backtrack_left[k]);
 		// printf("\n");
 
-		int T_index_up = (T_height - 1) * wanted_width + T_width;
+		int T_index_up = (T_height - 1) * width_diff + T_width;
 		double *image_up = T[T_index_up].i;
 		int image_up_width = width - T_width;
 		int image_up_height = height - T_height + 1;
@@ -151,21 +151,24 @@ void calculate(int width, int height, int T_width, int T_height,
 	}
 }
 
-double *optimal_image(int width, int height, int wanted_width,
-	int wanted_height, double *image) {
-	struct cell_T *T = (struct cell_T *)malloc(wanted_width
-		* wanted_height * sizeof(struct cell_T));
+double *optimal_image(int width, int height, int width_diff,
+	int height_diff, double *image) {
+	width_diff++;
+	height_diff++;
+
+	struct cell_T *T = (struct cell_T *)malloc(width_diff
+		* height_diff * sizeof(struct cell_T));
 	T[0].optimal_cost = 0;
 	T[0].i = image;
 
 	int j, k;
-	for (j = 1; j < wanted_width; ++j)
-		calculate(width, height, j, 0, wanted_width, wanted_height, T);
-	for (j = 1; j < wanted_height; ++j)
-		for (k = 0; k < wanted_width; ++k)
-			calculate(width, height, k, j, wanted_width, wanted_height, T);
-	for (int i = 0; i < wanted_width * wanted_height - 1; ++i) {
+	for (j = 1; j < width_diff; ++j)
+		calculate(width, height, j, 0, width_diff, T);
+	for (j = 1; j < height_diff; ++j)
+		for (k = 0; k < width_diff; ++k)
+			calculate(width, height, k, j, width_diff, T);
+	for (int i = 0; i < width_diff * height_diff - 1; ++i) {
 		free(T[i].i);
 	}
-	return T[wanted_width * wanted_height - 1].i;
+	return T[width_diff * height_diff - 1].i;
 }

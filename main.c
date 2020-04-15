@@ -8,7 +8,8 @@ extern unsigned char *original, *saved;
 extern double *output;
 
 int main(int argc, char const *argv[]) {
-	int diff = 10;
+	int width_diff = 40;
+	int height_diff = 20;
 	
 	if (argc < 2) {
 		printf("Usage: %s <image_path>\n", argv[0]);
@@ -18,9 +19,9 @@ int main(int argc, char const *argv[]) {
 		return 1;
 	}
 
-	output = optimal_image(width, height, diff, diff, output);
+	output = optimal_image(width, height, width_diff, height_diff, output);
 	printf("finished optimal image\n");
-	save_image("output.png", width - diff + 1, height - diff + 1, output, saved);
+	save_image("output.png", width - width_diff, height - height_diff, output, saved);
 	free(output);
 	free(saved);
 	free(original);
