@@ -87,7 +87,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int T_index_left = T_height * wanted_width + T_width - 1;
 		double *image_left = T[T_index_left].i;
 		int image_left_width = width - T_width + 1;
-		int image_left_height = height - T_height + 1;
+		int image_left_height = height - T_height;
 
 		int *backtrack_left = (int *)malloc(image_left_height * sizeof(int));
 		double optimal_cost_left = min_seam(image_left_height, image_left_width, image_left, 1, backtrack_left);
