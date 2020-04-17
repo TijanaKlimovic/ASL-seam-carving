@@ -10,7 +10,6 @@
 #include <time.h>
 
 #include "tsc_x86.h"
-#include "run.h"
 
 #define NUM_RUNS 1
 #define CYCLES_REQUIRED 1e8
