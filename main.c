@@ -2,29 +2,26 @@
 #include "parse_img.h"
 #include "optimal_image.h"
 
-
-extern int width, height;
-extern unsigned char *original, *saved;
-extern double *output;
-
 int main(int argc, char const *argv[]) {
-	int width_diff = 40;
-	int height_diff = 20;
+	int width, height;
+	double *output;
+	int width_diff = 10;
+	int height_diff = 10;
 	
-	if (argc < 2) {
-		printf("Usage: %s <image_path>\n", argv[0]);
+	if (argc < 3) {
+		printf("Usage: %s <image_path> <output_file_name>\n", argv[0]);
+		return 1;
 	}
 
-	if (!load_image(argv[1])) {
+	if (!load_image(argv[1], &width, &height, &output)) {
 		return 1;
 	}
 
 	output = optimal_image(width, height, width_diff, height_diff, output);
-	printf("finished optimal image\n");
-	save_image("output.png", width - width_diff, height - height_diff, output, saved);
+	printf("Finished seam carving\n");
+	save_image(argv[2], width - width_diff, height - height_diff, output);
+	printf("Saved image as %s with size (%d, %d) \n", argv[2], width - width_diff, height - height_diff);
 	free(output);
-	free(saved);
-	free(original);
 	return 0;
 
 }
