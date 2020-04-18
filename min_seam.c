@@ -136,9 +136,9 @@ double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrac
 		last_start -= other_step;
 	}
 
-	free(the_m);
-	free(backtrack);
-	free(padded_img);
+	// free(the_m);
+	// free(backtrack);
+	// free(padded_img);
 	LOG(printf("DONE!\n");)
 	return ret;
 }
@@ -168,7 +168,7 @@ void test() {
 		printf("\n");
 	}
 
-	free(mat);
+	// free(mat);
 }
 
 // int main(int argc, char const *argv[]) {

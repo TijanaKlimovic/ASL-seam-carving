@@ -29,11 +29,6 @@ void calculate(int width, int height, int T_width, int T_height,
 		int *backtrack = (int *)malloc(image_height * sizeof(int));
 		double optimal_cost = min_seam(image_height, image_width, image_left, 1, backtrack);
 
-		// printf("index %d backtrack left\n", T_index);
-		// for (int k = 0; k < image_height; ++k)
-		// 	printf("%d ", backtrack[k]);
-		// printf("\n");
-
 		T[T_index].optimal_cost = T[T_index_left].optimal_cost + optimal_cost;
 		T[T_index].i = (double *)malloc(3 * image_height * (image_width - 1) * sizeof(double));
 		int k, l;
@@ -50,7 +45,7 @@ void calculate(int width, int height, int T_width, int T_height,
 					crr_col++;
 				}
 		}
-		free(backtrack);
+		// free(backtrack);
 	} else if (T_width == 0) {
 		// first column -> horizontal seam only
 		int T_index_up = (T_height - 1) * width_diff + T_width;
@@ -60,11 +55,6 @@ void calculate(int width, int height, int T_width, int T_height,
 
 		int *backtrack = (int *)malloc(image_width * sizeof(int));
 		double optimal_cost = min_seam(image_height, image_width, image_up, 0, backtrack);
-
-		// printf("index %d backtrack up, size %d\n", T_index, image_width);
-		// for (int k = 0; k < image_width; ++k)
-		// 	printf("%d ", backtrack[k]);
-		// printf("\n");
 
 		T[T_index].optimal_cost = T[T_index_up].optimal_cost + optimal_cost;
 		T[T_index].i = (double *)malloc(3 * (image_height - 1) * image_width * sizeof(double));
@@ -82,7 +72,8 @@ void calculate(int width, int height, int T_width, int T_height,
 					crr_row++;
 				}
 		}
-		free(backtrack);
+		// free(T[T_index_up].i);
+		// free(backtrack);
 	} else {
 		int T_index_left = T_height * width_diff + T_width - 1;
 		double *image_left = T[T_index_left].i;
@@ -92,11 +83,6 @@ void calculate(int width, int height, int T_width, int T_height,
 		int *backtrack_left = (int *)malloc(image_left_height * sizeof(int));
 		double optimal_cost_left = min_seam(image_left_height, image_left_width, image_left, 1, backtrack_left);
 
-		// printf("index %d backtrack left\n", T_index);
-		// for (int k = 0; k < image_left_height; ++k)
-		// 	printf("%d ", backtrack_left[k]);
-		// printf("\n");
-
 		int T_index_up = (T_height - 1) * width_diff + T_width;
 		double *image_up = T[T_index_up].i;
 		int image_up_width = width - T_width;
@@ -104,11 +90,6 @@ void calculate(int width, int height, int T_width, int T_height,
 
 		int *backtrack_up = (int *)malloc(image_up_width * sizeof(int));
 		double optimal_cost_up = min_seam(image_up_height, image_up_width, image_up, 1, backtrack_up);
-
-		// printf("index %d backtrack up, size %d\n", T_index, image_up_width);
-		// for (int k = 0; k < image_up_width; ++k)
-		// 	printf("%d ", backtrack_up[k]);
-		// printf("\n");
 
 		if (T[T_index_left].optimal_cost + optimal_cost_left <=
 			T[T_index_up].optimal_cost + optimal_cost_up) {
@@ -146,8 +127,9 @@ void calculate(int width, int height, int T_width, int T_height,
 					}
 			}
 		}
-		free(backtrack_left);
-		free(backtrack_up);
+		// free(T[T_index_up].i);
+		// free(backtrack_left);
+		// free(backtrack_up);
 	}
 }
 
@@ -167,8 +149,8 @@ double *optimal_image(int width, int height, int width_diff,
 	for (j = 1; j < height_diff; ++j)
 		for (k = 0; k < width_diff; ++k)
 			calculate(width, height, k, j, width_diff, T);
-	for (int i = 0; i < width_diff * height_diff - 1; ++i) {
-		free(T[i].i);
-	}
+	// for (int i = width_diff * (height_diff - 1); i < width_diff * height_diff - 1; ++i) {
+	// 	free(T[i].i);
+	// }
 	return T[width_diff * height_diff - 1].i;
 }

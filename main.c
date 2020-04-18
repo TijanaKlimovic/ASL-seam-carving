@@ -5,11 +5,9 @@
 int main(int argc, char const *argv[]) {
 	int width, height;
 	double *output;
-	int width_diff = 10;
-	int height_diff = 10;
 	
 	if (argc < 3) {
-		printf("Usage: %s <image_path> <output_file_name>\n", argv[0]);
+		printf("Usage: %s <image_path> <output_file_name> <width_diff> <height_diff>\n", argv[0]);
 		return 1;
 	}
 
@@ -17,11 +15,14 @@ int main(int argc, char const *argv[]) {
 		return 1;
 	}
 
+	int width_diff = atoi(argv[3]);
+	int height_diff = atoi(argv[4]);
+
 	output = optimal_image(width, height, width_diff, height_diff, output);
 	printf("Finished seam carving\n");
 	save_image(argv[2], width - width_diff, height - height_diff, output);
 	printf("Saved image as %s with size (%d, %d) \n", argv[2], width - width_diff, height - height_diff);
-	free(output);
+	// free(output);
 	return 0;
 
 }
