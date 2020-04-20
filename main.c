@@ -58,7 +58,7 @@ myInt64 stop_tsc(myInt64 start) {
 takes in the image path and runs the seam carving algorithm
 */
 
-int run(const char* path, char* output_file_name, int width_diff, int height_diff ) {
+int run(const char* path,const char* output_file_name, int width_diff, int height_diff ) {
 	int width, height;
 	double *output;
 
@@ -82,7 +82,7 @@ int run(const char* path, char* output_file_name, int width_diff, int height_dif
 benchmarking function using rdtsc instruction
 */
 
-double rdtsc(const char* path, char* output_file_name, int width_diff, int height_diff ) {
+double rdtsc(const char* path, const char* output_file_name, int width_diff, int height_diff ) {
     int i, num_runs;
     myInt64 cycles;
     myInt64 start;
@@ -126,7 +126,7 @@ int main(int argc, char const *argv[]) {
 	int height_diff = atoi(argv[4]);
 
 
-	if(strcmp(argv[5],"0")){
+	if(strcmp(argv[5],"1")){
 		return run(argv[1], argv[2], width_diff, height_diff);
 	}
 	//time it
