@@ -39,3 +39,7 @@ build/*
 
 # macOS Files
 .DS_Store
+
+# no stackdumps tenks
+*.stackdump
+

@@ -6,7 +6,7 @@ int main(int argc, char const *argv[]) {
 	int width, height;
 	double *output;
 	
-	if (argc < 3) {
+	if (argc < 5) {
 		printf("Usage: %s <image_path> <output_file_name> <width_diff> <height_diff>\n", argv[0]);
 		return 1;
 	}
