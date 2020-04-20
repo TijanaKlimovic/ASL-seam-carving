@@ -7,13 +7,13 @@ int debug = 0;
 //assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
 
-void calc_energy(int n, int m, int k, double* F , double part_grad[n][m] , double H[3][3] ){
+void calc_energy(int n, int m, int k, double* F , double* part_grad , double H[3][3] ){
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            part_grad[i][j] = 0;
+            *(part_grad + i*m + j) = 0;
         }
     }
 
@@ -21,11 +21,11 @@ void calc_energy(int n, int m, int k, double* F , double part_grad[n][m] , doubl
         for(int j = 1 ; j < m-k ; j++){
             for(int u = -k ; u <= k; u++){
                 for(int v = -k ; v <= k ; v++){
-                    part_grad[i][j] += H[u+k][v+k]*F[(i+u)*m + j+v];
+                    *(part_grad + i*m + j) += H[u+k][v+k]*F[(i+u)*m + j+v];
                 }
             }
           //calculate absolute value of each element in partial derivative of channel F 
-          part_grad[i][j] = fabs(part_grad[i][j]);
+          *(part_grad + i*m + j) = fabs(*(part_grad + i*m + j));
         }
     }
 }
@@ -36,7 +36,7 @@ void calc_energy(int n, int m, int k, double* F , double part_grad[n][m] , doubl
 //returns the energy map result over color image of size  n-2 x m-2 
 void calc_RGB_energy(int n, int m, double* channels, double* result){
     //fixed kernels 
-    double H_y[3][3] = {
+  double H_y[3][3] = {
     {-1,-2,-1},
     {0,0,0},
     {1,2,1}};
@@ -48,14 +48,18 @@ void calc_RGB_energy(int n, int m, double* channels, double* result){
     
     int k= 1;
 
-    double partial_x[3][n][m]; //3d parital derivative in x
-    double partial_y[3][n][m]; //3d partial derivative in y 
+    //double partial_x[3][n][m]; //3d parital derivative in x
+    //double partial_y[3][n][m]; //3d partial derivative in y 
+
+    int size = 3*n*m ;
+    double* partial_x = (double*) malloc( size*sizeof(double));
+    double* partial_y = (double*) malloc( size*sizeof(double));
 
     //calculate the parital derivatives 
     for(int i = 0 ; i < 3 ; i ++){
       //pass the ith channel for energy calculation
-       calc_energy(n,m,k,channels + n*m*i, partial_x[i], H_x);
-       calc_energy(n,m,k,channels + n*m*i, partial_y[i], H_y);
+       calc_energy(n,m,k,channels + n*m*i, partial_x + n*m*i, H_x);
+       calc_energy(n,m,k,channels + n*m*i, partial_y + n*m*i, H_y);
     }
 
     for (int i = 0; i < n - 2; i++) {
@@ -70,13 +74,15 @@ void calc_RGB_energy(int n, int m, double* channels, double* result){
         for(int k = 1 ; k < m-1 ; k++){
           for(int i = 0 ; i < 3 ; i ++){
             //add elementwise along the z axis 
-          *(result+(m-2)*(j-1)+k-1) += partial_x[i][j][k] + partial_y[i][j][k];
+          *(result+(m-2)*(j-1)+k-1) += *(partial_x + i*m*n + j*m + k) + *(partial_y + i*m*n + j*m + k);
         }
       } 
     }
   // save img
+    free(partial_x);
+    free(partial_y);
 
-  unsigned char *energy_map;
+  unsigned char *energy_map = NULL;
   if (!debug) {
     char *fname = "energy_map.png";
     save_grayscale_image(fname, m-2, n-2, result, energy_map);
