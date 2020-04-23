@@ -98,8 +98,28 @@ void save_image(const char *filename, int new_width, int new_height, double *buf
 	free(output);
 }
 
-void save_grayscale_image(char *filename, int new_width, int new_height, double *buffer, unsigned char *output) {
-	allocate_uchar_buffer(new_width, new_height, &output);
-	convert_grayscale_uchar(buffer, output, new_width, new_height);
+// converts the image pixels into the range of [0-255]
+unsigned char* normalize_image(double* image, int height, int width) {
+	unsigned char *normalized = malloc(height * width * sizeof(unsigned char));
+	int max = 1;
+    for (int i = 0; i < height; i++)
+    	for (int j = 0; j < width; j++) {
+    		if (image[i*width + j] > max) {
+    			max = image[i*width + j];
+    		} 
+    }
+
+    for (int i = 0; i < height; ++i) {
+    	for (int j = 0; j < width; ++j) {
+    		normalized[i*width + j] = (double) image[i*width + j] / max * 255;
+    	}
+    }
+    return normalized;
+}
+
+void save_as_grayscale_image(char *filename, int new_width, int new_height, double *image) {
+	unsigned char *output = normalize_image(image, new_height, new_width);
 	stbi_write_png(filename, new_width, new_height, 1, output, new_width);
 }
+
+

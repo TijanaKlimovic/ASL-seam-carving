@@ -82,10 +82,10 @@ void calc_RGB_energy(int n, int m, double* channels, double* result){
     free(partial_x);
     free(partial_y);
 
-  unsigned char *energy_map = NULL;
+  //unsigned char *energy_map = NULL;
   if (!debug) {
     char *fname = "energy_map.png";
-    save_grayscale_image(fname, m-2, n-2, result, energy_map);
+    save_as_grayscale_image(fname, m-2, n-2, result);
     printf("Saved first energy map as %s\n", fname);
     debug = 1;
   }
