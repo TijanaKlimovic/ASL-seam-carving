@@ -89,7 +89,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int image_up_height = height - T_height + 1;
 
 		int *backtrack_up = (int *)malloc(image_up_width * sizeof(int));
-		double optimal_cost_up = min_seam(image_up_height, image_up_width, image_up, 1, backtrack_up);
+		double optimal_cost_up = min_seam(image_up_height, image_up_width, image_up, 0, backtrack_up);
 
 		if (T[T_index_left].optimal_cost + optimal_cost_left <=
 			T[T_index_up].optimal_cost + optimal_cost_up) {
