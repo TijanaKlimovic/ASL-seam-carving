@@ -1,6 +1,3 @@
-// compile with : gcc -Wall parse_img.c  -o parse_img -lm
-// usage: ./parse_img <filename> <outputname>
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,11 +10,11 @@
 
 #define C (3)
 
-void print_matrix(double *matrix, int width, int height) {
-	for (int k = 0; k < 3; ++k) {
+void print_matrix(double *matrix, int width, int height, int channels) {
+	for (int k = 0; k < channels; ++k) {
 		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < width; ++j) {
-				printf("%lf ", matrix[k * width * height + i * width + j]);
+				printf("%12lf ", matrix[k * width * height + i * width + j]);
 			}
 			printf("\n");
 		}
