@@ -1,0 +1,9 @@
+validation/out/c70p/44.png PNG 480x1024 480x1024+0+0 8-bit sRGB 1.023MB 0.040u 0:00.039
+validation/out/c70/44.png PNG 480x1024 480x1024+0+0 8-bit sRGB 1.36MB 0.010u 0:00.009
+Image: validation/out/c70p/44.png
+  Channel distortion: MAE
+    red: 2453.75 (0.0374418)
+    green: 2393.9 (0.0365286)
+    blue: 2312.51 (0.0352867)
+    all: 2386.72 (0.036419)
+validation/out/c70p/44.png=>validation/out/c70diff/44.png PNG 480x1024 480x1024+0+0 8-bit sRGB 640KB 0.500u 0:00.289
