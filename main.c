@@ -62,16 +62,17 @@ takes in the image path and runs the seam carving algorithm
 int run(const char* path,const char* output_file_name, int width_diff, int height_diff ) {
 	int width, height;
 	double *output;
+	double *res;
 
 	if (!load_image(path, &width, &height, &output)) {
 		return 1;
 	}
 
-	output = optimal_image(width, height, width_diff, height_diff, output);
+	res = optimal_image(width, height, width_diff, height_diff, output);
 	//printf("Finished seam carving\n");
-	save_image(output_file_name, width - width_diff, height - height_diff, output);
+	save_image(output_file_name, width - width_diff, height - height_diff, res);
 	//printf("Saved image as %s with size (%d, %d) \n", output_file_name, width - width_diff, height - height_diff);
-	// free(output);
+	free(res);
 	return 0;
 }
 

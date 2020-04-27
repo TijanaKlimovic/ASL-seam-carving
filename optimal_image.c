@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <time.h>
+#include <string.h>
 #include "min_seam.h"
 
 // Data structure to hold information in a T cell
@@ -45,7 +46,7 @@ void calculate(int width, int height, int T_width, int T_height,
 					crr_col++;
 				}
 		}
-		// free(backtrack);
+		free(backtrack);
 	} else if (T_width == 0) {
 		// first column -> horizontal seam only
 		int T_index_up = (T_height - 1) * width_diff + T_width;
@@ -73,7 +74,7 @@ void calculate(int width, int height, int T_width, int T_height,
 				}
 		}
 		// free(T[T_index_up].i);
-		// free(backtrack);
+		free(backtrack);
 	} else {
 		int T_index_left = T_height * width_diff + T_width - 1;
 		double *image_left = T[T_index_left].i;
@@ -91,6 +92,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int *backtrack_up = (int *)malloc(image_up_width * sizeof(int));
 		double optimal_cost_up = min_seam(image_up_height, image_up_width, image_up, 0, backtrack_up);
 
+		// remove column
 		if (T[T_index_left].optimal_cost + optimal_cost_left <=
 			T[T_index_up].optimal_cost + optimal_cost_up) {
 			T[T_index].optimal_cost = T[T_index_left].optimal_cost + optimal_cost_left;
@@ -109,6 +111,7 @@ void calculate(int width, int height, int T_width, int T_height,
 						crr_col++;
 					}
 			}
+		// remove row
 		} else {
 			T[T_index].optimal_cost = T[T_index_up].optimal_cost + optimal_cost_up;
 			T[T_index].i = (double *)malloc(3 * (image_up_height - 1) * image_up_width * sizeof(double));
@@ -128,8 +131,8 @@ void calculate(int width, int height, int T_width, int T_height,
 			}
 		}
 		// free(T[T_index_up].i);
-		// free(backtrack_left);
-		// free(backtrack_up);
+		free(backtrack_left);
+		free(backtrack_up);
 	}
 }
 
@@ -149,8 +152,12 @@ double *optimal_image(int width, int height, int width_diff,
 	for (j = 1; j < height_diff; ++j)
 		for (k = 0; k < width_diff; ++k)
 			calculate(width, height, k, j, width_diff, T);
-	// for (int i = width_diff * (height_diff - 1); i < width_diff * height_diff - 1; ++i) {
-	// 	free(T[i].i);
-	// }
-	return T[width_diff * height_diff - 1].i;
+	// copy 
+	double *res = malloc(3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(double));
+	memcpy(res, T[width_diff * height_diff - 1].i, 3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(double ));
+	for (int i = 0; i < width_diff * height_diff; ++i) {
+		free(T[i].i);
+	}
+	free(T);
+	return res;
 }

@@ -84,6 +84,7 @@ int load_image(const char *filename, int *width, int *height, double **output) {
 	if (!allocate_double_buffer(*width, *height, output)) 
 		return 0;
 	convert_double(loaded, *output, *width, *height);
+	stbi_image_free(loaded);
 	return 1;
 }
 
@@ -117,6 +118,7 @@ unsigned char* normalize_image(double* image, int height, int width) {
 void save_as_grayscale_image(char *filename, int new_width, int new_height, double *image) {
 	unsigned char *output = normalize_image(image, new_height, new_width);
 	stbi_write_png(filename, new_width, new_height, 1, output, new_width);
+	free(output);
 }
 
 
