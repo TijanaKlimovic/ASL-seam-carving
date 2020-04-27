@@ -28,11 +28,6 @@
 
 #include <string.h>
 
-
-extern int width, height;
-extern unsigned char *original, *saved;
-extern double *output;
-
 //--------------- extern variables --------------
 
 
@@ -107,9 +102,6 @@ int run_python_validation(const char* path,const char* output_file_name, const c
 	return 0;
 }
 
-
-
-
 /* 
 benchmarking function using rdtsc instruction
 */
@@ -143,7 +135,6 @@ double rdtsc(const char* path, const char* output_file_name, int width_diff, int
     return (double) cycles;
 }
 
-
 /* main function , has two options, first is the image path second is -t/<anything except nothing> */ 
 
 int main(int argc, char const *argv[]) {
@@ -174,5 +165,3 @@ int main(int argc, char const *argv[]) {
     printf("RDTSC instruction:\n %lf cycles measured", r);
     return 0;
 }
-
-
