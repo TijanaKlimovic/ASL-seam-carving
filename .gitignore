@@ -43,3 +43,8 @@ build/*
 # no stackdumps tenks
 *.stackdump
 
+# dSYM files
+*.dSYM
+
+# energy map
+energy_map.png

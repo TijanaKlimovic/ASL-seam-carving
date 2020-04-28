@@ -1,6 +1,3 @@
-// compile with : gcc -Wall parse_img.c  -o parse_img -lm
-// usage: ./parse_img <filename> <outputname>
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,11 +10,11 @@
 
 #define C (3)
 
-void print_matrix(double *matrix, int width, int height) {
-	for (int k = 0; k < 3; ++k) {
+void print_matrix(double *matrix, int width, int height, int channels) {
+	for (int k = 0; k < channels; ++k) {
 		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < width; ++j) {
-				printf("%lf ", matrix[k * width * height + i * width + j]);
+				printf("%12lf ", matrix[k * width * height + i * width + j]);
 			}
 			printf("\n");
 		}
@@ -87,6 +84,7 @@ int load_image(const char *filename, int *width, int *height, double **output) {
 	if (!allocate_double_buffer(*width, *height, output)) 
 		return 0;
 	convert_double(loaded, *output, *width, *height);
+	stbi_image_free(loaded);
 	return 1;
 }
 
@@ -98,8 +96,29 @@ void save_image(const char *filename, int new_width, int new_height, double *buf
 	free(output);
 }
 
-void save_grayscale_image(char *filename, int new_width, int new_height, double *buffer, unsigned char *output) {
-	allocate_uchar_buffer(new_width, new_height, &output);
-	convert_grayscale_uchar(buffer, output, new_width, new_height);
-	stbi_write_png(filename, new_width, new_height, 1, output, new_width);
+// converts the image pixels into the range of [0-255]
+unsigned char* normalize_image(double* image, int height, int width) {
+	unsigned char *normalized = malloc(height * width * sizeof(unsigned char));
+	int max = 1;
+    for (int i = 0; i < height; i++)
+    	for (int j = 0; j < width; j++) {
+    		if (image[i*width + j] > max) {
+    			max = image[i*width + j];
+    		} 
+    }
+
+    for (int i = 0; i < height; ++i) {
+    	for (int j = 0; j < width; ++j) {
+    		normalized[i*width + j] = (double) image[i*width + j] / max * 255;
+    	}
+    }
+    return normalized;
 }
+
+void save_as_grayscale_image(char *filename, int new_width, int new_height, double *image) {
+	unsigned char *output = normalize_image(image, new_height, new_width);
+	stbi_write_png(filename, new_width, new_height, 1, output, new_width);
+	free(output);
+}
+
+

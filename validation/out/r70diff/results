@@ -1,0 +1,362 @@
+10.png PNG 1920x755 1920x755+0+0 8-bit sRGB 2.957MB 0.040u 0:00.040
+compare-im6.q16: unable to open image `../r70/10.png': No such file or directory @ error/blob.c/OpenBlob/2701.
+11.png PNG 500x234 500x234+0+0 8-bit sRGB 265KB 0.000u 0:00.010
+../r70/11.png PNG 500x234 500x234+0+0 8-bit sRGB 341KB 0.000u 0:00.000
+Image: 11.png
+  Channel distortion: MAE
+    red: 1209.18 (0.0184509)
+    green: 955.827 (0.014585)
+    blue: 795.589 (0.0121399)
+    all: 986.865 (0.0150586)
+11.png=>../r70diff/11.png PNG 500x234 500x234+0+0 8-bit sRGB 171KB 0.170u 0:00.050
+12.png PNG 512x238 512x238+0+0 8-bit sRGB 223KB 0.000u 0:00.000
+../r70/12.png PNG 512x238 512x238+0+0 8-bit sRGB 273KB 0.000u 0:00.000
+Image: 12.png
+  Channel distortion: MAE
+    red: 1017.49 (0.0155259)
+    green: 879.766 (0.0134244)
+    blue: 814.866 (0.0124341)
+    all: 904.04 (0.0137948)
+12.png=>../r70diff/12.png PNG 512x238 512x238+0+0 8-bit sRGB 134KB 0.170u 0:00.049
+13.png PNG 805x315 805x315+0+0 8-bit sRGB 285KB 0.000u 0:00.010
+../r70/13.png PNG 805x315 805x315+0+0 8-bit sRGB 394KB 0.000u 0:00.010
+Image: 13.png
+  Channel distortion: MAE
+    red: 1665.59 (0.0254153)
+    green: 1145.8 (0.0174838)
+    blue: 1137.38 (0.0173553)
+    all: 1316.26 (0.0200848)
+13.png=>../r70diff/13.png PNG 805x315 805x315+0+0 8-bit sRGB 213KB 0.220u 0:00.079
+14.png PNG 800x315 800x315+0+0 8-bit sRGB 487KB 0.010u 0:00.009
+../r70/14.png PNG 800x315 800x315+0+0 8-bit sRGB 627KB 0.010u 0:00.000
+Image: 14.png
+  Channel distortion: MAE
+    red: 866.47 (0.0132215)
+    green: 921.47 (0.0140607)
+    blue: 905.449 (0.0138163)
+    all: 897.797 (0.0136995)
+14.png=>../r70diff/14.png PNG 800x315 800x315+0+0 8-bit sRGB 291KB 0.260u 0:00.119
+15.png PNG 512x238 512x238+0+0 8-bit sRGB 251KB 0.000u 0:00.010
+../r70/15.png PNG 512x238 512x238+0+0 8-bit sRGB 319KB 0.010u 0:00.000
+Image: 15.png
+  Channel distortion: MAE
+    red: 589.586 (0.00899651)
+    green: 505.279 (0.00771006)
+    blue: 458.001 (0.00698864)
+    all: 517.622 (0.0078984)
+15.png=>../r70diff/15.png PNG 512x238 512x238+0+0 8-bit sRGB 151KB 0.170u 0:00.059
+16.png PNG 1024x403 1024x403+0+0 8-bit sRGB 265KB 0.000u 0:00.020
+../r70/16.png PNG 1024x403 1024x403+0+0 8-bit sRGB 384KB 0.010u 0:00.000
+Image: 16.png
+  Channel distortion: MAE
+    red: 1362.72 (0.0207938)
+    green: 1222.8 (0.0186587)
+    blue: 1551.48 (0.023674)
+    all: 1379 (0.0210422)
+16.png=>../r70diff/16.png PNG 1024x403 1024x403+0+0 8-bit sRGB 211KB 0.260u 0:00.099
+17.png PNG 960x422 960x422+0+0 8-bit sRGB 733KB 0.010u 0:00.010
+../r70/17.png PNG 960x422 960x422+0+0 8-bit sRGB 915KB 0.010u 0:00.009
+Image: 17.png
+  Channel distortion: MAE
+    red: 1857.69 (0.0283466)
+    green: 1891.93 (0.028869)
+    blue: 1777.17 (0.0271178)
+    all: 1842.26 (0.0281112)
+17.png=>../r70diff/17.png PNG 960x422 960x422+0+0 8-bit sRGB 476KB 0.350u 0:00.189
+18.png PNG 800x420 800x420+0+0 8-bit sRGB 360KB 0.010u 0:00.010
+../r70/18.png PNG 800x420 800x420+0+0 8-bit sRGB 519KB 0.010u 0:00.010
+Image: 18.png
+  Channel distortion: MAE
+    red: 1922.13 (0.0293299)
+    green: 1228.08 (0.0187393)
+    blue: 1282.49 (0.0195696)
+    all: 1477.57 (0.0225462)
+18.png=>../r70diff/18.png PNG 800x420 800x420+0+0 8-bit sRGB 237KB 0.260u 0:00.109
+19.png PNG 900x303 900x303+0+0 8-bit sRGB 510KB 0.010u 0:00.009
+../r70/19.png PNG 900x303 900x303+0+0 8-bit sRGB 639KB 0.000u 0:00.010
+Image: 19.png
+  Channel distortion: MAE
+    red: 3005.71 (0.0458642)
+    green: 3136.37 (0.0478579)
+    blue: 3178.07 (0.0484943)
+    all: 3106.72 (0.0474054)
+19.png=>../r70diff/19.png PNG 900x303 900x303+0+0 8-bit sRGB 354KB 0.250u 0:00.109
+1.png PNG 500x350 500x350+0+0 8-bit sRGB 237KB 0.000u 0:00.010
+../r70/1.png PNG 500x350 500x350+0+0 8-bit sRGB 331KB 0.000u 0:00.009
+Image: 1.png
+  Channel distortion: MAE
+    red: 1467.04 (0.0223856)
+    green: 1372.65 (0.0209453)
+    blue: 1331.25 (0.0203136)
+    all: 1390.31 (0.0212148)
+1.png=>../r70diff/1.png PNG 500x350 500x350+0+0 8-bit sRGB 152KB 0.210u 0:00.070
+20.png PNG 800x194 800x194+0+0 8-bit sRGB 305KB 0.000u 0:00.010
+../r70/20.png PNG 800x194 800x194+0+0 8-bit sRGB 411KB 0.010u 0:00.000
+Image: 20.png
+  Channel distortion: MAE
+    red: 2109.48 (0.0321886)
+    green: 1815.67 (0.0277054)
+    blue: 1345.9 (0.0205371)
+    all: 1757.02 (0.0268103)
+20.png=>../r70diff/20.png PNG 800x194 800x194+0+0 8-bit sRGB 187KB 0.200u 0:00.070
+21.png PNG 600x315 600x315+0+0 8-bit sRGB 446KB 0.000u 0:00.000
+../r70/21.png PNG 600x315 600x315+0+0 8-bit sRGB 534KB 0.010u 0:00.009
+Image: 21.png
+  Channel distortion: MAE
+    red: 4916.28 (0.0750177)
+    green: 4679.38 (0.0714027)
+    blue: 4416.22 (0.0673872)
+    all: 4670.63 (0.0712692)
+21.png=>../r70diff/21.png PNG 600x315 600x315+0+0 8-bit sRGB 273KB 0.220u 0:00.100
+22.png PNG 760x244 760x244+0+0 8-bit sRGB 330KB 0.000u 0:00.000
+../r70/22.png PNG 760x245 760x245+0+0 8-bit sRGB 435KB 0.010u 0:00.009
+compare-im6.q16: image widths or heights differ `22.png' @ error/compare.c/CompareImageCommand/1000.
+23.png PNG 1000x210 1000x210+0+0 8-bit sRGB 311KB 0.000u 0:00.000
+../r70/23.png PNG 1000x210 1000x210+0+0 8-bit sRGB 428KB 0.000u 0:00.009
+Image: 23.png
+  Channel distortion: MAE
+    red: 1653.11 (0.0252249)
+    green: 1564.9 (0.0238789)
+    blue: 1483.45 (0.022636)
+    all: 1567.16 (0.0239133)
+23.png=>../r70diff/23.png PNG 1000x210 1000x210+0+0 8-bit sRGB 206KB 0.230u 0:00.089
+24.png PNG 640x280 640x280+0+0 8-bit sRGB 313KB 0.000u 0:00.010
+../r70/24.png PNG 640x280 640x280+0+0 8-bit sRGB 431KB 0.010u 0:00.009
+Image: 24.png
+  Channel distortion: MAE
+    red: 2412.41 (0.036811)
+    green: 2336.93 (0.0356592)
+    blue: 2250.7 (0.0343435)
+    all: 2333.35 (0.0356046)
+24.png=>../r70diff/24.png PNG 640x280 640x280+0+0 8-bit sRGB 194KB 0.220u 0:00.089
+25.png PNG 600x215 600x215+0+0 8-bit sRGB 193KB 0.000u 0:00.000
+../r70/25.png PNG 600x215 600x215+0+0 8-bit sRGB 265KB 0.010u 0:00.009
+Image: 25.png
+  Channel distortion: MAE
+    red: 883.379 (0.0134795)
+    green: 918.918 (0.0140218)
+    blue: 896.34 (0.0136773)
+    all: 899.546 (0.0137262)
+25.png=>../r70diff/25.png PNG 600x215 600x215+0+0 8-bit sRGB 132KB 0.180u 0:00.060
+26.png PNG 500x294 500x294+0+0 8-bit sRGB 232KB 0.000u 0:00.009
+../r70/26.png PNG 500x294 500x294+0+0 8-bit sRGB 320KB 0.000u 0:00.000
+Image: 26.png
+  Channel distortion: MAE
+    red: 2415.62 (0.0368599)
+    green: 2210.64 (0.0337322)
+    blue: 2138.47 (0.0326309)
+    all: 2254.91 (0.0344077)
+26.png=>../r70diff/26.png PNG 500x294 500x294+0+0 8-bit sRGB 162KB 0.190u 0:00.070
+27.png PNG 400x190 400x190+0+0 8-bit sRGB 195KB 0.000u 0:00.000
+../r70/27.png PNG 400x190 400x190+0+0 8-bit sRGB 230KB 0.000u 0:00.009
+Image: 27.png
+  Channel distortion: MAE
+    red: 1394.15 (0.0212734)
+    green: 1334.18 (0.0203583)
+    blue: 1384.18 (0.0211213)
+    all: 1370.84 (0.0209176)
+27.png=>../r70diff/27.png PNG 400x190 400x190+0+0 8-bit sRGB 127KB 0.140u 0:00.030
+28.png PNG 350x173 350x173+0+0 8-bit sRGB 135KB 0.000u 0:00.000
+../r70/28.png PNG 350x173 350x173+0+0 8-bit sRGB 167KB 0.000u 0:00.000
+Image: 28.png
+  Channel distortion: MAE
+    red: 3082.85 (0.0470412)
+    green: 3033.23 (0.0462841)
+    blue: 2869.35 (0.0437834)
+    all: 2995.14 (0.0457029)
+28.png=>../r70diff/28.png PNG 350x173 350x173+0+0 8-bit sRGB 83.8KB 0.140u 0:00.029
+29.png PNG 400x280 400x280+0+0 8-bit sRGB 168KB 0.000u 0:00.000
+../r70/29.png PNG 400x280 400x280+0+0 8-bit sRGB 234KB 0.000u 0:00.000
+Image: 29.png
+  Channel distortion: MAE
+    red: 1379.83 (0.0210548)
+    green: 1170.14 (0.0178552)
+    blue: 1031.14 (0.0157342)
+    all: 1193.7 (0.0182147)
+29.png=>../r70diff/29.png PNG 400x280 400x280+0+0 8-bit sRGB 104KB 0.180u 0:00.059
+2.png PNG 1999x786 1999x786+0+0 8-bit sRGB 2.06MB 0.030u 0:00.039
+compare-im6.q16: unable to open image `../r70/2.png': No such file or directory @ error/blob.c/OpenBlob/2701.
+30.png PNG 500x224 500x224+0+0 8-bit sRGB 233KB 0.000u 0:00.000
+../r70/30.png PNG 500x224 500x224+0+0 8-bit sRGB 324KB 0.010u 0:00.010
+Image: 30.png
+  Channel distortion: MAE
+    red: 751.672 (0.0114698)
+    green: 793.127 (0.0121023)
+    blue: 717.016 (0.010941)
+    all: 753.939 (0.0115044)
+30.png=>../r70diff/30.png PNG 500x224 500x224+0+0 8-bit sRGB 149KB 0.180u 0:00.059
+31.png PNG 400x210 400x210+0+0 8-bit sRGB 148KB 0.000u 0:00.000
+../r70/31.png PNG 400x210 400x210+0+0 8-bit sRGB 190KB 0.000u 0:00.000
+Image: 31.png
+  Channel distortion: MAE
+    red: 5175.21 (0.0789686)
+    green: 4985.58 (0.0760751)
+    blue: 4851.23 (0.0740251)
+    all: 5004.01 (0.0763563)
+31.png=>../r70diff/31.png PNG 400x210 400x210+0+0 8-bit sRGB 90.7KB 0.150u 0:00.039
+32.png PNG 400x375 400x375+0+0 8-bit sRGB 226KB 0.000u 0:00.000
+../r70/32.png PNG 400x375 400x375+0+0 8-bit sRGB 333KB 0.010u 0:00.010
+Image: 32.png
+  Channel distortion: MAE
+    red: 4810.8 (0.0734081)
+    green: 3755.17 (0.0573002)
+    blue: 2518.16 (0.0384246)
+    all: 3694.71 (0.0563776)
+32.png=>../r70diff/32.png PNG 400x375 400x375+0+0 8-bit sRGB 138KB 0.200u 0:00.080
+33.png PNG 640x298 640x298+0+0 8-bit sRGB 442KB 0.000u 0:00.000
+../r70/33.png PNG 640x298 640x298+0+0 8-bit sRGB 521KB 0.010u 0:00.009
+Image: 33.png
+  Channel distortion: MAE
+    red: 2655.38 (0.0405185)
+    green: 2637.84 (0.0402508)
+    blue: 2630.51 (0.040139)
+    all: 2641.24 (0.0403028)
+33.png=>../r70diff/33.png PNG 640x298 640x298+0+0 8-bit sRGB 288KB 0.210u 0:00.079
+34.png PNG 630x247 630x247+0+0 8-bit sRGB 190KB 0.000u 0:00.000
+../r70/34.png PNG 630x247 630x247+0+0 8-bit sRGB 259KB 0.010u 0:00.010
+Image: 34.png
+  Channel distortion: MAE
+    red: 203.2 (0.00310064)
+    green: 199.861 (0.00304968)
+    blue: 197.925 (0.00302014)
+    all: 200.329 (0.00305682)
+34.png=>../r70diff/34.png PNG 630x247 630x247+0+0 8-bit sRGB 142KB 0.190u 0:00.059
+35.png PNG 607x282 607x282+0+0 8-bit sRGB 147KB 0.000u 0:00.000
+../r70/35.png PNG 607x282 607x282+0+0 8-bit sRGB 207KB 0.010u 0:00.010
+Image: 35.png
+  Channel distortion: MAE
+    red: 1014.91 (0.0154866)
+    green: 1022.15 (0.015597)
+    blue: 1031.8 (0.0157442)
+    all: 1022.95 (0.0156093)
+35.png=>../r70diff/35.png PNG 607x282 607x282+0+0 8-bit sRGB 99.9KB 0.170u 0:00.050
+36.png PNG 1536x716 1536x716+0+0 8-bit sRGB 1.831MB 0.020u 0:00.039
+compare-im6.q16: unable to open image `../r70/36.png': No such file or directory @ error/blob.c/OpenBlob/2701.
+37.png PNG 593x273 593x273+0+0 8-bit sRGB 233KB 0.000u 0:00.010
+../r70/37.png PNG 593x273 593x273+0+0 8-bit sRGB 334KB 0.000u 0:00.000
+Image: 37.png
+  Channel distortion: MAE
+    red: 2462.12 (0.0375695)
+    green: 2376.05 (0.0362562)
+    blue: 2411.2 (0.0367926)
+    all: 2416.46 (0.0368728)
+37.png=>../r70diff/37.png PNG 593x273 593x273+0+0 8-bit sRGB 140KB 0.200u 0:00.070
+38.png PNG 429x305 429x305+0+0 8-bit sRGB 298KB 0.000u 0:00.000
+../r70/38.png PNG 429x305 429x305+0+0 8-bit sRGB 358KB 0.010u 0:00.009
+Image: 38.png
+  Channel distortion: MAE
+    red: 4019.21 (0.0613291)
+    green: 4030.97 (0.0615087)
+    blue: 4016.34 (0.0612854)
+    all: 4022.17 (0.0613744)
+38.png=>../r70diff/38.png PNG 429x305 429x305+0+0 8-bit sRGB 191KB 0.190u 0:00.060
+39.png PNG 640x291 640x291+0+0 8-bit sRGB 349KB 0.000u 0:00.009
+../r70/39.png PNG 640x291 640x291+0+0 8-bit sRGB 469KB 0.010u 0:00.010
+Image: 39.png
+  Channel distortion: MAE
+    red: 3593.93 (0.0548399)
+    green: 3544.03 (0.0540784)
+    blue: 3480.98 (0.0531163)
+    all: 3539.65 (0.0540115)
+39.png=>../r70diff/39.png PNG 640x291 640x291+0+0 8-bit sRGB 218KB 0.220u 0:00.099
+3.png PNG 1200x569 1200x569+0+0 8-bit sRGB 1.275MB 0.020u 0:00.030
+compare-im6.q16: unable to open image `../r70/3.png': No such file or directory @ error/blob.c/OpenBlob/2701.
+40.png PNG 1188x522 1188x522+0+0 8-bit sRGB 1.164MB 0.020u 0:00.019
+../r70/40.png PNG 1188x522 1188x522+0+0 8-bit sRGB 1.517MB 0.020u 0:00.019
+Image: 40.png
+  Channel distortion: MAE
+    red: 3900 (0.0595102)
+    green: 3391.6 (0.0517525)
+    blue: 3108.25 (0.0474289)
+    all: 3466.62 (0.0528972)
+40.png=>../r70diff/40.png PNG 1188x522 1188x522+0+0 8-bit sRGB 747KB 0.490u 0:00.279
+41.png PNG 1500x417 1500x417+0+0 8-bit sRGB 882KB 0.020u 0:00.019
+../r70/41.png PNG 1500x417 1500x417+0+0 8-bit sRGB 1.294MB 0.020u 0:00.019
+Image: 41.png
+  Channel distortion: MAE
+    red: 380.299 (0.00580299)
+    green: 364.825 (0.00556688)
+    blue: 343.486 (0.00524127)
+    all: 362.87 (0.00553704)
+41.png=>../r70diff/41.png PNG 1500x417 1500x417+0+0 8-bit sRGB 528KB 0.460u 0:00.259
+42.png PNG 1024x466 1024x466+0+0 8-bit sRGB 928KB 0.010u 0:00.020
+../r70/42.png PNG 1024x466 1024x466+0+0 8-bit sRGB 1.271MB 0.020u 0:00.019
+Image: 42.png
+  Channel distortion: MAE
+    red: 682.009 (0.0104068)
+    green: 602.944 (0.00920033)
+    blue: 545.239 (0.00831981)
+    all: 610.064 (0.00930898)
+42.png=>../r70diff/42.png PNG 1024x466 1024x466+0+0 8-bit sRGB 567KB 0.420u 0:00.250
+43.png PNG 1100x538 1100x538+0+0 8-bit sRGB 348KB 0.010u 0:00.009
+../r70/43.png PNG 1100x538 1100x538+0+0 8-bit sRGB 542KB 0.010u 0:00.019
+Image: 43.png
+  Channel distortion: MAE
+    red: 113.686 (0.00173474)
+    green: 110.352 (0.00168387)
+    blue: 111.764 (0.00170541)
+    all: 111.934 (0.00170801)
+43.png=>../r70diff/43.png PNG 1100x538 1100x538+0+0 8-bit sRGB 284KB 0.390u 0:00.179
+44.png PNG 687x716 687x716+0+0 8-bit sRGB 1.036MB 0.010u 0:00.020
+../r70/44.png PNG 687x716 687x716+0+0 8-bit sRGB 1.373MB 0.020u 0:00.019
+Image: 44.png
+  Channel distortion: MAE
+    red: 3649.39 (0.0556862)
+    green: 3506.36 (0.0535036)
+    blue: 3111.51 (0.0474786)
+    all: 3422.42 (0.0522228)
+44.png=>../r70diff/44.png PNG 687x716 687x716+0+0 8-bit sRGB 624KB 0.470u 0:00.299
+4.png PNG 610x318 610x318+0+0 8-bit sRGB 483KB 0.000u 0:00.000
+../r70/4.png PNG 610x318 610x318+0+0 8-bit sRGB 592KB 0.010u 0:00.010
+Image: 4.png
+  Channel distortion: MAE
+    red: 3975.61 (0.0606639)
+    green: 3510.62 (0.0535687)
+    blue: 3082.68 (0.0470387)
+    all: 3522.97 (0.0537571)
+4.png=>../r70diff/4.png PNG 610x318 610x318+0+0 8-bit sRGB 313KB 0.220u 0:00.089
+5.png PNG 640x299 640x299+0+0 8-bit sRGB 446KB 0.000u 0:00.000
+../r70/5.png PNG 640x299 640x299+0+0 8-bit sRGB 553KB 0.010u 0:00.000
+Image: 5.png
+  Channel distortion: MAE
+    red: 5203.73 (0.0794038)
+    green: 4784.05 (0.0729999)
+    blue: 4369.3 (0.0666713)
+    all: 4785.69 (0.073025)
+5.png=>../r70diff/5.png PNG 640x299 640x299+0+0 8-bit sRGB 280KB 0.220u 0:00.089
+6.png PNG 640x168 640x168+0+0 8-bit sRGB 131KB 0.000u 0:00.010
+../r70/6.png PNG 640x168 640x168+0+0 8-bit sRGB 195KB 0.000u 0:00.000
+Image: 6.png
+  Channel distortion: MAE
+    red: 3839.87 (0.0585926)
+    green: 3935.02 (0.0600445)
+    blue: 4286.7 (0.0654109)
+    all: 4020.53 (0.0613493)
+6.png=>../r70diff/6.png PNG 640x168 640x168+0+0 8-bit sRGB 77.7KB 0.170u 0:00.050
+7.png PNG 618x109 618x109+0+0 8-bit sRGB 155KB 0.000u 0:00.009
+../r70/7.png PNG 618x109 618x109+0+0 8-bit sRGB 189KB 0.000u 0:00.000
+Image: 7.png
+  Channel distortion: MAE
+    red: 6894.98 (0.105211)
+    green: 6903.8 (0.105345)
+    blue: 6966.21 (0.106298)
+    all: 6921.66 (0.105618)
+7.png=>../r70diff/7.png PNG 618x109 618x109+0+0 8-bit sRGB 93.6KB 0.110u 0:00.039
+8.png PNG 500x232 500x232+0+0 8-bit sRGB 125KB 0.000u 0:00.000
+../r70/8.png PNG 500x232 500x232+0+0 8-bit sRGB 186KB 0.010u 0:00.000
+Image: 8.png
+  Channel distortion: MAE
+    red: 1895.78 (0.0289278)
+    green: 1522.11 (0.0232259)
+    blue: 1340.76 (0.0204586)
+    all: 1586.22 (0.0242041)
+8.png=>../r70diff/8.png PNG 500x232 500x232+0+0 8-bit sRGB 81.6KB 0.160u 0:00.039
+9.png PNG 800x373 800x373+0+0 8-bit sRGB 596KB 0.010u 0:00.009
+../r70/9.png PNG 800x373 800x373+0+0 8-bit sRGB 759KB 0.010u 0:00.010
+Image: 9.png
+  Channel distortion: MAE
+    red: 1499.82 (0.0228858)
+    green: 1352.83 (0.0206429)
+    blue: 1335.71 (0.0203816)
+    all: 1396.12 (0.0213034)
+9.png=>../r70diff/9.png PNG 800x373 800x373+0+0 8-bit sRGB 364KB 0.290u 0:00.140
