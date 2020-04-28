@@ -65,6 +65,7 @@ void test_optimal_image(double *img, double *expected, int h, int w, int h_diff,
 
 int main(int argc, char const *argv[]) {
 	// ------------ TEST IMAGE 1 -------------
+	{
 	double *img;
 	int width, height;
 	if (!load_image("small_tests/input/test_3.png", &width, &height, &img)) {
@@ -100,8 +101,7 @@ int main(int argc, char const *argv[]) {
 							3886, 2836,4102,
 							2858,362,2738,
 							3808,2998,4024
-
-								};
+											};
 		test_calc_RGB_energy(img, expected, height, width);
 	}
 
@@ -124,7 +124,7 @@ int main(int argc, char const *argv[]) {
 							162,204,196,
 
 							241,241,239,
-							236,240,245,
+							236,240,245
 											};
 		double expected = 9954;
 		test_min_seam(img, expected, height - 1, width, 0);
@@ -142,13 +142,35 @@ int main(int argc, char const *argv[]) {
 
 							241,239,
 							238,240,
-							236,245,
+							236,245
 											};
 		double expected = 10064;
 		test_min_seam(img, expected, height, width - 1, 1);
 	}
 
+	{	// test edge case : remove 0 seam
+		double expected[] = {
+							180,184,179,
+							179,212,255,
+							162,170,220,
+
+							227,228,176,
+							185,236,215,
+							162,204,196,
+
+							241,241,239,
+							238,240,240,
+							236,240,245
+											};
+		test_optimal_image(img, expected, height, width, 0, 0);
+	}
+
 	{	// test removing a vertical seam
+		// need to load image again as optimal_imgae free-s it up
+		if (!load_image("small_tests/input/test_3.png", &width, &height, &img)) {
+			printf("Cannot load image");
+			return 1;
+		}
 		double expected[] = {
 							180,179,
 							179,255,
@@ -160,7 +182,7 @@ int main(int argc, char const *argv[]) {
 
 							241,239,
 							238,240,
-							236,245,
+							236,245
 											};
 		test_optimal_image(img, expected, height, width, 0, 1);
 	}
@@ -179,7 +201,7 @@ int main(int argc, char const *argv[]) {
 							162,204,196,
 
 							241,241,239,
-							236,240,245,
+							236,240,245
 											};
 		test_optimal_image(img, expected, height, width, 1, 0);
 	}
@@ -198,7 +220,7 @@ int main(int argc, char const *argv[]) {
 							162,196,
 
 							241,239,
-							236,245,
+							236,245
 											};
 		test_optimal_image(img, expected, height, width, 1, 1);
 	}
@@ -214,10 +236,122 @@ int main(int argc, char const *argv[]) {
 
 							162,204,176,
 
-							236,240,239,
+							236,240,239
 											};
 		test_optimal_image(img, expected, height, width, 2, 0);
 	}	
 
+	{	// test removing 2 horizontal and vertical seams
+		// need to load image again as optimal_imgae free-s it up
+		if (!load_image("small_tests/input/test_3.png", &width, &height, &img)) {
+			printf("Cannot load image");
+			return 1;
+		}
+		double expected[] = {
+							162,
+
+							162,
+
+							236
+											};
+		test_optimal_image(img, expected, height, width, 2, 2);
+	}
+	}	
+
+	// ------------ TEST IMAGE 2 -------------
+	{
+	double *img;
+	int width, height;
+	if (!load_image("small_tests/input/test_2.png", &width, &height, &img)) {
+		printf("Cannot load image");
+		return 1;
+	}
+
+	{
+		double expected[] = {
+							0,0,0,0,0,
+							0,191,229,251,0,
+							0,162,203,238,0,
+							0,0,0,0,0,
+
+							0,0,0,0,0,
+							0,53,47,105,0,
+							0,58,52,48,0,
+							0,0,0,0,0,
+
+							0,0,0,0,0,
+							0,105,69,64,0,
+							0,137,97,60,0,
+							0,0,0,0,0
+											};
+		test_pad_image(img, expected, height, width);
+	}
+
+	{
+		double expected[] = {
+							2108, 1856, 2086,
+							2092, 1898, 2234
+											};
+		test_calc_RGB_energy(img, expected, height, width);
+	}
+
+	{	// test vertical seam
+		double expected = 3754;
+		test_min_seam(img, expected, height, width, 1);
+	}
+
+	{ // test horizontal seam
+		double expected = 6034;
+		test_min_seam(img, expected, height, width, 0);
+	}
+
+	{	// test removing a vertical seam
+		double expected[] = {
+							191,251,
+							162,238,
+
+							53,105,
+							58,48,
+
+							105,64,
+							137,60,
+											};
+		test_optimal_image(img, expected, height, width, 0, 1);
+	}
+
+	{	// test removing a horizontal seam
+		// need to load image again as optimal_imgae free-s it up
+		if (!load_image("small_tests/input/test_2.png", &width, &height, &img)) {
+			printf("Cannot load image");
+			return 1;
+		}
+		double expected[] = {
+							191,203,238,
+
+							53,52,48,
+
+							105,97,60,
+											};
+		test_optimal_image(img, expected, height, width, 1, 0);
+	}
+
+	{	// test removing a vertical and horizontal seam
+		// need to load image again as optimal_imgae free-s it up
+		if (!load_image("small_tests/input/test_2.png", &width, &height, &img)) {
+			printf("Cannot load image");
+			return 1;
+		}
+		double expected[] = {
+							191,238,
+
+							53,48,
+
+							105,60,
+											};
+		test_optimal_image(img, expected, height, width, 1, 1);
+	}
+
+	}
+	
     return 0;
 }
