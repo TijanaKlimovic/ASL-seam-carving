@@ -52,8 +52,18 @@ void calc_RGB_energy(int n, int m, double* channels, double* result){
     //double partial_y[3][n][m]; //3d partial derivative in y 
 
     int size = 3*n*m ;
+
     double* partial_x = (double*) malloc( size*sizeof(double));
     double* partial_y = (double*) malloc( size*sizeof(double));
+    /*
+    if(partial_x == NULL){
+      printf("%s\n", "too much FOR X !");
+    }
+    */
+    /*
+    if(partial_y == NULL){
+      printf("%s\n", "too much FOR Y !");
+    }*/
 
     //calculate the parital derivatives 
     for(int i = 0 ; i < 3 ; i ++){
