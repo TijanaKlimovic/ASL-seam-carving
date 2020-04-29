@@ -3,7 +3,7 @@
 #include <math.h>
 #include "parse_img.h"
 
-int debug = 0;
+int debug = 1;
 //assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
 

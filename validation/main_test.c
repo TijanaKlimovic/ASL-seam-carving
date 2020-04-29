@@ -64,11 +64,12 @@ void test_optimal_image(double *img, double *expected, int h, int w, int h_diff,
 }
 
 int main(int argc, char const *argv[]) {
+	
 	// ------------ TEST IMAGE 1 -------------
 	{
 	double *img;
 	int width, height;
-	if (!load_image("small_tests/input/test_3.png", &width, &height, &img)) {
+	if (!load_image("unit_tests/input_small/test_3.png", &width, &height, &img)) {
 		printf("Cannot load image");
 		return 1;
 	}
@@ -167,7 +168,7 @@ int main(int argc, char const *argv[]) {
 
 	{	// test removing a vertical seam
 		// need to load image again as optimal_imgae free-s it up
-		if (!load_image("small_tests/input/test_3.png", &width, &height, &img)) {
+		if (!load_image("unit_tests/input_small/test_3.png", &width, &height, &img)) {
 			printf("Cannot load image");
 			return 1;
 		}
@@ -189,7 +190,7 @@ int main(int argc, char const *argv[]) {
 
 	{	// test removing a horizontal seam
 		// need to load image again as optimal_imgae free-s it up
-		if (!load_image("small_tests/input/test_3.png", &width, &height, &img)) {
+		if (!load_image("unit_tests/input_small/test_3.png", &width, &height, &img)) {
 			printf("Cannot load image");
 			return 1;
 		}
@@ -208,7 +209,7 @@ int main(int argc, char const *argv[]) {
 
 	{	// test removing a vertical and a horizontal seam
 		// need to load image again as optimal_imgae free-s it up
-		if (!load_image("small_tests/input/test_3.png", &width, &height, &img)) {
+		if (!load_image("unit_tests/input_small/test_3.png", &width, &height, &img)) {
 			printf("Cannot load image");
 			return 1;
 		}
@@ -227,7 +228,7 @@ int main(int argc, char const *argv[]) {
 
 	{	// test removing 2 horizontal seams
 		// need to load image again as optimal_imgae free-s it up
-		if (!load_image("small_tests/input/test_3.png", &width, &height, &img)) {
+		if (!load_image("unit_tests/input_small/test_3.png", &width, &height, &img)) {
 			printf("Cannot load image");
 			return 1;
 		}
@@ -243,7 +244,7 @@ int main(int argc, char const *argv[]) {
 
 	{	// test removing 2 horizontal and vertical seams
 		// need to load image again as optimal_imgae free-s it up
-		if (!load_image("small_tests/input/test_3.png", &width, &height, &img)) {
+		if (!load_image("unit_tests/input_small/test_3.png", &width, &height, &img)) {
 			printf("Cannot load image");
 			return 1;
 		}
@@ -262,7 +263,7 @@ int main(int argc, char const *argv[]) {
 	{
 	double *img;
 	int width, height;
-	if (!load_image("small_tests/input/test_2.png", &width, &height, &img)) {
+	if (!load_image("unit_tests/input_small/test_2.png", &width, &height, &img)) {
 		printf("Cannot load image");
 		return 1;
 	}
@@ -321,7 +322,7 @@ int main(int argc, char const *argv[]) {
 
 	{	// test removing a horizontal seam
 		// need to load image again as optimal_imgae free-s it up
-		if (!load_image("small_tests/input/test_2.png", &width, &height, &img)) {
+		if (!load_image("unit_tests/input_small/test_2.png", &width, &height, &img)) {
 			printf("Cannot load image");
 			return 1;
 		}
@@ -337,7 +338,7 @@ int main(int argc, char const *argv[]) {
 
 	{	// test removing a vertical and horizontal seam
 		// need to load image again as optimal_imgae free-s it up
-		if (!load_image("small_tests/input/test_2.png", &width, &height, &img)) {
+		if (!load_image("unit_tests/input_small/test_2.png", &width, &height, &img)) {
 			printf("Cannot load image");
 			return 1;
 		}
