@@ -80,7 +80,7 @@ int load_image(const char *filename, int *width, int *height, double **output) {
 		return 0;
 	}
 	assert(n == C);
-	printf("Loaded image (%d x %d)\n", *width, *height);
+	// printf("Loaded image (%d x %d)\n", *width, *height);
 	if (!allocate_double_buffer(*width, *height, output)) 
 		return 0;
 	convert_double(loaded, *output, *width, *height);

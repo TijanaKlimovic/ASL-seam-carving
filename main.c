@@ -1,6 +1,6 @@
 //#error Please comment out the next two lines under linux, then comment this error
 //#include "stdafx.h"  //Visual studio expects this line to be the first one, comment out if different compiler
-#include <windows.h> // Include if under windows
+// #include <windows.h> // Include if under windows
 
 #ifndef WIN32
 #include <sys/time.h>
@@ -171,6 +171,6 @@ int main(int argc, char const *argv[]) {
 	double r = rdtsc(width, height, output, argv[2], width_diff, height_diff);
 
 	free(output);
-    printf("RDTSC instruction:\n %lf cycles measured", r);
+    printf("RDTSC instruction: %.0lf cycles measured\n", r);
     return 0;
 }
