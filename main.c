@@ -1,6 +1,6 @@
 //#error Please comment out the next two lines under linux, then comment this error
 //#include "stdafx.h"  //Visual studio expects this line to be the first one, comment out if different compiler
-// #include <windows.h> // Include if under windows
+//#include <windows.h> // Include if under windows
 
 #ifndef WIN32
 #include <sys/time.h>
@@ -165,7 +165,9 @@ int main(int argc, char const *argv[]) {
 	}
 
 	if(strcmp(argv[5],"1")){
-		return run(width, height, output, argv[2], width_diff, height_diff);
+		int out = run(width, height, output, argv[2], width_diff, height_diff);
+		free(output);
+		return out;
 	}
 	//time it
 	double r = rdtsc(width, height, output, argv[2], width_diff, height_diff);
