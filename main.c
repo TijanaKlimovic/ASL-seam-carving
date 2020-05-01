@@ -50,26 +50,6 @@ myInt64 stop_tsc(myInt64 start) {
 }
 
 
-/* 
-takes in the image path and runs the seam carving algorithm
-*/
-
-int run(const char* path,const char* output_file_name, int width_diff, int height_diff ) {
-	int width, height;
-	double *output;
-	double *res;
-
-	if (!load_image(path, &width, &height, &output)) {
-		return 1;
-	}
-
-	res = optimal_image(width, height, width_diff, height_diff, output);
-	//printf("Finished seam carving\n");
-	save_image(output_file_name, width - width_diff, height - height_diff, res);
-	//printf("Saved image as %s with size (%d, %d) \n", output_file_name, width - width_diff, height - height_diff);
-	free(res);
-	return 0;
-}
 
 
 /* 
@@ -102,11 +82,33 @@ int run_python_validation(const char* path,const char* output_file_name, const c
 	return 0;
 }
 
+
+/* 
+takes in the image path and runs the seam carving algorithm
+*/
+
+int run(int width, int height, double * output, const char* output_file_name, int width_diff, int height_diff ) {
+	double *res;
+	/*
+	if (!load_image(path, &width, &height, &output)) {
+		return 1;
+	}
+	*/
+
+	res = optimal_image(width, height, width_diff, height_diff, output);
+	//printf("Finished seam carving\n");
+	save_image(output_file_name, width - width_diff, height - height_diff, res);
+	//printf("Saved image as %s with size (%d, %d) \n", output_file_name, width - width_diff, height - height_diff);
+	free(res);
+	return 0;
+}
+
+
 /* 
 benchmarking function using rdtsc instruction
 */
 
-double rdtsc(const char* path, const char* output_file_name, int width_diff, int height_diff ) {
+double rdtsc(int width, int height, double * output, const char* output_file_name, int width_diff, int height_diff) {
     int i, num_runs;
     myInt64 cycles;
     myInt64 start;
@@ -117,7 +119,7 @@ double rdtsc(const char* path, const char* output_file_name, int width_diff, int
     while(num_runs < (1 << 14)) {
         start = start_tsc();
         for (i = 0; i < num_runs; ++i) {
-            run(path, output_file_name, width_diff, height_diff);
+            run(width, height, output, output_file_name, width_diff, height_diff);
         }
         cycles = stop_tsc(start);
 
@@ -129,7 +131,7 @@ double rdtsc(const char* path, const char* output_file_name, int width_diff, int
 
     start = start_tsc();
     for (i = 0; i < num_runs; ++i) {
-		run(path, output_file_name, width_diff, height_diff);    
+		run(width, height, output, output_file_name, width_diff, height_diff);	
 	}
     cycles = stop_tsc(start)/num_runs;
     return (double) cycles;
@@ -155,13 +157,20 @@ int main(int argc, char const *argv[]) {
 
 	int width_diff = atoi(argv[3]);
 	int height_diff = atoi(argv[4]);
+	int width, height;
+	double *output;
 
+	if (!load_image(argv[1], &width, &height, &output)) {
+		return 1;
+	}
 
 	if(strcmp(argv[5],"1")){
-		return run(argv[1], argv[2], width_diff, height_diff);
+		return run(width, height, output, argv[2], width_diff, height_diff);
 	}
 	//time it
-	double r = rdtsc(argv[1], argv[2], width_diff, height_diff);
+	double r = rdtsc(width, height, output, argv[2], width_diff, height_diff);
+
+	free(output);
     printf("RDTSC instruction:\n %lf cycles measured", r);
     return 0;
 }

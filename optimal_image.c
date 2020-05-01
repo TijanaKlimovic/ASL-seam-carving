@@ -155,7 +155,7 @@ double *optimal_image(int width, int height, int width_diff,
 	// copy 
 	double *res = malloc(3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(double));
 	memcpy(res, T[width_diff * height_diff - 1].i, 3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(double ));
-	for (int i = 0; i < width_diff * height_diff; ++i) {
+	for (int i = 1; i < width_diff * height_diff; ++i) {
 		free(T[i].i);
 	}
 	free(T);
