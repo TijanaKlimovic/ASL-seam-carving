@@ -2,7 +2,7 @@
 
 if [ "$#" -ne 2 ]
 then
-	echo "usage: sens.sh <img_file> <src_dir>"
+	echo "usage: ./br.sh <img_file> <src_dir>"
 	exit
 fi
 
@@ -24,9 +24,8 @@ while [ "$i" -gt 0 ]
 do
 	new_name="$i"x"$height""_$fname"
 	convert "$img" -resize "$i"x"$height"\! "inputs/$new_name"
-	dim_diff=$(echo "$i * 0.15" | bc)
-	dim_diff=$(printf "%d\n" "$dim_diff") #convert to int
-	# result=$(./seam_carving "inputs/$new_name" "outputs/$new_name" 0 1 | awk '{print $3}') #time
-	echo "./seam_carving inputs/$new_name outputs/$new_name $dim_diff 0 1" #time
+	dim_diff=$(echo "$i * 0.15" | bc | tr "." "\n" | head -n 1)
+	echo "./seam_carving inputs/$new_name outputs/$new_name $dim_diff 0 1"
+	result=$(./seam_carving "inputs/$new_name" "outputs/$new_name" "$dim_diff" 0 1 | awk '{print $3}') #time
 	(( i = i - 200 ))
 done
