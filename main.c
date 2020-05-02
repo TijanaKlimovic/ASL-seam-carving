@@ -61,6 +61,7 @@ int run_python_validation(const char* path,const char* output_file_name, const c
 	double percentage) {
 	int width, height;
 	double *output;
+	double *res;
 
 	if (!load_image(path, &width, &height, &output)) {
 		return 1;
@@ -69,16 +70,14 @@ int run_python_validation(const char* path,const char* output_file_name, const c
 	int width_diff = 0, height_diff = 0;
 
 	if (strcmp(col_row, "c")) {
-		height_diff = ceil(height * (1 - 0.01*percentage));
+		height_diff = height - floor(height * (0.01*percentage));
 	} else {
-		width_diff = ceil(width * (1 - 0.01*percentage));
+		width_diff = width - floor(width * (0.01*percentage));
 	}
 
-	output = optimal_image(width, height, width_diff, height_diff, output);
-	//printf("Finished seam carving\n");
-	save_image(output_file_name, width - width_diff, height - height_diff, output);
-	//printf("Saved image as %s with size (%d, %d) \n", output_file_name, width - width_diff, height - height_diff);
-	// free(output);
+	res = optimal_image(width, height, width_diff, height_diff, output);
+	save_image(output_file_name, width - width_diff, height - height_diff, res);
+	free(res);
 	return 0;
 }
 
