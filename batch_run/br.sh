@@ -1,17 +1,19 @@
 #!/bin/bash
 
+#TODO: Compute FLOP based on image
+
 #PARAMS [EDITABLE]
 #--------------------------------------------------------
-w_red_p=0.01 #width reduction percentage
-h_red_p=0.02 #height reduction percentage
+w_red_p=0.15 #width reduction percentage
+h_red_p=0.00 #height reduction percentage
 
 #these 2 steps are performed in a single for (not nested)
-w_step=100 #width step (for iteration); w = w - w_step
+w_step=0 #width step (for iteration); w = w - w_step
 h_step=200 #height step (for iteration); h = h - h_step
 
 gcc_flags="-Ofast -Wall -lm -g"
 
-timing=0 #passed to ./seam_carving
+timing=1 #passed to ./seam_carving
 #--------------------------------------------------------
 #END OF PARAMS [DON'T EDIT THE REST OF THE CODE]
 
@@ -39,20 +41,23 @@ then
 	for f in "$1"/*.png
 	do
 		files+=("$f")
-		tmp_w=$(identify "$f" | awk '{print $3}' | tr "x" "\n" | head -n 1)
-		tmp_h=$(identify "$f" | awk '{print $3}' | tr "x" "\n" | tail -n 1)
+		# tmp_w=$(identify "$f" | awk '{print $3}' | tr "x" "\n" | head -n 1)
+		# tmp_h=$(identify "$f" | awk '{print $3}' | tr "x" "\n" | tail -n 1)
 
-		if [ "$tmp_w" -lt "$width" ]
-		then
-			width=$tmp_w
-		fi
+		# if [ "$tmp_w" -lt "$width" ]
+		# then
+		# 	width=$tmp_w
+		# fi
 
-		if [ "$tmp_h" -lt "$height" ]
-		then
-			height=$tmp_h
-		fi
+		# if [ "$tmp_h" -lt "$height" ]
+		# then
+		# 	height=$tmp_h
+		# fi
 
 	done
+
+	width=1000
+	height=1000
 
 	f_step=1
 else
@@ -61,7 +66,7 @@ else
 	exit
 fi
 
-file_count=${#files[@]}
+file_count="${#files[@]}"
 
 printf "%-10s %10s %10s %10s %10s %20s\n" "filename" "width" "height" "w_diff" "h_diff" "time[cycles]" >> "$3"
 
@@ -78,7 +83,7 @@ do
 	img="${files[f_idx]}"
 	fname=$(basename "$img")
 	new_name="$w"x"$h""_$fname"
-	convert "$img" -resize "$w"x"$h"\! "inputs/$new_name"
+	convert "$img" -resize "$w"x"$h" "inputs/$new_name"
 	w_red=$(echo "$w * $w_red_p" | bc | tr "." "\n" | head -n 1)
 	h_red=$(echo "$h * $h_red_p" | bc | tr "." "\n" | head -n 1)
 	echo "./seam_carving inputs/$new_name outputs/$new_name $w_red $h_red $timing"
