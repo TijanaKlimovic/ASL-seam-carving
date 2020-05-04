@@ -49,9 +49,6 @@ myInt64 stop_tsc(myInt64 start) {
 	return COUNTER_VAL(end) - start;
 }
 
-
-
-
 /* 
 takes in the image path and runs the seam carving algorithm
 conforms to the reference python interface
@@ -60,8 +57,8 @@ conforms to the reference python interface
 int run_python_validation(const char* path,const char* output_file_name, const char* col_row,
 	double percentage) {
 	int width, height;
-	double *output;
-	double *res;
+	int *output;
+	int *res;
 
 	if (!load_image(path, &width, &height, &output)) {
 		return 1;
@@ -81,33 +78,22 @@ int run_python_validation(const char* path,const char* output_file_name, const c
 	return 0;
 }
 
-
 /* 
 takes in the image path and runs the seam carving algorithm
 */
 
-int run(int width, int height, double * output, const char* output_file_name, int width_diff, int height_diff ) {
-	double *res;
-	/*
-	if (!load_image(path, &width, &height, &output)) {
-		return 1;
-	}
-	*/
-
-	res = optimal_image(width, height, width_diff, height_diff, output);
-	//printf("Finished seam carving\n");
+int run(int width, int height, int *output, const char *output_file_name, int width_diff, int height_diff ) {
+	int *res = optimal_image(width, height, width_diff, height_diff, output);
 	save_image(output_file_name, width - width_diff, height - height_diff, res);
-	//printf("Saved image as %s with size (%d, %d) \n", output_file_name, width - width_diff, height - height_diff);
 	free(res);
 	return 0;
 }
-
 
 /* 
 benchmarking function using rdtsc instruction
 */
 
-double rdtsc(int width, int height, double * output, const char* output_file_name, int width_diff, int height_diff) {
+double rdtsc(int width, int height, int *output, const char *output_file_name, int width_diff, int height_diff) {
     int i, num_runs;
     myInt64 cycles;
     myInt64 start;
@@ -157,7 +143,7 @@ int main(int argc, char const *argv[]) {
 	int width_diff = atoi(argv[3]);
 	int height_diff = atoi(argv[4]);
 	int width, height;
-	double *output;
+	int *output;
 
 	if (!load_image(argv[1], &width, &height, &output)) {
 		return 1;

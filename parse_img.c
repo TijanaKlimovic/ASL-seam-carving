@@ -10,11 +10,11 @@
 
 #define C (3)
 
-void print_matrix(double *matrix, int width, int height, int channels) {
+void print_matrix(int *matrix, int width, int height, int channels) {
 	for (int k = 0; k < channels; ++k) {
 		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < width; ++j) {
-				printf("%12lf ", matrix[k * width * height + i * width + j]);
+				printf("%12d ", matrix[k * width * height + i * width + j]);
 			}
 			printf("\n");
 		}
@@ -22,18 +22,18 @@ void print_matrix(double *matrix, int width, int height, int channels) {
 	}
 }
 
-void convert_double(unsigned char *src, double *dst, int width, int height) {
+void convert_from_uchar_to_int(unsigned char *src, int *dst, int width, int height) {
 	int i, j, k;
 	for (i = 0; i < height; ++i) {
 		for (j = 0; j < width; ++j) {
 			for (k = 0; k < C; ++k) {
-				dst[k * width * height + i * width + j] = (double)src[i * width * C + j * C + k];
+				dst[k * width * height + i * width + j] = (int)src[i * width * C + j * C + k];
 			}
 		}
 	}
 }
 
-void convert_uchar(double *src, unsigned char *dst, int width, int height) {
+void convert_from_int_to_uchar(int *src, unsigned char *dst, int width, int height) {
 	int i, j, k;
 	for (i = 0; i < height; ++i) {
 		for (j = 0; j < width; ++j) {
@@ -44,17 +44,8 @@ void convert_uchar(double *src, unsigned char *dst, int width, int height) {
 	}
 }
 
-void convert_grayscale_uchar(double *src, unsigned char *dst, int width, int height) {
-	int i, j;
-	for (i = 0; i < height; ++i) {
-		for (j = 0; j < width; ++j) {
-			dst[width * i + j] = (unsigned char)src[i * width + j];
-		}
-	}
-}
-
-int allocate_double_buffer(int width, int height, double **buffer) {
-	*buffer = malloc(width * height * C * sizeof(double));
+int allocate_int_buffer(int width, int height, int **buffer) {
+	*buffer = malloc(width * height * C * sizeof(int));
 	if (*buffer == NULL) {
 		printf("Failed to allocate buffer\n");
 		return 0;
@@ -71,33 +62,31 @@ int allocate_uchar_buffer(int width, int height, unsigned char **buffer) {
 	return 1;
 }
 
-int load_image(const char *filename, int *width, int *height, double **output) {
+int load_image(const char *filename, int *width, int *height, int **output) {
 	int n;
-	unsigned char *loaded;
-	loaded = stbi_load(filename, width, height, &n, C);
+	unsigned char *loaded = stbi_load(filename, width, height, &n, C);
 	if (loaded == NULL) {
 		printf("Failed to load image %s\n", filename);
 		return 0;
 	}
 	assert(n == C);
-	// printf("Loaded image (%d x %d)\n", *width, *height);
-	if (!allocate_double_buffer(*width, *height, output)) 
+	if (!allocate_int_buffer(*width, *height, output)) 
 		return 0;
-	convert_double(loaded, *output, *width, *height);
+	convert_from_uchar_to_int(loaded, *output, *width, *height);
 	stbi_image_free(loaded);
 	return 1;
 }
 
-void save_image(const char *filename, int new_width, int new_height, double *buffer) {
+void save_image(const char *filename, int new_width, int new_height, int *buffer) {
 	unsigned char *output;
 	allocate_uchar_buffer(new_width, new_height, &output);
-	convert_uchar(buffer, output, new_width, new_height);
+	convert_from_int_to_uchar(buffer, output, new_width, new_height);
 	stbi_write_png(filename, new_width, new_height, C, output, new_width * C);
 	free(output);
 }
 
 // converts the image pixels into the range of [0-255]
-unsigned char* normalize_image(double* image, int height, int width) {
+unsigned char* normalize_image(int* image, int height, int width) {
 	unsigned char *normalized = malloc(height * width * sizeof(unsigned char));
 	int max = 1;
     for (int i = 0; i < height; i++)
@@ -115,10 +104,9 @@ unsigned char* normalize_image(double* image, int height, int width) {
     return normalized;
 }
 
-void save_as_grayscale_image(char *filename, int new_width, int new_height, double *image) {
+void save_as_grayscale_image(char *filename, int new_width, int new_height, int *image) {
 	unsigned char *output = normalize_image(image, new_height, new_width);
 	stbi_write_png(filename, new_width, new_height, 1, output, new_width);
 	free(output);
 }
-
 
