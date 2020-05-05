@@ -72,12 +72,12 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
     }
 
     #ifdef count_instr 
-    count_ifs += n + (n-1)*m + (n-1)*(m-1)*4 + (n-1)*(m-1)*3*4; //count the lines 46-52
-    indexing += n + (n-1)*m + (n-1)*(m-1)*4 + (n-1)*(m-1)*3*4;
-    pointer_adds += (n-1)*(m-1)*3*3*(2 + 2 + 3);
-    pointer_mults += (n-1)*(m-1)*3*3*2;
-    add_count +=  (n-1)*(m-1)*3*3;                              //count directly the add and mult in line 50
-    mult_count += (n-1)*(m-1)*3*3;
+    count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4 + (n-2)*(m-2)*3*4; //count lines 46-52
+    indexing += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4 + (n-2)*(m-2)*3*4;
+    pointer_adds += (n-2)*(m-2)*3*3*(2 + 2 + 3);
+    pointer_mults += (n-2)*(m-2)*3*3*2;
+    add_count +=  (n-2)*(m-2)*3*3;                              //count directly the add and mult in line 50
+    mult_count += (n-2)*(m-2)*3*3;
 
     //count total
     add_count += count_ifs + indexing + pointer_adds; 
@@ -92,7 +92,15 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
 //calculates the cumulative sum over the individual channel energies
 //returns the energy map result over color image of size  n-2 x m-2 
 void calc_RGB_energy(int n, int m, int* channels, int* result){
-    //fixed kernels 
+    
+   #ifdef count_instr        //counting adds and mults of this function
+    int count_ifs = 0;        //includes explicit ifs and for loop ifs  -> ADDS
+    int indexing = 0;         //includes increments of i.j,k variables  -> ADDS
+    int pointer_adds = 0;     //pointer arithmetic                      -> ADDS
+    int pointer_mults = 0;    //                                        -> MULTS
+    #endif
+
+  //fixed kernels 
   int H_y[3][3] = {
     {-1,-2,-1},
     {0,0,0},
@@ -115,11 +123,27 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
        calc_energy(n,m,channels + n*m*i, partial_y + n*m*i, H_y);
     }
 
+
+    #ifdef count_instr        //counts lines 120-124
+    int count_ifs += 4;          
+    int indexing += 4;         
+    int pointer_adds += 3*4;     
+    int pointer_mults += 3*8;    
+    #endif
+
     for (int i = 0; i < n - 2; i++) {
         for (int j = 0; j < m - 2; j++) {
             result[(m - 2) * i + j] = 0;
         }
     }
+
+
+    #ifdef count_instr                                      //counts lines 134-138
+    int count_ifs += n-1 + (n-2)*(m-1);          
+    int indexing += n-1 + (n-2)*(m-1);         
+    int pointer_adds += (n-2)*(m-2)*2;     
+    int pointer_mults += (n-2)*(m-2);    
+    #endif
 
     //calculate the total 3d energy 
     
@@ -131,7 +155,23 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
         }
       } 
     }
-  // save img
+
+    #ifdef count_instr                                       //counts lines 134-138
+    int count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4;          
+    int indexing += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4;         
+    int pointer_adds += (n-2)*(m-2)*3*(5 + 3 + 3);     
+    int pointer_mults += (n-2)*(m-2)*3*7;  
+    add_count +=  (n-2)*(m-2)*3*2;                           //count directly the adds in line 154
+
+    //count total
+    add_count += count_ifs + indexing + pointer_adds; 
+    mult_count += pointer_mults;
+    printf("NO ADDS FOR calc_energy IS: %d", add_count); 
+    printf("NO MULTS FOR calc_energy IS: %d", mult_count); 
+
+    #endif
+
+    //save img
     free(partial_x);
     free(partial_y);
 
