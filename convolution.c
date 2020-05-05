@@ -3,11 +3,13 @@
 #include <math.h>
 #include "parse_img.h"
 
+#define K 1
+
 int debug = 1;
 //assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
 
-void calc_energy(int n, int m, int k, double* F , double* part_grad , double H[3][3] ){
+void calc_energy(int n, int m, int* F , int* part_grad , int H[3][3] ){
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
 
@@ -17,11 +19,11 @@ void calc_energy(int n, int m, int k, double* F , double* part_grad , double H[3
         }
     }
 
-    for(int i = 1 ; i < n-k ; i++){
-        for(int j = 1 ; j < m-k ; j++){
-            for(int u = -k ; u <= k; u++){
-                for(int v = -k ; v <= k ; v++){
-                    *(part_grad + i*m + j) += H[u+k][v+k]*F[(i+u)*m + j+v];
+    for(int i = 1 ; i < n-K ; i++){
+        for(int j = 1 ; j < m-K ; j++){
+            for(int u = -K ; u <= K; u++){
+                for(int v = -K ; v <= K ; v++){
+                    *(part_grad + i*m + j) += H[u+K][v+K]*F[(i+u)*m + j+v];
                 }
             }
           //calculate absolute value of each element in partial derivative of channel F 
@@ -34,42 +36,28 @@ void calc_energy(int n, int m, int k, double* F , double* part_grad , double H[3
 //assumes result is of size n-2 x m-2 
 //calculates the cumulative sum over the individual channel energies
 //returns the energy map result over color image of size  n-2 x m-2 
-void calc_RGB_energy(int n, int m, double* channels, double* result){
+void calc_RGB_energy(int n, int m, int* channels, int* result){
     //fixed kernels 
-  double H_y[3][3] = {
+  int H_y[3][3] = {
     {-1,-2,-1},
     {0,0,0},
     {1,2,1}};
 
-  double H_x[3][3] = {
+  int H_x[3][3] = {
     {-1,0,1},
     {-2,0,2},
     {-1,0,1}};
-    
-    int k= 1;
-
-    //double partial_x[3][n][m]; //3d parital derivative in x
-    //double partial_y[3][n][m]; //3d partial derivative in y 
 
     int size = 3*n*m ;
 
-    double* partial_x = (double*) malloc( size*sizeof(double));
-    double* partial_y = (double*) malloc( size*sizeof(double));
-    /*
-    if(partial_x == NULL){
-      printf("%s\n", "too much FOR X !");
-    }
-    */
-    /*
-    if(partial_y == NULL){
-      printf("%s\n", "too much FOR Y !");
-    }*/
+    int* partial_x = (int*) malloc( size*sizeof(int));
+    int* partial_y = (int*) malloc( size*sizeof(int));
 
     //calculate the parital derivatives 
     for(int i = 0 ; i < 3 ; i ++){
       //pass the ith channel for energy calculation
-       calc_energy(n,m,k,channels + n*m*i, partial_x + n*m*i, H_x);
-       calc_energy(n,m,k,channels + n*m*i, partial_y + n*m*i, H_y);
+       calc_energy(n,m,channels + n*m*i, partial_x + n*m*i, H_x);
+       calc_energy(n,m,channels + n*m*i, partial_y + n*m*i, H_y);
     }
 
     for (int i = 0; i < n - 2; i++) {
@@ -84,7 +72,7 @@ void calc_RGB_energy(int n, int m, double* channels, double* result){
         for(int k = 1 ; k < m-1 ; k++){
           for(int i = 0 ; i < 3 ; i ++){
             //add elementwise along the z axis 
-          *(result+(m-2)*(j-1)+k-1) += *(partial_x + i*m*n + j*m + k) + *(partial_y + i*m*n + j*m + k);
+          *(result+(m-2)*(j-1)+K-1) += *(partial_x + i*m*n + j*m + K) + *(partial_y + i*m*n + j*m + K);
         }
       } 
     }
@@ -106,12 +94,12 @@ void calc_RGB_energy(int n, int m, double* channels, double* result){
 //first method called before anything else to create a 0 frame aronund original image
 //make sure to free the returned pointer after the first seam is found and removed 
 //repeat for each seam  
-double* padd0_image(int n, int m, double* channels){
+int* padd0_image(int n, int m, int* channels){
 
   int size = 3*(n+2)*(m+2);
-  double* padded_image = (double*) malloc( size*sizeof(double));
+  int* padded_image = (int*) malloc( size*sizeof(int));
 
-  //double padded_image[3][n+2][m+2];
+  //int padded_image[3][n+2][m+2];
   for(int i = 0 ; i < 3 ; i++){
     for(int j = 0 ; j < n+2 ; j++){
       for(int k = 0 ; k < m+2 ; k++){
@@ -134,10 +122,10 @@ double* padd0_image(int n, int m, double* channels){
 void test_computation(){
     int n = 4;
     int m = 4; 
-    double result[4]; 
+    int result[4]; 
 
     //prepadded with 0 to test the main convolution boi 
-    double test_array[3*4*4] = {0,0,0,0,  0,2,2,0,  0,50,100,0,  0,0,0,0,         0,0,0,0,  0,2,2,0,  0,50,100,0,  0,0,0,0,          0,0,0,0,  0,2,2,0,  0,50,100,0,  0,0,0,0 };
+    int test_array[3*4*4] = {0,0,0,0,  0,2,2,0,  0,50,100,0,  0,0,0,0,         0,0,0,0,  0,2,2,0,  0,50,100,0,  0,0,0,0,          0,0,0,0,  0,2,2,0,  0,50,100,0,  0,0,0,0 };
 
     calc_RGB_energy(n,m,test_array,result); //n and m passed are the ones that are increased by 2 due to padding with 0 
     for(int i = 0 ; i < n-2 ; i++){ 
@@ -150,9 +138,9 @@ void test_computation(){
 void test_padding(){
   int n =1;
   int m =2;
-  double channels[6] = {100, 50 , 100, 50 ,100 ,50 };
+  int channels[6] = {100, 50 , 100, 50 ,100 ,50 };
 
-  double* result = padd0_image(n,m,channels);
+  int* result = padd0_image(n,m,channels);
   for(int i = 0 ; i < 3 ; i++){
     for(int j = 0 ; j < n+2 ; j++){
       for(int k = 0 ; k < m+2 ; k++){
