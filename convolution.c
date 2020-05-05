@@ -5,6 +5,15 @@
 
 #define K 1
 
+//--------------------  counter for instructions -------------------
+
+#ifdef count_instr 
+extern int add_count; //count the total number of add instructions
+extern int mult_count;  //count the total number of mult instructions
+#endif
+
+//------------------------------------------------------------------
+
 int debug = 1;
 //assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
@@ -12,6 +21,8 @@ int debug = 1;
 void calc_energy(int n, int m, int* F , int* part_grad , int H[3][3] ){
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
+
+    int count_ifs = 0;
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
@@ -29,6 +40,7 @@ void calc_energy(int n, int m, int* F , int* part_grad , int H[3][3] ){
           //calculate absolute value of each element in partial derivative of channel F 
             if(*(part_grad + i*m + j) < 0){
               *(part_grad + i*m + j) = (-1) * (*(part_grad + i*m + j));
+              count_ifs ++;
             }
         }
     }

@@ -28,8 +28,16 @@
 
 #include <string.h>
 
-//--------------- extern variables --------------
+//--------------- extern count variables --------------
 
+#include "count.h"
+
+#ifdef count_instr 
+int add_count = 0;	//count the total number of add instructions
+int mult_count = 0; //count the total number of mult instructions
+#endif
+
+//---------------------------------------------------------
 
 void init_tsc() {
 	; // no need to initialize anything for x86

@@ -10,6 +10,15 @@
 // #define LOG(X) X
 #define LOG(X)
 
+//--------------------	counter for instructions -------------------
+
+#ifdef count_instr 
+extern int add_count;	//count the total number of add instructions
+extern int mult_count; 	//count the total number of mult instructions
+#endif
+
+//------------------------------------------------------------------
+
 
 double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrack) {
 	double *the_m = (double *) malloc(rsize * csize * sizeof(double));

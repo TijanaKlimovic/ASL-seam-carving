@@ -4,6 +4,17 @@
 #include <string.h>
 #include "min_seam.h"
 
+
+//--------------------	counter for instructions -------------------
+
+#ifdef count_instr 
+extern int add_count;	//count the total number of add instructions
+extern int mult_count; 	//count the total number of mult instructions
+#endif
+
+//------------------------------------------------------------------
+
+
 // Data structure to hold information in a T cell
 struct cell_T {
 	// optimal cost to get to this dimension
