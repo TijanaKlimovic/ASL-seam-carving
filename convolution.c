@@ -27,7 +27,9 @@ void calc_energy(int n, int m, int* F , int* part_grad , int H[3][3] ){
                 }
             }
           //calculate absolute value of each element in partial derivative of channel F 
-          *(part_grad + i*m + j) = fabs(*(part_grad + i*m + j));
+            if(*(part_grad + i*m + j) < 0){
+              *(part_grad + i*m + j) = (-1) * (*(part_grad + i*m + j));
+            }
         }
     }
 }
