@@ -4,8 +4,8 @@
 
 #PARAMS [EDITABLE]
 #--------------------------------------------------------
-w_red_p=0.15 #width reduction percentage
-h_red_p=0.00 #height reduction percentage
+w_red_p=0.00 #width reduction percentage
+h_red_p=0.15 #height reduction percentage
 
 #these 2 steps are performed in a single for (not nested)
 w_step=0 #width step (for iteration); w = w - w_step
@@ -68,7 +68,7 @@ fi
 
 file_count="${#files[@]}"
 
-printf "%-10s %10s %10s %10s %10s %20s\n" "filename" "width" "height" "w_diff" "h_diff" "time[cycles]" >> "$3"
+printf "%-10s %10s %10s %10s %10s %20s %20s %15s\n" "filename" "width" "height" "w_diff" "h_diff" "time[cycles]" "cost_measure" "performance" >> "$3"
 
 gcc "$2"/*.c $gcc_flags -o seam_carving
 
@@ -83,12 +83,42 @@ do
 	img="${files[f_idx]}"
 	fname=$(basename "$img")
 	new_name="$w"x"$h""_$fname"
-	convert "$img" -resize "$w"x"$h" "inputs/$new_name"
-	w_red=$(echo "$w * $w_red_p" | bc | tr "." "\n" | head -n 1)
-	h_red=$(echo "$h * $h_red_p" | bc | tr "." "\n" | head -n 1)
-	echo "./seam_carving inputs/$new_name outputs/$new_name $w_red $h_red $timing"
-	result=$(./seam_carving "inputs/$new_name" "outputs/$new_name" "$w_red" "$h_red" "$timing" | awk '{print $3}') #time
-	printf "%-10s %10d %10d %10d %10d %20d\n" "$fname" "$w" "$h" "$w_red" "$h_red" "$result" >> "$3"
+	convert "$img" -resize "$w"x"$h"\! "inputs/$new_name"
+	m_diff=$(echo "$w * $w_red_p" | bc | tr "." "\n" | head -n 1)
+	n_diff=$(echo "$h * $h_red_p" | bc | tr "." "\n" | head -n 1)
+	echo "./seam_carving inputs/$new_name outputs/$new_name $m_diff $n_diff $timing"
+	cycles=$(./seam_carving "inputs/$new_name" "outputs/$new_name" "$m_diff" "$n_diff" "$timing" | awk '{print $3}') #time
+	m="$w"
+	n="$h"
+
+	opt_seam=$(echo "$m_diff + $n_diff + 3 * $m_diff * $n_diff" | bc) #adds in optimal seam
+	echo "opt_seam = $opt_seam"
+
+	if [ "$m_diff" -lt 2 ]
+	then
+		dora=0
+	else
+		dora=$(echo "($m_diff * $m - ($m_diff - 1) * ($m_diff - 2) / 2) * (115 * $n - 1)" | bc)
+	fi
+
+	echo "dora = $dora"
+
+	if [ "$n_diff" -lt 2 ]
+	then
+		ioana=0
+	else
+		ioana=$(echo "($n_diff * $n - ($n_diff - 1) * ($n_diff - 2) / 2) * (115 * $m - 1)" | bc)
+	fi
+
+	echo "ioana = $ioana"
+	aydin=$(echo "($n_diff * $m_diff * (2 * $m - $m_diff + 1) / 2) * (115 * (-$n_diff - 1 + 2 * $n) / 2 - 1)" | bc) #aydin's part
+	echo "aydin = $aydin"
+	tijana=$(echo "($m_diff * $n_diff * (2 * $n - $n_diff + 1) / 2) * (115 * (-$m_diff - 1 + 2 * $m) / 2 - 1)" | bc) #tijana's part
+	echo "tijana = $tijana"
+	cost=$(echo "$opt_seam + $dora + $ioana + $aydin + $tijana" | bc)
+	performance=$(echo "scale=4; $cost / $cycles" | bc) #flops / cycle
+
+	printf "%-10s %10d %10d %10d %10d %20d %20d %15s\n" "$fname" "$w" "$h" "$m_diff" "$n_diff" "$cycles" "$cost" "$performance" >> "$3"
 
 	if [ "$f_step" -eq 0 ]
 	then
