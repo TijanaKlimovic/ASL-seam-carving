@@ -3,4 +3,4 @@
 #include <limits.h>
 #include "count.h"
 
-double min_seam(int rsize, int csize, double *img, int is_ver, int *ret_backtrack);
+int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack);
