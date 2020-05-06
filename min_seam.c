@@ -6,8 +6,8 @@
 //--------------------	counter for instructions -------------------
 
 #ifdef count_instr 
-extern int add_count;	//count the total number of add instructions
-extern int mult_count; 	//count the total number of mult instructions
+extern unsigned long long add_count;	//count the total number of add instructions
+extern unsigned long long mult_count; 	//count the total number of mult instructions
 #define COUNT(A, B) A += B;
 #else
 #define COUNT(A, B)

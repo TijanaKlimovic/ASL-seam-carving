@@ -33,8 +33,8 @@
 #include "count.h"
 
 #ifdef count_instr 
-int add_count = 0;	//count the total number of add instructions
-int mult_count = 0; //count the total number of mult instructions
+unsigned long long add_count = 0;	//count the total number of add instructions
+unsigned long long mult_count = 0; //count the total number of mult instructions
 #endif
 
 //---------------------------------------------------------
@@ -139,7 +139,9 @@ int main(int argc, char const *argv[]) {
 		printf("Usage should be: %s <image_path> <output_file_name> <c/r> <percentage>\n", argv[0]);
 
 		double percentage = atoi(argv[4]);
-		return run_python_validation(argv[1], argv[2], argv[3], percentage);
+		int to_retun = run_python_validation(argv[1], argv[2], argv[3], percentage);
+		printf("\nADDS=%llu MULTS=%llu\n", add_count, mult_count);
+		return to_retun;
 	}
 
 	if (argc < 6) {
