@@ -139,10 +139,10 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
 
 
     #ifdef count_instr                                      //counts lines 134-138
-    int count_ifs += n-1 + (n-2)*(m-1);          
-    int indexing += n-2 + (n-2)*(m-2);         
-    int pointer_adds += (n-2)*(m-2)*2;     
-    int pointer_mults += (n-2)*(m-2);    
+    count_ifs += n-1 + (n-2)*(m-1);          
+    indexing += n-2 + (n-2)*(m-2);         
+    pointer_adds += (n-2)*(m-2)*2;     
+    pointer_mults += (n-2)*(m-2);    
     #endif
 
     //calculate the total 3d energy 
@@ -157,10 +157,10 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     }
 
     #ifdef count_instr                                       //counts lines 134-138
-    int count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4;          
-    int indexing += n-2 + (n-2)*(m-2) + (n-2)*(m-2)*3;         
-    int pointer_adds += (n-2)*(m-2)*3*(5 + 3 + 3);     
-    int pointer_mults += (n-2)*(m-2)*3*7;  
+    count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4;          
+    indexing += n-2 + (n-2)*(m-2) + (n-2)*(m-2)*3;         
+    pointer_adds += (n-2)*(m-2)*3*(5 + 3 + 3);     
+    pointer_mults += (n-2)*(m-2)*3*7;  
     add_count +=  (n-2)*(m-2)*3*2;                           //count directly the adds in line 154
 
     //count total
@@ -225,7 +225,7 @@ void test_computation(){
     calc_RGB_energy(n,m,test_array,result); //n and m passed are the ones that are increased by 2 due to padding with 0 
     for(int i = 0 ; i < n-2 ; i++){ 
       for(int j = 0 ; j < m-2 ; j++){
-        printf("%f\n", result[i*(m-2)+j]);
+        printf("%d\n", result[i*(m-2)+j]);
       }
     }
 }
@@ -239,7 +239,7 @@ void test_padding(){
   for(int i = 0 ; i < 3 ; i++){
     for(int j = 0 ; j < n+2 ; j++){
       for(int k = 0 ; k < m+2 ; k++){
-        printf("%f ", result[i*(n+2)*(m+2) + (m+2)*j + k]);
+        printf("%d ", result[i*(n+2)*(m+2) + (m+2)*j + k]);
       }
       printf("\n");
     }
