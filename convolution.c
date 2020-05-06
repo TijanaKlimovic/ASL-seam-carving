@@ -39,7 +39,7 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
 
     #ifdef count_instr            //count lines 33-37
     count_ifs += n+1 + n*(m+1);
-    indexing += n+1 + n*(m+1);
+    indexing += n + n*m;
     pointer_mults += m*n;        //assuming perfect prediciton
     pointer_adds += 2*m*n;       //assuming perfect prediciton
     #endif
@@ -73,7 +73,7 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
 
     #ifdef count_instr 
     count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4 + (n-2)*(m-2)*3*4; //count lines 46-52
-    indexing += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4 + (n-2)*(m-2)*3*4;
+    indexing += n=2 + (n-2)*(m-2) + (n-2)*(m-2)*3 + (n-2)*(m-2)*3*3;
     pointer_adds += (n-2)*(m-2)*3*3*(2 + 2 + 3);
     pointer_mults += (n-2)*(m-2)*3*3*2;
     add_count +=  (n-2)*(m-2)*3*3;                              //count directly the add and mult in line 50
@@ -125,10 +125,10 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
 
 
     #ifdef count_instr        //counts lines 120-124
-    int count_ifs += 4;          
-    int indexing += 4;         
-    int pointer_adds += 3*4;     
-    int pointer_mults += 3*8;    
+    count_ifs += 4;          
+    indexing += 3;         
+    pointer_adds += 3*4;     
+    pointer_mults += 3*8;    
     #endif
 
     for (int i = 0; i < n - 2; i++) {
@@ -140,7 +140,7 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
 
     #ifdef count_instr                                      //counts lines 134-138
     int count_ifs += n-1 + (n-2)*(m-1);          
-    int indexing += n-1 + (n-2)*(m-1);         
+    int indexing += n-2 + (n-2)*(m-2);         
     int pointer_adds += (n-2)*(m-2)*2;     
     int pointer_mults += (n-2)*(m-2);    
     #endif
@@ -158,7 +158,7 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
 
     #ifdef count_instr                                       //counts lines 134-138
     int count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4;          
-    int indexing += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4;         
+    int indexing += n-2 + (n-2)*(m-2) + (n-2)*(m-2)*3;         
     int pointer_adds += (n-2)*(m-2)*3*(5 + 3 + 3);     
     int pointer_mults += (n-2)*(m-2)*3*7;  
     add_count +=  (n-2)*(m-2)*3*2;                           //count directly the adds in line 154
