@@ -151,7 +151,7 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
         for(int k = 1 ; k < m-1 ; k++){
           for(int i = 0 ; i < 3 ; i ++){
             //add elementwise along the z axis 
-          *(result+(m-2)*(j-1)+K-1) += *(partial_x + i*m*n + j*m + K) + *(partial_y + i*m*n + j*m + K);
+          *(result+(m-2)*(j-1)+k-1) += *(partial_x + i*m*n + j*m + k) + *(partial_y + i*m*n + j*m + k);
         }
       } 
     }
