@@ -20,21 +20,38 @@ extern unsigned long long mult_count; 	//count the total number of mult instruct
 // #define LOG(X) X
 #define LOG(X)
 
-int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
-	int *the_m = (int *) malloc(rsize * csize * sizeof(int));
-	int *padded_img = padd0_image(rsize, csize, img);
-	calc_RGB_energy(rsize + 2, csize + 2, padded_img, the_m);
+int min_seam(int height, int width, int *img, int is_ver, int *ret_backtrack) {
+	int *the_m = (int *) malloc(height * width * sizeof(int));
+
+	int size = 3*(height+2)*(width+2);
+	int* padded_img = (int*) malloc(size*sizeof(int));
+
+	 //int padded_img[3][n+2][m+2];
+	for(int i = 0 ; i < 3 ; i++) {
+	   	for(int j = 0 ; j < height+2 ; j++) {
+	     	for(int k = 0 ; k < width+2 ; k++) {
+	        //if the column is 0 or m+1 or the row is 0 or n+1 we set 0 otherwise copy the value 
+	        if(j == 0 || k == 0 || j == height+1 || k == width+1) {
+	        	padded_img[i*(height+2)*(width+2) + (width+2)*j + k] = 0;
+	        } else {
+	        	padded_img[i*(height+2)*(width+2) + (width+2)*j + k] = img[i*height*width + width*(j-1) + k-1];
+	        }
+	      	}
+	    }
+	}
+	  
+	calc_RGB_energy(height + 2, width + 2, padded_img, the_m);
 
 	// contains index of the value from the prev row/column from where we came here
-	int *backtrack = (int *) malloc(rsize * csize * sizeof(int)); //different from what we return
+	int *backtrack = (int *) malloc(height * width * sizeof(int)); //different from what we return
 
 	// find vertical min seam
 	if (is_ver) {
-		for (int i = 1; i < rsize; i++) { //start from second row	
-			for (int j = 0; j < csize; j++) {
+		for (int i = 1; i < height; i++) { //start from second row	
+			for (int j = 0; j < width; j++) {
 
-				int where = i * csize + j;
-				int where_before = where - csize;
+				int where = i * width + j;
+				int where_before = where - width;
 				int min_idx;
 				int min_val;
 
@@ -47,7 +64,7 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 
 					backtrack[where] = min_idx;
 				// last col
-				} else if (j == csize - 1) {
+				} else if (j == width - 1) {
 					MIN2(the_m[where_before - 1],
 						 the_m[where_before],
 						 min_val,
@@ -74,8 +91,8 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 		int direction = -1; //used in turning 2D backtrack into 1D
 
 		//find the index of the minimum value of last row in the dp matrix
-		int last_row = (rsize - 1)  * csize;
-		for (int cnt = 0; cnt < csize; cnt++) {
+		int last_row = (height - 1)  * width;
+		for (int cnt = 0; cnt < width; cnt++) {
 			int current = last_row + cnt;
 			if (the_m[current] < ret) {
 				ret = the_m[current];
@@ -86,10 +103,10 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 		//return the 1D backtrack (only the min seam)
 		// direction -= last_start;
 
-		for (int i = rsize - 1; i >= 0; i--) {
+		for (int i = height - 1; i >= 0; i--) {
 			ret_backtrack[i] = direction;
 			direction = backtrack[last_row + direction];
-			last_row -= csize;
+			last_row -= width;
 		}
 
 		free(the_m);
@@ -100,11 +117,11 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 
 	} else {
 	// find horizontal min seam
-		for (int i = 1; i < csize; i++) { //start from second col
+		for (int i = 1; i < width; i++) { //start from second col
 		
-			for (int j = 0; j < rsize; j++) {
+			for (int j = 0; j < height; j++) {
 
-				int where = j * csize + i;
+				int where = j * width + i;
 				int where_before = where - 1;
 				int min_idx;
 				int min_val;
@@ -112,15 +129,15 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 				// first row
 				if (j == 0) {
 					MIN2(the_m[where_before], 
-						 the_m[where_before + csize], 
+						 the_m[where_before + width], 
 						 min_val, 
 						 min_idx)
 
 					backtrack[where] = min_idx;
 
 				// last row
-				} else if (j == rsize - 1) {
-					MIN2(the_m[where_before - csize],
+				} else if (j == height - 1) {
+					MIN2(the_m[where_before - width],
 						 the_m[where_before],
 						 min_val,
 						 min_idx)
@@ -129,9 +146,9 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 
 					backtrack[where] = j + min_idx;
 				} else {
-					MIN3(the_m[where_before - csize], 
+					MIN3(the_m[where_before - width], 
 						 the_m[where_before], 
-						 the_m[where_before + csize], 
+						 the_m[where_before + width], 
 						 min_val, 
 						 min_idx)
 
@@ -146,10 +163,10 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 
 		//find the minimum of last row/col of the_m
 		//set the counters to the beginning of the last row/col
-		int last_col = csize - 1;
+		int last_col = width - 1;
 		
-		for (int cnt = 0; cnt < rsize; cnt++) {
-			int current = last_col + (cnt * csize);
+		for (int cnt = 0; cnt < height; cnt++) {
+			int current = last_col + (cnt * width);
 			if (the_m[current] < ret) {
 				ret = the_m[current];
 				direction = cnt;
@@ -159,9 +176,9 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 		//return the 1D backtrack (only the min seam)
 		// direction -= last_start;
 
-		for (int i = csize - 1; i >= 0; i--) {
+		for (int i = width - 1; i >= 0; i--) {
 			ret_backtrack[i] = direction;
-			direction = backtrack[last_col + (direction * csize)];
+			direction = backtrack[last_col + (direction * width)];
 			last_col -= 1;
 		}
 		free(the_m);
