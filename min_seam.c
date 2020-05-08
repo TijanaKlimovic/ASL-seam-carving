@@ -26,7 +26,7 @@ int min_seam(int height, int width, int *img, int is_ver, int *ret_backtrack) {
 	int size = 3*(height+2)*(width+2);
 	int* padded_img = (int*) malloc(size*sizeof(int));
 
-	 //int padded_img[3][n+2][m+2];
+	//int padded_img[3][n+2][m+2];
 	for(int i = 0 ; i < 3 ; i++) {
 	   	for(int j = 0 ; j < height+2 ; j++) {
 	     	for(int k = 0 ; k < width+2 ; k++) {
@@ -39,8 +39,99 @@ int min_seam(int height, int width, int *img, int is_ver, int *ret_backtrack) {
 	      	}
 	    }
 	}
+
+	int padded_h = height + 2;
+	int padded_w = width + 2;
 	  
-	calc_RGB_energy(height + 2, width + 2, padded_img, the_m);
+	//Sobel filters 
+	int H_y[3][3] = {
+	    {-1,-2,-1},
+	    {0,0,0},
+	    {1,2,1}};
+
+	int H_x[3][3] = {
+	    {-1,0,1},
+	    {-2,0,2},
+	    {-1,0,1}};
+
+	size = 3 * padded_h * padded_w ;
+
+	int* partial_x = (int*) malloc( size*sizeof(int));
+	int* partial_y = (int*) malloc( size*sizeof(int));
+
+    //calculate the parital derivatives 
+    for(int i = 0 ; i < 3 ; i ++){
+      	//pass the ith channel for energy calculation
+       	int *channel = padded_img + padded_h * padded_w * i;
+       	int *part_grad_x = partial_x + padded_h * padded_w * i;
+
+	    //start at 1 and end at n-1/m-1 to avoid padding
+	    // i,j are the current pixel
+	    for (int i = 0; i < padded_h; i++) {
+	        for (int j = 0; j < padded_w; j++) {
+	            *(part_grad_x + i*padded_w + j) = 0;
+	        }
+	    }
+
+	    for(int i = 1 ; i < padded_h-1 ; i++){
+	        for(int j = 1 ; j < padded_w-1 ; j++){
+	            for(int u = -1 ; u <= 1; u++){
+	                for(int v = -1 ; v <= 1 ; v++){
+	                    *(part_grad_x + i*padded_w + j) += H_x[u+1][v+1]*channel[(i+u)*padded_w + j+v];
+	                }
+	            }
+
+	            //calculate absolute value of each element in partial derivative of channel F 
+	            if(*(part_grad_x + i*padded_w + j) < 0){
+	              *(part_grad_x + i*padded_w + j) = (-1) * (*(part_grad_x + i*padded_w + j));
+	            }
+	        }
+	    }
+
+       int *part_grad_y = partial_y + padded_h * padded_w * i;
+
+	    //start at 1 and end at n-1/m-1 to avoid padding
+	    // i,j are the current pixel
+	    for (int i = 0; i < padded_h; i++) {
+	        for (int j = 0; j < padded_w; j++) {
+	            *(part_grad_y + i*padded_w + j) = 0;
+	        }
+	    }
+
+	    for(int i = 1 ; i < padded_h-1 ; i++){
+	        for(int j = 1 ; j < padded_w-1 ; j++){
+	            for(int u = -1 ; u <= 1; u++){
+	                for(int v = -1 ; v <= 1 ; v++){
+	                    *(part_grad_y + i*padded_w + j) += H_y[u+1][v+1]*channel[(i+u)*padded_w + j+v];
+	                }
+	            }
+
+	            //calculate absolute value of each element in partial derivative of channel F 
+	            if(*(part_grad_y + i*padded_w + j) < 0){
+	              *(part_grad_y + i*padded_w + j) = (-1) * (*(part_grad_y + i*padded_w + j));
+	            }
+	        }
+	    }
+    }
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            the_m[width * i + j] = 0;
+        }
+    }
+
+    //calculate the total 3d energy 
+      for(int j = 1 ; j < padded_h-1 ; j ++){
+        for(int k = 1 ; k < padded_w-1 ; k++){
+          for(int i = 0 ; i < 3 ; i ++){
+            //add elementwise along the z axis 
+          *(the_m+ width*(j-1)+k-1) += *(partial_x + i*padded_h*padded_w + j*padded_w + k) + *(partial_y + i*padded_h*padded_w + j*padded_w + k);
+        }
+      } 
+    }
+
+    free(partial_x);
+    free(partial_y);
 
 	// contains index of the value from the prev row/column from where we came here
 	int *backtrack = (int *) malloc(height * width * sizeof(int)); //different from what we return
