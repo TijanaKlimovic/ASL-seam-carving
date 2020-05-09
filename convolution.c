@@ -123,8 +123,7 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
   #ifdef count_instr
   // index count
   add_count += (n-2)*(m-2);
-  printf("NO ADDS FOR calc_energy IS: %llu ", add_count); 
-  printf("NO MULTS FOR calc_energy IS: %llu ", mult_count);
+  printf("%llu %llu\n", add_count, mult_count); 
   #endif
 
   //save img
