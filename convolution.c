@@ -24,10 +24,10 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
     // i,j are the current pixel
 
     #ifdef count_instr        //counting adds and mults of this function
-    int count_ifs = 0;        //includes explicit ifs and for loop ifs  -> ADDS
-    int indexing = 0;         //includes increments of i.j,k variables  -> ADDS
-    int pointer_adds = 0;     //pointer arithmetic                      -> ADDS
-    int pointer_mults = 0;    //                                        -> MULTS
+    unsigned long long count_ifs = 0;        //includes explicit ifs and for loop ifs  -> ADDS
+    unsigned long long indexing = 0;         //includes increments of i.j,k variables  -> ADDS
+    unsigned long long pointer_adds = 0;     //pointer arithmetic                      -> ADDS
+    unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
 
 
@@ -73,17 +73,17 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
 
     #ifdef count_instr 
     count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4 + (n-2)*(m-2)*3*4; //count lines 46-52
-    indexing += n=2 + (n-2)*(m-2) + (n-2)*(m-2)*3 + (n-2)*(m-2)*3*3;
+    indexing += n-2 + (n-2)*(m-2) + (n-2)*(m-2)*3 + (n-2)*(m-2)*3*3;
     pointer_adds += (n-2)*(m-2)*3*3*(2 + 2 + 3);
     pointer_mults += (n-2)*(m-2)*3*3*2;
-    add_count +=  (n-2)*(m-2)*3*3;                              //count directly the add and mult in line 50
+    add_count += (n-2)*(m-2)*3*3;                              //count directly the add and mult in line 50
     mult_count += (n-2)*(m-2)*3*3;
 
     //count total
     add_count += count_ifs + indexing + pointer_adds; 
     mult_count += pointer_mults;
-    printf("NO ADDS FOR calc_energy IS: %llu ", add_count); 
-    printf("NO MULTS FOR calc_energy IS: %llu ", mult_count); 
+    printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
+    printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
     #endif
 }
 
@@ -94,10 +94,10 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
 void calc_RGB_energy(int n, int m, int* channels, int* result){
     
    #ifdef count_instr        //counting adds and mults of this function
-    int count_ifs = 0;        //includes explicit ifs and for loop ifs  -> ADDS
-    int indexing = 0;         //includes increments of i.j,k variables  -> ADDS
-    int pointer_adds = 0;     //pointer arithmetic                      -> ADDS
-    int pointer_mults = 0;    //                                        -> MULTS
+    unsigned long long count_ifs = 0;        //includes explicit ifs and for loop ifs  -> ADDS
+    unsigned long long indexing = 0;         //includes increments of i.j,k variables  -> ADDS
+    unsigned long long pointer_adds = 0;     //pointer arithmetic                      -> ADDS
+    unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
 
   //fixed kernels 
@@ -166,8 +166,8 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     //count total
     add_count += count_ifs + indexing + pointer_adds; 
     mult_count += pointer_mults;
-    printf("NO ADDS FOR calc_energy IS: %llu ", add_count); 
-    printf("NO MULTS FOR calc_energy IS: %llu ", mult_count); 
+    printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
+    printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
 
     #endif
 
