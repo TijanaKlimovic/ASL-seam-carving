@@ -140,7 +140,11 @@ int main(int argc, char const *argv[]) {
 
 		double percentage = atoi(argv[4]);
 		int to_retun = run_python_validation(argv[1], argv[2], argv[3], percentage);
+
+		#ifdef count_instr
 		printf("\nADDS=%llu MULTS=%llu\n", add_count, mult_count);
+		#endif
+
 		return to_retun;
 	}
 
@@ -162,12 +166,22 @@ int main(int argc, char const *argv[]) {
 	if(strcmp(argv[5],"1")){
 		int out = run(width, height, output, argv[2], width_diff, height_diff);
 		free(output);
+
+		#ifdef count_instr
+		printf("\nADDS=%llu MULTS=%llu\n", add_count, mult_count);
+		#endif
+
 		return out;
 	}
 	//time it
 	double r = rdtsc(width, height, output, argv[2], width_diff, height_diff);
 
 	free(output);
-    printf("RDTSC instruction: %.0lf cycles measured\n", r);
+
+    printf("\nRDTSC instruction: %.0lf cycles measured\n", r);
+	#ifdef count_instr
+	printf("\nADDS=%llu MULTS=%llu\n", add_count, mult_count);
+	#endif
+
     return 0;
 }
