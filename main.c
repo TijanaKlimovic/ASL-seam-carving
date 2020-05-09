@@ -134,13 +134,22 @@ double rdtsc(int width, int height, int *output, const char *output_file_name, i
 
 int main(int argc, char const *argv[]) {
 
+	// #ifdef __SIZEOF_INT128__
+	// 	printf("I have unsigned __int128\n");
+	// 	return -1;
+	// #endif
+
 	if (argc == 5) {
 		// verification run - python interface
 		printf("Usage should be: %s <image_path> <output_file_name> <c/r> <percentage>\n", argv[0]);
 
 		double percentage = atoi(argv[4]);
 		int to_retun = run_python_validation(argv[1], argv[2], argv[3], percentage);
+
+		#ifdef count_instr
 		printf("\nADDS=%llu MULTS=%llu\n", add_count, mult_count);
+		#endif
+
 		return to_retun;
 	}
 
