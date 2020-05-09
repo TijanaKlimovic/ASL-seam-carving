@@ -70,8 +70,8 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
               mult_count ++;
 
               // pointer count
-              add_count += 4;
-              mult_count += 2;
+              add_count += 2;
+              mult_count++;
               #endif
             }
 
@@ -111,7 +111,7 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
   int* partial_y = (int*) malloc( size*sizeof(int));
 
   #ifdef count_instr
-  mult_count += 4;
+  mult_count += 3;
   #endif
 
   //calculate the parital derivatives
@@ -127,8 +127,8 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
   add_count += 3;
 
   // pointer count
-  add_count += 12;
-  mult_count += 24;
+  add_count += 6;
+  mult_count += 6;
   #endif
 
   for (int i = 0; i < n - 2; i++) {
@@ -157,8 +157,8 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
 
         #ifdef count_instr
         // pointer count
-        add_count += 11;
-        mult_count += 7;
+        add_count += 9;
+        mult_count += 4;
 
         // operation count
         add_count += 2;
