@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <math.h>
+#include <limits.h>
 
 #include "tsc_x86.h"
 
@@ -21,8 +22,6 @@
 
 #include <stdio.h>
 #include "parse_img.h"
-#include "min_seam.h"
-#include "optimal_image.h"
 
 //--------------- necessary for run---------------
 
@@ -38,6 +37,10 @@ unsigned long long mult_count = 0; //count the total number of mult instructions
 #endif
 
 //---------------------------------------------------------
+
+#define MIN2(X, Y, M, IDX) if (X < Y) {M = X; IDX = 0;} else {M = Y; IDX = 1;}
+
+#define MIN3(X, Y, Z, M, IDX) if ((X < Y) && (X < Z)) {M = X; IDX = -1;} else {MIN2(Y, Z, M, IDX)}
 
 void init_tsc() {
 	; // no need to initialize anything for x86
@@ -56,39 +59,6 @@ myInt64 stop_tsc(myInt64 start) {
 	CPUID();
 	return COUNTER_VAL(end) - start;
 }
-
-/* 
-takes in the image path and runs the seam carving algorithm
-conforms to the reference python interface
-*/
-
-int run_python_validation(const char* path,const char* output_file_name, const char* col_row,
-	double percentage) {
-	int width, height;
-	int *output;
-	int *res;
-
-	if (!load_image(path, &width, &height, &output)) {
-		return 1;
-	}
-
-	int width_diff = 0, height_diff = 0;
-
-	if (strcmp(col_row, "c")) {
-		height_diff = height - floor(height * (0.01*percentage));
-	} else {
-		width_diff = width - floor(width * (0.01*percentage));
-	}
-
-	res = optimal_image(width, height, width_diff, height_diff, output);
-	save_image(output_file_name, width - width_diff, height - height_diff, res);
-	free(res);
-	return 0;
-}
-
-/* 
-takes in the image path and resuns the seam carving algorithm
-*/
 
 // Data structure to hold information in a T cell
 struct cell_T {
@@ -115,8 +85,202 @@ int run(int width, int height, int *image, const char *output_file_name, int wid
 		int *image_left = T[T_index_left].i;
 		int image_width = width - j + 1;
 
-		int *backtrack = (int *)malloc(height * sizeof(int));
-		int optimal_cost = min_seam(height, image_width, image_left, 1, backtrack);
+		int *backtrack_indexes = (int *)malloc(height * sizeof(int));
+	
+		int optimal_cost;
+		int h = height;
+		int w = image_width;
+		int *img = image_left;
+
+		
+
+
+		int *the_m = (int *) malloc(h * w * sizeof(int));
+
+		int size = 3*(h+2)*(w+2);
+		int* padded_img = (int*) malloc(size*sizeof(int));
+
+		//int padded_img[3][n+2][m+2];
+		for(int i = 0 ; i < 3 ; i++) {
+		   	for(int j = 0 ; j < h+2 ; j++) {
+		     	for(int k = 0 ; k < w+2 ; k++) {
+		        //if the column is 0 or m+1 or the row is 0 or n+1 we set 0 otherwise copy the value 
+		        if(j == 0 || k == 0 || j == h+1 || k == w+1) {
+		        	padded_img[i*(h+2)*(w+2) + (w+2)*j + k] = 0;
+		        } else {
+		        	padded_img[i*(h+2)*(w+2) + (w+2)*j + k] = img[i*h*w + w*(j-1) + k-1];
+		        }
+		      	}
+		    }
+		}
+
+		int padded_h = h + 2;
+		int padded_w = w + 2;
+		  
+		//Sobel filters 
+		int H_y[3][3] = {
+		    {-1,-2,-1},
+		    {0,0,0},
+		    {1,2,1}};
+
+		int H_x[3][3] = {
+		    {-1,0,1},
+		    {-2,0,2},
+		    {-1,0,1}};
+
+		size = 3 * padded_h * padded_w ;
+
+		int* partial_x = (int*) malloc( size*sizeof(int));
+		int* partial_y = (int*) malloc( size*sizeof(int));
+
+	    //calculate the parital derivatives 
+	    for(int i = 0 ; i < 3 ; i ++){
+	      	//pass the ith channel for energy calculation
+	       	int *channel = padded_img + padded_h * padded_w * i;
+	       	int *part_grad_x = partial_x + padded_h * padded_w * i;
+
+		    //start at 1 and end at n-1/m-1 to avoid padding
+		    // i,j are the current pixel
+		    for (int i = 0; i < padded_h; i++) {
+		        for (int j = 0; j < padded_w; j++) {
+		            *(part_grad_x + i*padded_w + j) = 0;
+		        }
+		    }
+
+		    for(int i = 1 ; i < padded_h-1 ; i++){
+		        for(int j = 1 ; j < padded_w-1 ; j++){
+		            for(int u = -1 ; u <= 1; u++){
+		                for(int v = -1 ; v <= 1 ; v++){
+		                    *(part_grad_x + i*padded_w + j) += H_x[u+1][v+1]*channel[(i+u)*padded_w + j+v];
+		                }
+		            }
+
+		            //calculate absolute value of each element in partial derivative of channel F 
+		            if(*(part_grad_x + i*padded_w + j) < 0){
+		              *(part_grad_x + i*padded_w + j) = (-1) * (*(part_grad_x + i*padded_w + j));
+		            }
+		        }
+		    }
+
+	       int *part_grad_y = partial_y + padded_h * padded_w * i;
+
+		    //start at 1 and end at n-1/m-1 to avoid padding
+		    // i,j are the current pixel
+		    for (int i = 0; i < padded_h; i++) {
+		        for (int j = 0; j < padded_w; j++) {
+		            *(part_grad_y + i*padded_w + j) = 0;
+		        }
+		    }
+
+		    for(int i = 1 ; i < padded_h-1 ; i++){
+		        for(int j = 1 ; j < padded_w-1 ; j++){
+		            for(int u = -1 ; u <= 1; u++){
+		                for(int v = -1 ; v <= 1 ; v++){
+		                    *(part_grad_y + i*padded_w + j) += H_y[u+1][v+1]*channel[(i+u)*padded_w + j+v];
+		                }
+		            }
+
+		            //calculate absolute value of each element in partial derivative of channel F 
+		            if(*(part_grad_y + i*padded_w + j) < 0){
+		              *(part_grad_y + i*padded_w + j) = (-1) * (*(part_grad_y + i*padded_w + j));
+		            }
+		        }
+		    }
+	    }
+
+	    for (int i = 0; i < h; i++) {
+	        for (int j = 0; j < w; j++) {
+	            the_m[w * i + j] = 0;
+	        }
+	    }
+
+	    //calculate the total 3d energy 
+	      for(int j = 1 ; j < padded_h-1 ; j ++){
+	        for(int k = 1 ; k < padded_w-1 ; k++){
+	          for(int i = 0 ; i < 3 ; i ++){
+	            //add elementwise along the z axis 
+	          *(the_m+ w*(j-1)+k-1) += *(partial_x + i*padded_h*padded_w + j*padded_w + k) + *(partial_y + i*padded_h*padded_w + j*padded_w + k);
+	        }
+	      } 
+	    }
+
+	    free(partial_x);
+	    free(partial_y);
+
+		// contains index of the value from the prev row/column from where we came here
+		int *backtrack = (int *) malloc(h * w * sizeof(int)); //different from what we return
+
+		// find vertical min seam
+		for (int i = 1; i < h; i++) { //start from second row	
+			for (int j = 0; j < w; j++) {
+
+				int where = i * w + j;
+				int where_before = where - w;
+				int min_idx;
+				int min_val;
+
+				// first col
+				if (j == 0) {
+					MIN2(the_m[where_before], 
+						 the_m[where_before + 1], 
+						 min_val, 
+						 min_idx)
+
+					backtrack[where] = min_idx;
+				// last col
+				} else if (j == w - 1) {
+					MIN2(the_m[where_before - 1],
+						 the_m[where_before],
+						 min_val,
+						 min_idx)
+
+					min_idx--;
+
+					backtrack[where] = j + min_idx;
+				} else {
+					MIN3(the_m[where_before - 1], 
+						 the_m[where_before], 
+						 the_m[where_before + 1], 
+						 min_val, 
+						 min_idx)
+
+					backtrack[where] = j + min_idx;
+				}
+				the_m[where] += min_val;
+			}
+		}
+
+		//process the data to return in appropriate format
+		int ret = INT_MAX;
+		int direction = -1; //used in turning 2D backtrack into 1D
+
+		//find the index of the minimum value of last row in the dp matrix
+		int last_row = (h - 1)  * w;
+		for (int cnt = 0; cnt < w; cnt++) {
+			int current = last_row + cnt;
+			if (the_m[current] < ret) {
+				ret = the_m[current];
+				direction = cnt;
+			}
+		}
+
+		optimal_cost = ret;
+
+		//return the 1D backtrack (only the min seam)
+		// direction -= last_start;
+
+		for (int i = h - 1; i >= 0; i--) {
+			backtrack_indexes[i] = direction;
+			direction = backtrack[last_row + direction];
+			last_row -= w;
+		}
+
+		free(the_m);
+		free(backtrack);
+		free(padded_img);
+
+
+
 
 		T[j].optimal_cost = T[T_index_left].optimal_cost + optimal_cost;
 		T[j].i = (int *)malloc(3 * height * (image_width - 1) * sizeof(int));
@@ -125,14 +289,14 @@ int run(int width, int height, int *image, const char *output_file_name, int wid
 		for (k = 0; k < height; ++k) { // construct each row at a time
 			int crr_col = 0;
 			for (l = 0; l < image_width; ++l)
-				if (l != backtrack[k]) { // check for elem to remove
+				if (l != backtrack_indexes[k]) { // check for elem to remove
 					T[j].i[k*(image_width-1)+crr_col] = T[T_index_left].i[k*image_width + l];
 					T[j].i[height*(image_width-1)+k*(image_width-1)+crr_col] = T[T_index_left].i[height*image_width+k*image_width + l];
 					T[j].i[2*height*(image_width-1)+k*(image_width-1)+crr_col] = T[T_index_left].i[2*height*image_width+k*image_width + l];
 					crr_col++;
 				}
 		}
-		free(backtrack);
+		free(backtrack_indexes);
 	}
 		
 	// going through the rest of the dp matrix
@@ -143,9 +307,204 @@ int run(int width, int height, int *image, const char *output_file_name, int wid
 		int T_index_up = (i - 1) * width_diff;
 		int *image_up = T[T_index_up].i;
 		int image_height = height - i + 1;
+	
+		int *backtrack_indexes = (int *)malloc(width * sizeof(int));
+	
+		int optimal_cost;
+		int h = image_height;
+		int w = width;
+		int *img = image_up;
 
-		int *backtrack = (int *)malloc(width * sizeof(int));
-		int optimal_cost = min_seam(image_height, width, image_up, 0, backtrack);
+		int *the_m = (int *) malloc(h * w * sizeof(int));
+
+		int size = 3*(h+2)*(w+2);
+		int* padded_img = (int*) malloc(size*sizeof(int));
+
+		//int padded_img[3][n+2][m+2];
+		for(int i = 0 ; i < 3 ; i++) {
+		   	for(int j = 0 ; j < h+2 ; j++) {
+		     	for(int k = 0 ; k < w+2 ; k++) {
+		        //if the column is 0 or m+1 or the row is 0 or n+1 we set 0 otherwise copy the value 
+		        if(j == 0 || k == 0 || j == h+1 || k == w+1) {
+		        	padded_img[i*(h+2)*(w+2) + (w+2)*j + k] = 0;
+		        } else {
+		        	padded_img[i*(h+2)*(w+2) + (w+2)*j + k] = img[i*h*w + w*(j-1) + k-1];
+		        }
+		      	}
+		    }
+		}
+
+		int padded_h = h + 2;
+		int padded_w = w + 2;
+		  
+		//Sobel filters 
+		int H_y[3][3] = {
+		    {-1,-2,-1},
+		    {0,0,0},
+		    {1,2,1}};
+
+		int H_x[3][3] = {
+		    {-1,0,1},
+		    {-2,0,2},
+		    {-1,0,1}};
+
+		size = 3 * padded_h * padded_w ;
+
+		int* partial_x = (int*) malloc( size*sizeof(int));
+		int* partial_y = (int*) malloc( size*sizeof(int));
+
+	    //calculate the parital derivatives 
+	    for(int i = 0 ; i < 3 ; i ++){
+	      	//pass the ith channel for energy calculation
+	       	int *channel = padded_img + padded_h * padded_w * i;
+	       	int *part_grad_x = partial_x + padded_h * padded_w * i;
+
+		    //start at 1 and end at n-1/m-1 to avoid padding
+		    // i,j are the current pixel
+		    for (int i = 0; i < padded_h; i++) {
+		        for (int j = 0; j < padded_w; j++) {
+		            *(part_grad_x + i*padded_w + j) = 0;
+		        }
+		    }
+
+		    for(int i = 1 ; i < padded_h-1 ; i++){
+		        for(int j = 1 ; j < padded_w-1 ; j++){
+		            for(int u = -1 ; u <= 1; u++){
+		                for(int v = -1 ; v <= 1 ; v++){
+		                    *(part_grad_x + i*padded_w + j) += H_x[u+1][v+1]*channel[(i+u)*padded_w + j+v];
+		                }
+		            }
+
+		            //calculate absolute value of each element in partial derivative of channel F 
+		            if(*(part_grad_x + i*padded_w + j) < 0){
+		              *(part_grad_x + i*padded_w + j) = (-1) * (*(part_grad_x + i*padded_w + j));
+		            }
+		        }
+		    }
+
+	       int *part_grad_y = partial_y + padded_h * padded_w * i;
+
+		    //start at 1 and end at n-1/m-1 to avoid padding
+		    // i,j are the current pixel
+		    for (int i = 0; i < padded_h; i++) {
+		        for (int j = 0; j < padded_w; j++) {
+		            *(part_grad_y + i*padded_w + j) = 0;
+		        }
+		    }
+
+		    for(int i = 1 ; i < padded_h-1 ; i++){
+		        for(int j = 1 ; j < padded_w-1 ; j++){
+		            for(int u = -1 ; u <= 1; u++){
+		                for(int v = -1 ; v <= 1 ; v++){
+		                    *(part_grad_y + i*padded_w + j) += H_y[u+1][v+1]*channel[(i+u)*padded_w + j+v];
+		                }
+		            }
+
+		            //calculate absolute value of each element in partial derivative of channel F 
+		            if(*(part_grad_y + i*padded_w + j) < 0){
+		              *(part_grad_y + i*padded_w + j) = (-1) * (*(part_grad_y + i*padded_w + j));
+		            }
+		        }
+		    }
+	    }
+
+	    for (int i = 0; i < h; i++) {
+	        for (int j = 0; j < w; j++) {
+	            the_m[w * i + j] = 0;
+	        }
+	    }
+
+	    //calculate the total 3d energy 
+	      for(int j = 1 ; j < padded_h-1 ; j ++){
+	        for(int k = 1 ; k < padded_w-1 ; k++){
+	          for(int i = 0 ; i < 3 ; i ++){
+	            //add elementwise along the z axis 
+	          *(the_m+ w*(j-1)+k-1) += *(partial_x + i*padded_h*padded_w + j*padded_w + k) + *(partial_y + i*padded_h*padded_w + j*padded_w + k);
+	        }
+	      } 
+	    }
+
+	    free(partial_x);
+	    free(partial_y);
+
+		// contains index of the value from the prev row/column from where we came here
+		int *backtrack = (int *) malloc(h * w * sizeof(int)); //different from what we return
+
+		// find horizontal min seam
+		for (int i = 1; i < w; i++) { //start from second col
+		
+			for (int j = 0; j < h; j++) {
+
+				int where = j * w + i;
+				int where_before = where - 1;
+				int min_idx;
+				int min_val;
+
+				// first row
+				if (j == 0) {
+					MIN2(the_m[where_before], 
+						 the_m[where_before + w], 
+						 min_val, 
+						 min_idx)
+
+					backtrack[where] = min_idx;
+
+				// last row
+				} else if (j == h - 1) {
+					MIN2(the_m[where_before - w],
+						 the_m[where_before],
+						 min_val,
+						 min_idx)
+
+					min_idx--;
+
+					backtrack[where] = j + min_idx;
+				} else {
+					MIN3(the_m[where_before - w], 
+						 the_m[where_before], 
+						 the_m[where_before + w], 
+						 min_val, 
+						 min_idx)
+
+					backtrack[where] = j + min_idx;
+				}
+				the_m[where] += min_val;
+			}
+		}
+		//process the data to return in appropriate format
+		int ret = INT_MAX;
+		int direction = -1; //used in turning 2D backtrack into 1D
+
+		//find the minimum of last row/col of the_m
+		//set the counters to the beginning of the last row/col
+		int last_col = w - 1;
+		
+		for (int cnt = 0; cnt < h; cnt++) {
+			int current = last_col + (cnt * w);
+			if (the_m[current] < ret) {
+				ret = the_m[current];
+				direction = cnt;
+			}
+		}
+
+		optimal_cost = ret;
+
+		//return the 1D backtrack (only the min seam)
+		// direction -= last_start;
+
+		for (int i = w - 1; i >= 0; i--) {
+			backtrack_indexes[i] = direction;
+			direction = backtrack[last_col + (direction * w)];
+			last_col -= 1;
+		}
+		free(the_m);
+		free(backtrack);
+		free(padded_img);
+		
+
+
+
+
 
 		T[T_index].optimal_cost = T[T_index_up].optimal_cost + optimal_cost;
 		T[T_index].i = (int *)malloc(3 * (image_height - 1) * width * sizeof(int));
@@ -154,14 +513,14 @@ int run(int width, int height, int *image, const char *output_file_name, int wid
 		for (k = 0; k < width; ++k) { // construct each column at a time
 			int crr_row = 0;
 			for (l = 0; l < image_height; ++l)
-				if (l != backtrack[k]) { // check for elem to remove
+				if (l != backtrack_indexes[k]) { // check for elem to remove
 					T[T_index].i[crr_row*width+k] = T[T_index_up].i[l*width + k];
 					T[T_index].i[(image_height-1)*width+crr_row*width+k] = T[T_index_up].i[image_height*width+l*width + k];
 					T[T_index].i[2*(image_height-1)*width+crr_row*width+k] = T[T_index_up].i[2*image_height*width+l*width + k];
 					crr_row++;
 				}
 		}
-		free(backtrack);
+		free(backtrack_indexes);
 
 		// continue from the 2nd column
 		for (j = 1; j < width_diff; ++j) {
@@ -174,7 +533,204 @@ int run(int width, int height, int *image, const char *output_file_name, int wid
 			int image_left_height = height - i;
 
 			int *backtrack_left = (int *)malloc(image_left_height * sizeof(int));
-			int optimal_cost_left = min_seam(image_left_height, image_left_width, image_left, 1, backtrack_left);
+			//int optimal_cost_left = min_seam(image_left_height, image_left_width, image_left, 1, backtrack_left);
+
+
+			//------------------
+		
+			int optimal_cost_left;
+			int h = image_left_height;
+			int w = image_left_width;
+			int *img = image_left;
+
+			
+
+
+			int *the_m = (int *) malloc(h * w * sizeof(int));
+
+			int size = 3*(h+2)*(w+2);
+			int* padded_img = (int*) malloc(size*sizeof(int));
+
+			//int padded_img[3][n+2][m+2];
+			for(int i = 0 ; i < 3 ; i++) {
+			   	for(int j = 0 ; j < h+2 ; j++) {
+			     	for(int k = 0 ; k < w+2 ; k++) {
+			        //if the column is 0 or m+1 or the row is 0 or n+1 we set 0 otherwise copy the value 
+			        if(j == 0 || k == 0 || j == h+1 || k == w+1) {
+			        	padded_img[i*(h+2)*(w+2) + (w+2)*j + k] = 0;
+			        } else {
+			        	padded_img[i*(h+2)*(w+2) + (w+2)*j + k] = img[i*h*w + w*(j-1) + k-1];
+			        }
+			      	}
+			    }
+			}
+
+			int padded_h = h + 2;
+			int padded_w = w + 2;
+			  
+			//Sobel filters 
+			int H_y[3][3] = {
+			    {-1,-2,-1},
+			    {0,0,0},
+			    {1,2,1}};
+
+			int H_x[3][3] = {
+			    {-1,0,1},
+			    {-2,0,2},
+			    {-1,0,1}};
+
+			size = 3 * padded_h * padded_w ;
+
+			int* partial_x = (int*) malloc( size*sizeof(int));
+			int* partial_y = (int*) malloc( size*sizeof(int));
+
+		    //calculate the parital derivatives 
+		    for(int i = 0 ; i < 3 ; i ++){
+		      	//pass the ith channel for energy calculation
+		       	int *channel = padded_img + padded_h * padded_w * i;
+		       	int *part_grad_x = partial_x + padded_h * padded_w * i;
+
+			    //start at 1 and end at n-1/m-1 to avoid padding
+			    // i,j are the current pixel
+			    for (int i = 0; i < padded_h; i++) {
+			        for (int j = 0; j < padded_w; j++) {
+			            *(part_grad_x + i*padded_w + j) = 0;
+			        }
+			    }
+
+			    for(int i = 1 ; i < padded_h-1 ; i++){
+			        for(int j = 1 ; j < padded_w-1 ; j++){
+			            for(int u = -1 ; u <= 1; u++){
+			                for(int v = -1 ; v <= 1 ; v++){
+			                    *(part_grad_x + i*padded_w + j) += H_x[u+1][v+1]*channel[(i+u)*padded_w + j+v];
+			                }
+			            }
+
+			            //calculate absolute value of each element in partial derivative of channel F 
+			            if(*(part_grad_x + i*padded_w + j) < 0){
+			              *(part_grad_x + i*padded_w + j) = (-1) * (*(part_grad_x + i*padded_w + j));
+			            }
+			        }
+			    }
+
+		       int *part_grad_y = partial_y + padded_h * padded_w * i;
+
+			    //start at 1 and end at n-1/m-1 to avoid padding
+			    // i,j are the current pixel
+			    for (int i = 0; i < padded_h; i++) {
+			        for (int j = 0; j < padded_w; j++) {
+			            *(part_grad_y + i*padded_w + j) = 0;
+			        }
+			    }
+
+			    for(int i = 1 ; i < padded_h-1 ; i++){
+			        for(int j = 1 ; j < padded_w-1 ; j++){
+			            for(int u = -1 ; u <= 1; u++){
+			                for(int v = -1 ; v <= 1 ; v++){
+			                    *(part_grad_y + i*padded_w + j) += H_y[u+1][v+1]*channel[(i+u)*padded_w + j+v];
+			                }
+			            }
+
+			            //calculate absolute value of each element in partial derivative of channel F 
+			            if(*(part_grad_y + i*padded_w + j) < 0){
+			              *(part_grad_y + i*padded_w + j) = (-1) * (*(part_grad_y + i*padded_w + j));
+			            }
+			        }
+			    }
+		    }
+
+		    for (int i = 0; i < h; i++) {
+		        for (int j = 0; j < w; j++) {
+		            the_m[w * i + j] = 0;
+		        }
+		    }
+
+		    //calculate the total 3d energy 
+		      for(int j = 1 ; j < padded_h-1 ; j ++){
+		        for(int k = 1 ; k < padded_w-1 ; k++){
+		          for(int i = 0 ; i < 3 ; i ++){
+		            //add elementwise along the z axis 
+		          *(the_m+ w*(j-1)+k-1) += *(partial_x + i*padded_h*padded_w + j*padded_w + k) + *(partial_y + i*padded_h*padded_w + j*padded_w + k);
+		        }
+		      } 
+		    }
+
+		    free(partial_x);
+		    free(partial_y);
+
+			// contains index of the value from the prev row/column from where we came here
+			int *backtrack = (int *) malloc(h * w * sizeof(int)); //different from what we return
+
+			// find vertical min seam
+			for (int i = 1; i < h; i++) { //start from second row	
+				for (int j = 0; j < w; j++) {
+
+					int where = i * w + j;
+					int where_before = where - w;
+					int min_idx;
+					int min_val;
+
+					// first col
+					if (j == 0) {
+						MIN2(the_m[where_before], 
+							 the_m[where_before + 1], 
+							 min_val, 
+							 min_idx)
+
+						backtrack[where] = min_idx;
+					// last col
+					} else if (j == w - 1) {
+						MIN2(the_m[where_before - 1],
+							 the_m[where_before],
+							 min_val,
+							 min_idx)
+
+						min_idx--;
+
+						backtrack[where] = j + min_idx;
+					} else {
+						MIN3(the_m[where_before - 1], 
+							 the_m[where_before], 
+							 the_m[where_before + 1], 
+							 min_val, 
+							 min_idx)
+
+						backtrack[where] = j + min_idx;
+					}
+					the_m[where] += min_val;
+				}
+			}
+
+			//process the data to return in appropriate format
+			int ret = INT_MAX;
+			int direction = -1; //used in turning 2D backtrack into 1D
+
+			//find the index of the minimum value of last row in the dp matrix
+			int last_row = (h - 1)  * w;
+			for (int cnt = 0; cnt < w; cnt++) {
+				int current = last_row + cnt;
+				if (the_m[current] < ret) {
+					ret = the_m[current];
+					direction = cnt;
+				}
+			}
+
+			optimal_cost_left = ret;
+
+			//return the 1D backtrack (only the min seam)
+			// direction -= last_start;
+
+			for (int i = h - 1; i >= 0; i--) {
+				backtrack_left[i] = direction;
+				direction = backtrack[last_row + direction];
+				last_row -= w;
+			}
+
+			free(the_m);
+			free(backtrack);
+			free(padded_img);
+
+			//------------------
 
 			int T_index_up = (i - 1) * width_diff + j;
 			int *image_up = T[T_index_up].i;
@@ -182,7 +738,206 @@ int run(int width, int height, int *image, const char *output_file_name, int wid
 			int image_up_height = height - i + 1;
 
 			int *backtrack_up = (int *)malloc(image_up_width * sizeof(int));
-			int optimal_cost_up = min_seam(image_up_height, image_up_width, image_up, 0, backtrack_up);
+
+			// ----------------
+
+		{
+			int optimal_cost_up;
+			int h = image_up_height;
+			int w = image_up_width;
+			int *img = image_up;
+
+			int *the_m = (int *) malloc(h * w * sizeof(int));
+
+			int size = 3*(h+2)*(w+2);
+			int* padded_img = (int*) malloc(size*sizeof(int));
+
+			//int padded_img[3][n+2][m+2];
+			for(int i = 0 ; i < 3 ; i++) {
+			   	for(int j = 0 ; j < h+2 ; j++) {
+			     	for(int k = 0 ; k < w+2 ; k++) {
+			        //if the column is 0 or m+1 or the row is 0 or n+1 we set 0 otherwise copy the value 
+			        if(j == 0 || k == 0 || j == h+1 || k == w+1) {
+			        	padded_img[i*(h+2)*(w+2) + (w+2)*j + k] = 0;
+			        } else {
+			        	padded_img[i*(h+2)*(w+2) + (w+2)*j + k] = img[i*h*w + w*(j-1) + k-1];
+			        }
+			      	}
+			    }
+			}
+
+			int padded_h = h + 2;
+			int padded_w = w + 2;
+			  
+			//Sobel filters 
+			int H_y[3][3] = {
+			    {-1,-2,-1},
+			    {0,0,0},
+			    {1,2,1}};
+
+			int H_x[3][3] = {
+			    {-1,0,1},
+			    {-2,0,2},
+			    {-1,0,1}};
+
+			size = 3 * padded_h * padded_w ;
+
+			int* partial_x = (int*) malloc( size*sizeof(int));
+			int* partial_y = (int*) malloc( size*sizeof(int));
+
+		    //calculate the parital derivatives 
+		    for(int i = 0 ; i < 3 ; i ++){
+		      	//pass the ith channel for energy calculation
+		       	int *channel = padded_img + padded_h * padded_w * i;
+		       	int *part_grad_x = partial_x + padded_h * padded_w * i;
+
+			    //start at 1 and end at n-1/m-1 to avoid padding
+			    // i,j are the current pixel
+			    for (int i = 0; i < padded_h; i++) {
+			        for (int j = 0; j < padded_w; j++) {
+			            *(part_grad_x + i*padded_w + j) = 0;
+			        }
+			    }
+
+			    for(int i = 1 ; i < padded_h-1 ; i++){
+			        for(int j = 1 ; j < padded_w-1 ; j++){
+			            for(int u = -1 ; u <= 1; u++){
+			                for(int v = -1 ; v <= 1 ; v++){
+			                    *(part_grad_x + i*padded_w + j) += H_x[u+1][v+1]*channel[(i+u)*padded_w + j+v];
+			                }
+			            }
+
+			            //calculate absolute value of each element in partial derivative of channel F 
+			            if(*(part_grad_x + i*padded_w + j) < 0){
+			              *(part_grad_x + i*padded_w + j) = (-1) * (*(part_grad_x + i*padded_w + j));
+			            }
+			        }
+			    }
+
+		       int *part_grad_y = partial_y + padded_h * padded_w * i;
+
+			    //start at 1 and end at n-1/m-1 to avoid padding
+			    // i,j are the current pixel
+			    for (int i = 0; i < padded_h; i++) {
+			        for (int j = 0; j < padded_w; j++) {
+			            *(part_grad_y + i*padded_w + j) = 0;
+			        }
+			    }
+
+			    for(int i = 1 ; i < padded_h-1 ; i++){
+			        for(int j = 1 ; j < padded_w-1 ; j++){
+			            for(int u = -1 ; u <= 1; u++){
+			                for(int v = -1 ; v <= 1 ; v++){
+			                    *(part_grad_y + i*padded_w + j) += H_y[u+1][v+1]*channel[(i+u)*padded_w + j+v];
+			                }
+			            }
+
+			            //calculate absolute value of each element in partial derivative of channel F 
+			            if(*(part_grad_y + i*padded_w + j) < 0){
+			              *(part_grad_y + i*padded_w + j) = (-1) * (*(part_grad_y + i*padded_w + j));
+			            }
+			        }
+			    }
+		    }
+
+		    for (int i = 0; i < h; i++) {
+		        for (int j = 0; j < w; j++) {
+		            the_m[w * i + j] = 0;
+		        }
+		    }
+
+		    //calculate the total 3d energy 
+		      for(int j = 1 ; j < padded_h-1 ; j ++){
+		        for(int k = 1 ; k < padded_w-1 ; k++){
+		          for(int i = 0 ; i < 3 ; i ++){
+		            //add elementwise along the z axis 
+		          *(the_m+ w*(j-1)+k-1) += *(partial_x + i*padded_h*padded_w + j*padded_w + k) + *(partial_y + i*padded_h*padded_w + j*padded_w + k);
+		        }
+		      } 
+		    }
+
+		    free(partial_x);
+		    free(partial_y);
+
+			// contains index of the value from the prev row/column from where we came here
+			int *backtrack = (int *) malloc(h * w * sizeof(int)); //different from what we return
+
+			// find horizontal min seam
+			for (int i = 1; i < w; i++) { //start from second col
+			
+				for (int j = 0; j < h; j++) {
+
+					int where = j * w + i;
+					int where_before = where - 1;
+					int min_idx;
+					int min_val;
+
+					// first row
+					if (j == 0) {
+						MIN2(the_m[where_before], 
+							 the_m[where_before + w], 
+							 min_val, 
+							 min_idx)
+
+						backtrack[where] = min_idx;
+
+					// last row
+					} else if (j == h - 1) {
+						MIN2(the_m[where_before - w],
+							 the_m[where_before],
+							 min_val,
+							 min_idx)
+
+						min_idx--;
+
+						backtrack[where] = j + min_idx;
+					} else {
+						MIN3(the_m[where_before - w], 
+							 the_m[where_before], 
+							 the_m[where_before + w], 
+							 min_val, 
+							 min_idx)
+
+						backtrack[where] = j + min_idx;
+					}
+					the_m[where] += min_val;
+				}
+			}
+			//process the data to return in appropriate format
+			int ret = INT_MAX;
+			int direction = -1; //used in turning 2D backtrack into 1D
+
+			//find the minimum of last row/col of the_m
+			//set the counters to the beginning of the last row/col
+			int last_col = w - 1;
+			
+			for (int cnt = 0; cnt < h; cnt++) {
+				int current = last_col + (cnt * w);
+				if (the_m[current] < ret) {
+					ret = the_m[current];
+					direction = cnt;
+				}
+			}
+
+			optimal_cost_up = ret;
+
+			//return the 1D backtrack (only the min seam)
+			// direction -= last_start;
+
+			for (int i = w - 1; i >= 0; i--) {
+				backtrack_up[i] = direction;
+				direction = backtrack[last_col + (direction * w)];
+				last_col -= 1;
+			}
+			free(the_m);
+			free(backtrack);
+			free(padded_img);
+		
+		
+
+
+
+
 
 			// remove column
 			if (T[T_index_left].optimal_cost + optimal_cost_left <=
@@ -223,6 +978,7 @@ int run(int width, int height, int *image, const char *output_file_name, int wid
 			free(backtrack_up);
 		
 		}
+	}
 	}
 		
 	// copy 
@@ -275,18 +1031,6 @@ double rdtsc(int width, int height, int *output, const char *output_file_name, i
 /* main function , has two options, first is the image path second is -t/<anything except nothing> */ 
 
 int main(int argc, char const *argv[]) {
-
-	if (argc == 5) {
-		// verification run - python interface
-		printf("Usage should be: %s <image_path> <output_file_name> <c/r> <percentage>\n", argv[0]);
-
-		double percentage = atoi(argv[4]);
-		int to_retun = run_python_validation(argv[1], argv[2], argv[3], percentage);
-		#ifdef count_instr 
-		printf("\nADDS=%llu MULTS=%llu\n", add_count, mult_count);
-		#endif
-		return to_retun;
-	}
 
 	if (argc < 6) {
 		printf("Usage: %s <image_path> <output_file_name> <width_diff> <height_diff> <timing boolean>\n", argv[0]);
