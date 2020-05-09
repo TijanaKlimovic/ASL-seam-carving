@@ -19,7 +19,7 @@ extern unsigned long long mult_count;  //count the total number of mult instruct
 // int debug = 1;
 //assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
-
+//F is of size 3 x n x m
 void calc_energy(int n, int m, int* F, int* part_grad ){
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
@@ -39,16 +39,6 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
             int acc4;
             int acc5;
             int acc6;
-          //fixed kernels 
-          // int H_y[3][3] = {
-          //   {-1,-2,-1},
-          //   {0,0,0},
-          //   {1,2,1}};
-
-          // int H_x[3][3] = {
-          //   {-1,0,1},
-          //   {-2,0,2},
-          //   {-1,0,1}};
             //H_y
             acc1 = -(F[(i - 1) * m + (j - 1)] + ((F[(i - 1) * m + j]) << 1));
             acc2 = F[(i + 1) * m + (j - 1)] - F[(i - 1) * m + j + 1];
@@ -148,11 +138,11 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
 
     //calculate the total 3d energy 
     
-    for(int j = 1 ; j < n-1 ; j ++){
-        for(int k = 1 ; k < m-1 ; k++){
-            for(int i = 0 ; i < 3 ; i ++){
-                //add elementwise along the z axis 
-                *(result+(m-2)*(j-1)+k-1) += *(partial + i*m*n + j*m + k);
+    for(int i = 0 ; i < 3 ; i++) {
+        for(int j = 1 ; j < n-1 ; j++) {
+            for(int k = 1 ; k < m-1 ; k++) {
+                    //add elementwise along the z axis 
+                    *(result+(m-2)*(j-1)+k-1) += *(partial + i*m*n + j*m + k);
             }
         }
     }
