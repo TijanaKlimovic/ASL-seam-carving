@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "count.h"
 
 void print_matrix(int *matrix, int width, int height, int channels);
 int load_image(const char *filename, int *width, int *height, int **output);
