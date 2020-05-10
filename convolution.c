@@ -31,17 +31,67 @@ void calc_energy(int n, int m, int* F, int* part_grad){
     unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
 
-    int block_height = n - K;
-    int block_width = 166667; //currently going channel by channel maybe later we can parallelise it
+    int block_height_L3 = n - K;
+    int block_height_L2 = n - K;
+    int block_height_L1 = n - K;
 
-    int width_limit = m-K-block_width;
+    int block_width_L3 = 166667; //currently going channel by channel maybe later we can parallelise it
+    int block_width_L2 = 21334;
+    int block_width_L1 = 2667;
+
+
+    int width_limit_L3 = m-K-block_width_L3;
+    int width_limit_L2;
+    int width_limit_L1 = m-K-block_width_L1;
+
 
     int j,i;
-    for(j = 1 ; j < width_limit ; j = j + block_width){
-      for(i = 1 ; i < n-K ; i = i + block_height){
-          for(int ii = i ; ii < i + block_height ; ii++){
-            for(int jj = j ; jj < j + block_width ; jj++){
+    for(j = 1 ; j < width_limit_L3 ; j = j + block_width_L3){
+      for(i = 1 ; i < n-K ; i += block_height_L3){
 
+        width_limit_L2 = j + block_width_L3 - block_width_L2; //take care in case block_width_L2 doesnt divide width_limit_L2
+        int j_L3, i_L3;
+
+        for(j_L3 = j ; j_L3 < j + block_width_L3 ; j_L3 += block_width_L2){
+          for(i_L3 = i ; i_L3 < i + block_height_L3 ; i_L3 += block_height_L2){
+            for(int ii = i_L3 ; ii < i_L3 + block_height_L2 ; ii++){
+                for(int jj = j_L3 ; jj < j_L3 + block_width_L2 ; jj++){
+                   int acc1;
+                   int acc2;
+                   int acc3;
+                   int acc4;
+                   int acc5;
+                   int acc6;
+                   //H_y
+                   acc1 = -(F[(ii - 1) * m + (jj - 1)] + ((F[(ii - 1) * m + jj]) << 1));
+                   acc2 = F[(ii + 1) * m + (jj - 1)] - F[(ii - 1) * m + jj + 1];
+                   acc3 = ((F[(ii + 1) * m + jj]) << 1) + F[(ii + 1) * m + jj + 1];
+                   *(part_grad + ii*m + jj) = ABS(acc1 + acc2 + acc3);
+                   //H_x
+                   acc4 = F[(ii - 1) * m + jj + 1] - F[(ii - 1) * m + (jj - 1)];
+                   acc5 = (F[ii * m + jj + 1] - F[ii * m + jj - 1]) << 1;
+                   acc6 = F[(ii + 1) * m + jj + 1] - F[(ii + 1) * m + jj - 1];
+                   *(part_grad + ii*m + jj) += ABS(acc4 + acc5 + acc6);
+                   #ifdef count_instr      //count line 55
+                   mult_count ++;
+                   pointer_adds += 2*2;    //assuming worse case that the after having the pointer arithmetic done its not saved but redone
+                   pointer_mults += 2;
+                   #endif
+                  }
+                }
+              }
+
+        #ifdef count_instr  //count line 54
+        count_ifs ++;       //when not taken check must be made too
+        pointer_adds += 2;  //need to dereference first to compare 
+        pointer_mults ++; 
+        #endif
+        }
+
+
+         //bad non cooparating js
+        for( ; j_L3 < j + block_width_L3 ; j_L3++){
+          for(i_L3 = 1 ; i_L3 <  i + block_height_L3 ; i_L3++){
             int acc1;
             int acc2;
             int acc3;
@@ -49,30 +99,19 @@ void calc_energy(int n, int m, int* F, int* part_grad){
             int acc5;
             int acc6;
             //H_y
-            acc1 = -(F[(ii - 1) * m + (jj - 1)] + ((F[(ii - 1) * m + jj]) << 1));
-            acc2 = F[(ii + 1) * m + (jj - 1)] - F[(ii - 1) * m + jj + 1];
-            acc3 = ((F[(ii + 1) * m + jj]) << 1) + F[(ii + 1) * m + jj + 1];
-            *(part_grad + ii*m + jj) = ABS(acc1 + acc2 + acc3);
+            acc1 = -(F[(i_L3 - 1) * m + (j_L3 - 1)] + ((F[(i_L3 - 1) * m + j_L3]) << 1));
+            acc2 = F[(i_L3 + 1) * m + (j_L3 - 1)] - F[(i_L3 - 1) * m + j_L3 + 1];
+            acc3 = ((F[(i_L3 + 1) * m + j_L3]) << 1) + F[(i_L3 + 1) * m + j_L3 + 1];
+            *(part_grad + i_L3*m + j_L3) = ABS(acc1 + acc2 + acc3);
             //H_x
-            acc4 = F[(ii - 1) * m + jj + 1] - F[(ii - 1) * m + (jj - 1)];
-            acc5 = (F[ii * m + jj + 1] - F[ii * m + jj - 1]) << 1;
-            acc6 = F[(ii + 1) * m + jj + 1] - F[(ii + 1) * m + jj - 1];
-            *(part_grad + ii*m + jj) += ABS(acc4 + acc5 + acc6);
-
-            #ifdef count_instr      //count line 55
-            mult_count ++;
-            pointer_adds += 2*2;    //assuming worse case that the after having the pointer arithmetic done its not saved but redone
-            pointer_mults += 2;
-            #endif
+            acc4 = F[(i_L3 - 1) * m + j_L3 + 1] - F[(i_L3 - 1) * m + (j_L3 - 1)];
+            acc5 = (F[i_L3 * m + j_L3 + 1] - F[i_L3 * m + j_L3 - 1]) << 1;
+            acc6 = F[(i_L3 + 1) * m + j_L3 + 1] - F[(i_L3 + 1) * m + j_L3 - 1];
+            *(part_grad + i_L3*m + j_L3) += ABS(acc4 + acc5 + acc6);
         }
       }
-    }
 
-        #ifdef count_instr  //count line 54
-        count_ifs ++;       //when not taken check must be made too
-        pointer_adds += 2;  //need to dereference first to compare 
-        pointer_mults ++; 
-        #endif
+      }
     }
 
     //bad non cooparating js
