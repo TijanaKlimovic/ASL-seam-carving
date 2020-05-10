@@ -5,7 +5,7 @@
 
 #define K 1
 #define ABS(X) (((X)<0) ? (-(X)) : (X))
-// #define debug   //uncomment for debugging
+#define debug   //uncomment for debugging
 
 //--------------------  counter for instructions -------------------
 
@@ -20,7 +20,7 @@ extern unsigned long long mult_count;  //count the total number of mult instruct
 //assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
 //F is of size 3 x n x m
-void calc_energy(int n, int m, int* F, int* part_grad ){
+void calc_energy(int n, int m, int* F, int* part_grad){
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
 
@@ -31,8 +31,17 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
     unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
 
-    for(int i = 1 ; i < n-K ; i++){
-        for(int j = 1 ; j < m-K ; j++){
+    int block_height = n - K;
+    int block_width = 166667; //currently going channel by channel maybe later we can parallelise it
+
+    int width_limit = m-K-block_width;
+
+    int j,i;
+    for(j = 1 ; j < width_limit ; j = j + block_width){
+      for(i = 1 ; i < n-K ; i = i + block_height){
+          for(int ii = i ; ii < i + block_height ; ii++){
+            for(int jj = j ; jj < j + block_width ; jj++){
+
             int acc1;
             int acc2;
             int acc3;
@@ -40,15 +49,15 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
             int acc5;
             int acc6;
             //H_y
-            acc1 = -(F[(i - 1) * m + (j - 1)] + ((F[(i - 1) * m + j]) << 1));
-            acc2 = F[(i + 1) * m + (j - 1)] - F[(i - 1) * m + j + 1];
-            acc3 = ((F[(i + 1) * m + j]) << 1) + F[(i + 1) * m + j + 1];
-            *(part_grad + i*m + j) = ABS(acc1 + acc2 + acc3);
+            acc1 = -(F[(ii - 1) * m + (jj - 1)] + ((F[(ii - 1) * m + jj]) << 1));
+            acc2 = F[(ii + 1) * m + (jj - 1)] - F[(ii - 1) * m + jj + 1];
+            acc3 = ((F[(ii + 1) * m + jj]) << 1) + F[(ii + 1) * m + jj + 1];
+            *(part_grad + ii*m + jj) = ABS(acc1 + acc2 + acc3);
             //H_x
-            acc4 = F[(i - 1) * m + j + 1] - F[(i - 1) * m + (j - 1)];
-            acc5 = (F[i * m + j + 1] - F[i * m + j - 1]) << 1;
-            acc6 = F[(i + 1) * m + j + 1] - F[(i + 1) * m + j - 1];
-            *(part_grad + i*m + j) += ABS(acc4 + acc5 + acc6);
+            acc4 = F[(ii - 1) * m + jj + 1] - F[(ii - 1) * m + (jj - 1)];
+            acc5 = (F[ii * m + jj + 1] - F[ii * m + jj - 1]) << 1;
+            acc6 = F[(ii + 1) * m + jj + 1] - F[(ii + 1) * m + jj - 1];
+            *(part_grad + ii*m + jj) += ABS(acc4 + acc5 + acc6);
 
             #ifdef count_instr      //count line 55
             mult_count ++;
@@ -56,12 +65,37 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
             pointer_mults += 2;
             #endif
         }
+      }
+    }
 
         #ifdef count_instr  //count line 54
         count_ifs ++;       //when not taken check must be made too
         pointer_adds += 2;  //need to dereference first to compare 
         pointer_mults ++; 
         #endif
+    }
+
+    //bad non cooparating js
+    for( ; j < m-K ; j++){
+      for(i = 1 ; i < n-K ; i++){
+        int acc1;
+        int acc2;
+        int acc3;
+        int acc4;
+        int acc5;
+        int acc6;
+        //H_y
+        acc1 = -(F[(i - 1) * m + (j - 1)] + ((F[(i - 1) * m + j]) << 1));
+        acc2 = F[(i + 1) * m + (j - 1)] - F[(i - 1) * m + j + 1];
+        acc3 = ((F[(i + 1) * m + j]) << 1) + F[(i + 1) * m + j + 1];
+        *(part_grad + i*m + j) = ABS(acc1 + acc2 + acc3);
+        //H_x
+        acc4 = F[(i - 1) * m + j + 1] - F[(i - 1) * m + (j - 1)];
+        acc5 = (F[i * m + j + 1] - F[i * m + j - 1]) << 1;
+        acc6 = F[(i + 1) * m + j + 1] - F[(i + 1) * m + j - 1];
+        *(part_grad + i*m + j) += ABS(acc4 + acc5 + acc6);
+
+      }
     }
 
     #ifdef count_instr 
