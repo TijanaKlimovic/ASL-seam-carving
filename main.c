@@ -97,6 +97,12 @@ int run(int width, int height, int *output, const char *output_file_name, int wi
 	return 0;
 }
 
+int run_timed(int width, int height, int *output, const char *output_file_name, int width_diff, int height_diff ) {
+	int *res = optimal_image(width, height, width_diff, height_diff, output);
+	free(res);
+	return 0;
+}
+
 /* 
 benchmarking function using rdtsc instruction
 */
@@ -112,7 +118,7 @@ double rdtsc(int width, int height, int *output, const char *output_file_name, i
     while(num_runs < (1 << 14)) {
         start = start_tsc();
         for (i = 0; i < num_runs; ++i) {
-            run(width, height, output, output_file_name, width_diff, height_diff);
+            run_timed(width, height, output, output_file_name, width_diff, height_diff);
         }
         cycles = stop_tsc(start);
 
@@ -124,7 +130,7 @@ double rdtsc(int width, int height, int *output, const char *output_file_name, i
 
     start = start_tsc();
     for (i = 0; i < num_runs; ++i) {
-		run(width, height, output, output_file_name, width_diff, height_diff);	
+		run_timed(width, height, output, output_file_name, width_diff, height_diff);	
 	}
     cycles = stop_tsc(start)/num_runs;
     return (double) cycles;
