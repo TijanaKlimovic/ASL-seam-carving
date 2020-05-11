@@ -11,10 +11,6 @@ h_red_p=0.15 #height reduction percentage
 w_step=0 #width step (for iteration); w = w - w_step
 h_step=200 #height step (for iteration); h = h - h_step
 
-#fixed width params (only used on <img_folder> mode)
-w_const=1000
-h_const=1000
-
 gcc_flags="-Ofast -Wall -lm -g"
 
 timing=1 #passed to ./seam_carving
@@ -39,8 +35,8 @@ elif [ -d "$1" ]
 then
 	# directory passed
 	files=()
-	# width=99999999
-	# height="$width"
+	width=99999999
+	height="$width"
 
 	for f in "$1"/*.png
 	do
@@ -60,8 +56,8 @@ then
 
 	done
 
-	width="$w_const"
-	height="$h_const"
+	width=1000
+	height=1000
 
 	f_step=1
 else

@@ -6,7 +6,7 @@
 #include "../convolution.h"
 #include <string.h>
 
-int compare_matrix(int *m, int *expected, int h, int w, int channels) {
+int compare_matrix(double *m, double *expected, int h, int w, int channels) {
 	for (int k = 0; k < channels; ++k) {
 		for (int i = 0; i < h; ++i) {
 			for (int j = 0; j < w; ++j) {
@@ -20,29 +20,26 @@ int compare_matrix(int *m, int *expected, int h, int w, int channels) {
 	return 0;
 }
 
-void test_pad_image(int *img, int *expected, int h, int w) {
-	int *out = padd0_image(h, w, img); // need to free out
+void test_pad_image(double *img, double *expected, int h, int w) {
+	double *out = padd0_image(h, w, img); // need to free out
 	if (compare_matrix(out, expected, h, w, 3) == 1) {
 		printf("test_pad_image FAILED\n");
 	}
 	free(out);
 }
 
-void test_calc_RGB_energy(int *img, int *expected, int h, int w) {
-	int *out = malloc(h * w * sizeof(int));
-	int *padded = padd0_image(h, w, img);
-	//print_matrix(padded, w+2, h+2, 3);
-
+void test_calc_RGB_energy(double *img, double *expected, int h, int w) {
+	double *out = malloc(h * w * sizeof(double));
+	double *padded = padd0_image(h, w, img);
 	calc_RGB_energy(h+2, w+2, padded, out);
 	if (compare_matrix(out, expected, h, w, 1) == 1) {
 		printf("test_calc_RGB_energy FAILED\n");
 	}
-	//print_matrix(out, w, h, 1);
 	free(padded);
 	free(out);
 }
 
-void test_min_seam(int *img, int expected, int h, int w, int is_vertical) {
+void test_min_seam(double *img, double expected, int h, int w, int is_vertical) {
 	int *backtrack;
 	if (is_vertical) {
 		backtrack = (int *)malloc(h * sizeof(int));
@@ -50,15 +47,15 @@ void test_min_seam(int *img, int expected, int h, int w, int is_vertical) {
 		backtrack = (int *)malloc(w * sizeof(int));
 	}
 	
-	int min_cost = min_seam(h, w, img, is_vertical, backtrack);
+	double min_cost = min_seam(h, w, img, is_vertical, backtrack);
 	if (min_cost != expected) {
 		printf("test_min_seam FAILED\n");
 	}
 	free(backtrack);
 }
 
-void test_optimal_image(int *img, int *expected, int h, int w, int h_diff, int w_diff) {
-	int *out;
+void test_optimal_image(double *img, double *expected, int h, int w, int h_diff, int w_diff) {
+	double *out;
 	out = optimal_image(w, h, w_diff, h_diff, img);
 	if (compare_matrix(out, expected, h-h_diff, w-w_diff, 3) == 1) {
 		printf("test_optimal_image FAILED\n");
@@ -70,7 +67,7 @@ int main(int argc, char const *argv[]) {
 	
 	// ------------ TEST IMAGE 1 -------------
 	{
-	int *img;
+	double *img;
 	int width, height;
 	if (!load_image("unit_tests/input_small/test_3.png", &width, &height, &img)) {
 		printf("Cannot load image");
@@ -78,7 +75,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{
-		int expected[] = {
+		double expected[] = {
 							0,0,0,0,0,
 							0,180,184,179,0,
 							0,179,212,255,0,
@@ -101,7 +98,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{
-		int expected[] = {
+		double expected[] = {
 							3886, 2836,4102,
 							2858,362,2738,
 							3808,2998,4024
@@ -110,17 +107,17 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{	// test vertical seam
-		int expected = 6196;
+		double expected = 6196;
 		test_min_seam(img, expected, height, width, 1);
 	}
 
 	{ // test horizontal seam
-		int expected = 5958;
+		double expected = 5958;
 		test_min_seam(img, expected, height, width, 0);
 	}
 
 	{ // test 2nd horizontal seam
-		int img[] = {
+		double img[] = {
 							180,184,179,
 							162,170,220,
 
@@ -130,12 +127,12 @@ int main(int argc, char const *argv[]) {
 							241,241,239,
 							236,240,245
 											};
-		int expected = 9954;
+		double expected = 9954;
 		test_min_seam(img, expected, height - 1, width, 0);
 	}
 
 	{ // test 2nd vertical seam
-		int img[] = {
+		double img[] = {
 							180,179,
 							179,255,
 							162,220,
@@ -148,12 +145,12 @@ int main(int argc, char const *argv[]) {
 							238,240,
 							236,245
 											};
-		int expected = 10064;
+		double expected = 10064;
 		test_min_seam(img, expected, height, width - 1, 1);
 	}
 
 	{	// test edge case : remove 0 seam
-		int expected[] = {
+		double expected[] = {
 							180,184,179,
 							179,212,255,
 							162,170,220,
@@ -175,7 +172,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		double expected[] = {
 							180,179,
 							179,255,
 							162,220,
@@ -197,7 +194,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		double expected[] = {
 							180,184,179,
 							162,170,220,
 
@@ -216,7 +213,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		double expected[] = {
 							180,179,
 							162,220,
 
@@ -235,7 +232,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		double expected[] = {
 							162,170,179,
 
 							162,204,176,
@@ -251,7 +248,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		double expected[] = {
 							162,
 
 							162,
@@ -264,7 +261,7 @@ int main(int argc, char const *argv[]) {
 
 	// ------------ TEST IMAGE 2 -------------
 	{
-	int *img;
+	double *img;
 	int width, height;
 	if (!load_image("unit_tests/input_small/test_2.png", &width, &height, &img)) {
 		printf("Cannot load image");
@@ -272,7 +269,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{
-		int expected[] = {
+		double expected[] = {
 							0,0,0,0,0,
 							0,191,229,251,0,
 							0,162,203,238,0,
@@ -292,7 +289,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{
-		int expected[] = {
+		double expected[] = {
 							2108, 1856, 2086,
 							2092, 1898, 2234
 											};
@@ -300,17 +297,17 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{	// test vertical seam
-		int expected = 3754;
+		double expected = 3754;
 		test_min_seam(img, expected, height, width, 1);
 	}
 
 	{ // test horizontal seam
-		int expected = 6034;
+		double expected = 6034;
 		test_min_seam(img, expected, height, width, 0);
 	}
 
 	{	// test removing a vertical seam
-		int expected[] = {
+		double expected[] = {
 							191,251,
 							162,238,
 
@@ -329,7 +326,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		double expected[] = {
 							191,203,238,
 
 							53,52,48,
@@ -345,7 +342,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		double expected[] = {
 							191,238,
 
 							53,48,
