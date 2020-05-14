@@ -190,7 +190,7 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
 //first method called before anything else to create a 0 frame aronund original image
 //make sure to free the returned pointer after the first seam is found and removed 
 //repeat for each seam  
-int* padd0_image(int n, int m, int* channels){
+int* padd0_image(int n, int m, unsigned char* channels){
 
   int size = 3*(n+2)*(m+2);
   int* padded_image = (int*) malloc( size*sizeof(int));
@@ -204,7 +204,7 @@ int* padd0_image(int n, int m, int* channels){
           padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = 0;
         }else{
           //printf("in pad its %f\n", channels[i*n*m + m*j + k]);
-          padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = channels[i*n*m + m*(j-1) + k-1];
+          padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = (int)channels[i*n*m + m*(j-1) + k-1];
         }
       }
     }
@@ -212,48 +212,3 @@ int* padd0_image(int n, int m, int* channels){
   return padded_image;
 }
 
-
-// ========================== TESTING FUNCTIONS =================================
-
-void test_computation(){
-    int n = 4;
-    int m = 4; 
-    int result[4]; 
-
-    //prepadded with 0 to test the main convolution boi 
-    int test_array[3*4*4] = {0,0,0,0,  0,2,2,0,  0,50,100,0,  0,0,0,0,         0,0,0,0,  0,2,2,0,  0,50,100,0,  0,0,0,0,          0,0,0,0,  0,2,2,0,  0,50,100,0,  0,0,0,0 };
-
-    calc_RGB_energy(n,m,test_array,result); //n and m passed are the ones that are increased by 2 due to padding with 0 
-    for(int i = 0 ; i < n-2 ; i++){ 
-      for(int j = 0 ; j < m-2 ; j++){
-        printf("%d\n", result[i*(m-2)+j]);
-      }
-    }
-}
-
-void test_padding(){
-  int n =1;
-  int m =2;
-  int channels[6] = {100, 50 , 100, 50 ,100 ,50 };
-
-  int* result = padd0_image(n,m,channels);
-  for(int i = 0 ; i < 3 ; i++){
-    for(int j = 0 ; j < n+2 ; j++){
-      for(int k = 0 ; k < m+2 ; k++){
-        printf("%d ", result[i*(n+2)*(m+2) + (m+2)*j + k]);
-      }
-      printf("\n");
-    }
-    printf("\n\n");
-  }
-}
-
-
-// ========================== TESTING FUNCTIONS =================================
-
-// int main()
-// {
-//     test_computation();
-//     //test_padding();
-    
-// }

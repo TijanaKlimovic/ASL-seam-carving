@@ -32,6 +32,9 @@
 
 #include "count.h"
 
+//#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #ifdef count_instr 
 unsigned long long add_count = 0;	//count the total number of add instructions
 unsigned long long mult_count = 0; //count the total number of mult instructions
@@ -65,8 +68,8 @@ conforms to the reference python interface
 int run_python_validation(const char* path,const char* output_file_name, const char* col_row,
 	double percentage) {
 	int width, height;
-	int *output;
-	int *res;
+	unsigned char *output;
+	unsigned char *res;
 
 	if (!load_image(path, &width, &height, &output)) {
 		return 1;
@@ -90,15 +93,16 @@ int run_python_validation(const char* path,const char* output_file_name, const c
 takes in the image path and runs the seam carving algorithm
 */
 
-int run(int width, int height, int *output, const char *output_file_name, int width_diff, int height_diff ) {
-	int *res = optimal_image(width, height, width_diff, height_diff, output);
+int run(int width, int height, unsigned char *output, const char *output_file_name, int width_diff, int height_diff ) {
+	unsigned char *res = optimal_image(width, height, width_diff, height_diff, output);
 	save_image(output_file_name, width - width_diff, height - height_diff, res);
 	free(res);
+	//stbi_image_free(loaded); TODO
 	return 0;
 }
 
-int run_timed(int width, int height, int *output, const char *output_file_name, int width_diff, int height_diff ) {
-	int *res = optimal_image(width, height, width_diff, height_diff, output);
+int run_timed(int width, int height, unsigned char *output, const char *output_file_name, int width_diff, int height_diff ) {
+	unsigned char *res = optimal_image(width, height, width_diff, height_diff, output);
 	free(res);
 	return 0;
 }
@@ -107,7 +111,7 @@ int run_timed(int width, int height, int *output, const char *output_file_name, 
 benchmarking function using rdtsc instruction
 */
 
-double rdtsc(int width, int height, int *output, const char *output_file_name, int width_diff, int height_diff) {
+double rdtsc(int width, int height, unsigned char *output, const char *output_file_name, int width_diff, int height_diff) {
     int i, num_runs;
     myInt64 cycles;
     myInt64 start;
@@ -127,7 +131,7 @@ double rdtsc(int width, int height, int *output, const char *output_file_name, i
         num_runs *= 2;
     }
 #endif
-
+    printf("num runs: %d\n", num_runs);
     start = start_tsc();
     for (i = 0; i < num_runs; ++i) {
 		run_timed(width, height, output, output_file_name, width_diff, height_diff);	
@@ -164,13 +168,14 @@ int main(int argc, char const *argv[]) {
 	int width_diff = atoi(argv[3]);
 	int height_diff = atoi(argv[4]);
 	int width, height;
-	int *output;
+	unsigned char *output;
 
 	if (!load_image(argv[1], &width, &height, &output)) {
 		return 1;
 	}
 
 	if(strcmp(argv[5],"1")){
+		//print_matrix(output, width, height, 3);
 		int out = run(width, height, output, argv[2], width_diff, height_diff);
 		free(output);
 

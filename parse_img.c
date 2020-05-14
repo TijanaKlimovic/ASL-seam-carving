@@ -10,7 +10,7 @@
 
 #define C (3)
 
-void print_matrix(int *matrix, int width, int height, int channels) {
+void print_matrix(unsigned char *matrix, int width, int height, int channels) {
 	for (int k = 0; k < channels; ++k) {
 		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < width; ++j) {
@@ -44,6 +44,28 @@ void convert_from_int_to_uchar(int *src, unsigned char *dst, int width, int heig
 	}
 }
 
+void convert_from_rgb(unsigned char *src, unsigned char *dst, int width, int height) {
+	int i, j, k;
+	for (i = 0; i < height; ++i) {
+		for (j = 0; j < width; ++j) {
+			for (k = 0; k < C; ++k) {
+				dst[k * width * height + i * width + j] = src[i * width * C + j * C + k];
+			}
+		}
+	}
+}
+
+void convert_to_rgb(unsigned char *src, unsigned char *dst, int width, int height) {
+	int i, j, k;
+	for (i = 0; i < height; ++i) {
+		for (j = 0; j < width; ++j) {
+			for (k = 0; k < C; ++k) {
+				dst[C * width * i + C * j + k] = src[k * width * height + i * width + j];
+			}
+		}
+	}
+}
+
 int allocate_int_buffer(int width, int height, int **buffer) {
 	*buffer = malloc(width * height * C * sizeof(int));
 	if (*buffer == NULL) {
@@ -62,7 +84,7 @@ int allocate_uchar_buffer(int width, int height, unsigned char **buffer) {
 	return 1;
 }
 
-int load_image(const char *filename, int *width, int *height, int **output) {
+int load_image(const char *filename, int *width, int *height, unsigned char **output) {
 	int n;
 	unsigned char *loaded = stbi_load(filename, width, height, &n, C);
 	if (loaded == NULL) {
@@ -70,17 +92,18 @@ int load_image(const char *filename, int *width, int *height, int **output) {
 		return 0;
 	}
 	assert(n == C);
-	if (!allocate_int_buffer(*width, *height, output)) 
+	if (!allocate_uchar_buffer(*width, *height, output)) 
 		return 0;
-	convert_from_uchar_to_int(loaded, *output, *width, *height);
+	convert_from_rgb(loaded, *output, *width, *height);
 	stbi_image_free(loaded);
+	//print_matrix(*output, *width, *height, 3);
 	return 1;
 }
 
-void save_image(const char *filename, int new_width, int new_height, int *buffer) {
+void save_image(const char *filename, int new_width, int new_height, unsigned char *buffer) {
 	unsigned char *output;
 	allocate_uchar_buffer(new_width, new_height, &output);
-	convert_from_int_to_uchar(buffer, output, new_width, new_height);
+	convert_to_rgb(buffer, output, new_width, new_height);
 	stbi_write_png(filename, new_width, new_height, C, output, new_width * C);
 	free(output);
 }

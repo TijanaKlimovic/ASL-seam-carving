@@ -3,5 +3,5 @@
 #include <time.h>
 #include "count.h"
 
-int *optimal_image(int width, int height, int wanted_width,
-	int wanted_height, int *image);
+unsigned char *optimal_image(int width, int height, int wanted_width,
+	int wanted_height, unsigned char *image);

@@ -6,7 +6,19 @@
 #include "../convolution.h"
 #include <string.h>
 
-int compare_matrix(int *m, int *expected, int h, int w, int channels) {
+void print_matrix_int(int *matrix, int width, int height, int channels) {
+	for (int k = 0; k < channels; ++k) {
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j) {
+				printf("%12d ", matrix[k * width * height + i * width + j]);
+			}
+			printf("\n");
+		}
+		printf("\n\n");	
+	}
+}
+
+int compare_matrix(unsigned char *m, unsigned char *expected, int h, int w, int channels) {
 	for (int k = 0; k < channels; ++k) {
 		for (int i = 0; i < h; ++i) {
 			for (int j = 0; j < w; ++j) {
@@ -20,21 +32,37 @@ int compare_matrix(int *m, int *expected, int h, int w, int channels) {
 	return 0;
 }
 
-void test_pad_image(int *img, int *expected, int h, int w) {
+int compare_matrix_int(int *m, int *expected, int h, int w, int channels) {
+	for (int k = 0; k < channels; ++k) {
+		for (int i = 0; i < h; ++i) {
+			for (int j = 0; j < w; ++j) {
+				int index = k * h * w + i * w + j;
+				if (m[index] != expected[index]) {
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+void test_pad_image(unsigned char *img, int *expected, int h, int w) {
 	int *out = padd0_image(h, w, img); // need to free out
-	if (compare_matrix(out, expected, h, w, 3) == 1) {
+	if (compare_matrix_int(out, expected, h+2, w+2, 3) == 1) {
 		printf("test_pad_image FAILED\n");
+		print_matrix_int(out, w+2, h+2, 3);
+		print_matrix_int(expected, w+2, h+2, 3);
 	}
 	free(out);
 }
 
-void test_calc_RGB_energy(int *img, int *expected, int h, int w) {
+void test_calc_RGB_energy(unsigned char *img, int *expected, int h, int w) {
 	int *out = malloc(h * w * sizeof(int));
 	int *padded = padd0_image(h, w, img);
 	//print_matrix(padded, w+2, h+2, 3);
 
 	calc_RGB_energy(h+2, w+2, padded, out);
-	if (compare_matrix(out, expected, h, w, 1) == 1) {
+	if (compare_matrix_int(out, expected, h, w, 1) == 1) {
 		printf("test_calc_RGB_energy FAILED\n");
 	}
 	//print_matrix(out, w, h, 1);
@@ -42,7 +70,7 @@ void test_calc_RGB_energy(int *img, int *expected, int h, int w) {
 	free(out);
 }
 
-void test_min_seam(int *img, int expected, int h, int w, int is_vertical) {
+void test_min_seam(unsigned char *img, int expected, int h, int w, int is_vertical) {
 	int *backtrack;
 	if (is_vertical) {
 		backtrack = (int *)malloc(h * sizeof(int));
@@ -57,8 +85,8 @@ void test_min_seam(int *img, int expected, int h, int w, int is_vertical) {
 	free(backtrack);
 }
 
-void test_optimal_image(int *img, int *expected, int h, int w, int h_diff, int w_diff) {
-	int *out;
+void test_optimal_image(unsigned char *img, unsigned char *expected, int h, int w, int h_diff, int w_diff) {
+	unsigned char *out;
 	out = optimal_image(w, h, w_diff, h_diff, img);
 	if (compare_matrix(out, expected, h-h_diff, w-w_diff, 3) == 1) {
 		printf("test_optimal_image FAILED\n");
@@ -70,7 +98,7 @@ int main(int argc, char const *argv[]) {
 	
 	// ------------ TEST IMAGE 1 -------------
 	{
-	int *img;
+	unsigned char *img;
 	int width, height;
 	if (!load_image("unit_tests/input_small/test_3.png", &width, &height, &img)) {
 		printf("Cannot load image");
@@ -92,7 +120,7 @@ int main(int argc, char const *argv[]) {
 							0,0,0,0,0,
 
 							0,0,0,0,0,
-							0,241,241,239,
+							0,241,241,239,0,
 							0,238,240,240,0,
 							0,236,240,245,0,
 							0,0,0,0,0
@@ -120,7 +148,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{ // test 2nd horizontal seam
-		int img[] = {
+		unsigned char img[] = {
 							180,184,179,
 							162,170,220,
 
@@ -135,7 +163,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{ // test 2nd vertical seam
-		int img[] = {
+		unsigned char img[] = {
 							180,179,
 							179,255,
 							162,220,
@@ -153,7 +181,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{	// test edge case : remove 0 seam
-		int expected[] = {
+		unsigned char expected[] = {
 							180,184,179,
 							179,212,255,
 							162,170,220,
@@ -175,7 +203,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		unsigned char expected[] = {
 							180,179,
 							179,255,
 							162,220,
@@ -197,7 +225,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		unsigned char expected[] = {
 							180,184,179,
 							162,170,220,
 
@@ -216,7 +244,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		unsigned char expected[] = {
 							180,179,
 							162,220,
 
@@ -235,7 +263,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		unsigned char expected[] = {
 							162,170,179,
 
 							162,204,176,
@@ -251,7 +279,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		unsigned char expected[] = {
 							162,
 
 							162,
@@ -264,7 +292,7 @@ int main(int argc, char const *argv[]) {
 
 	// ------------ TEST IMAGE 2 -------------
 	{
-	int *img;
+	unsigned char *img;
 	int width, height;
 	if (!load_image("unit_tests/input_small/test_2.png", &width, &height, &img)) {
 		printf("Cannot load image");
@@ -310,7 +338,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{	// test removing a vertical seam
-		int expected[] = {
+		unsigned char expected[] = {
 							191,251,
 							162,238,
 
@@ -329,7 +357,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		unsigned char expected[] = {
 							191,203,238,
 
 							53,52,48,
@@ -345,7 +373,7 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
-		int expected[] = {
+		unsigned char expected[] = {
 							191,238,
 
 							53,48,

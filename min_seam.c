@@ -22,7 +22,7 @@ extern unsigned long long mult_count; 	//count the total number of mult instruct
 // #define LOG(X) X
 #define LOG(X)
 
-int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
+int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_backtrack) {
 
 	#ifdef count_instr        //counting adds and mults of this function
     int count_ifs = 0;        //includes explicit ifs and for loop ifs  -> ADDS
@@ -35,7 +35,7 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 	int *the_m = (int *) malloc(rsize * csize * sizeof(int));
 	COUNT(mult_count, 2)
 
-	int *padded_img = padd0_image(rsize, csize, img);
+	int *padded_img = padd0_image(rsize, csize, img); //TODO try converting in pad to uchar
 	calc_RGB_energy(rsize + 2, csize + 2, padded_img, the_m);
 	COUNT(add_count, 2)
 
