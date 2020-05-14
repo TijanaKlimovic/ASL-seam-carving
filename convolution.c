@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "parse_img.h"
+#include "count.h"
 
 #define K 1
 #define ABS(X) (((X)<0) ? (-(X)) : (X))
