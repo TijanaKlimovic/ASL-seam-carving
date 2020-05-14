@@ -286,38 +286,98 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 	mult_count += 2;
 	#endif
 
-	int j, k;
-	for (j = 1; j < width_diff; ++j)
-		calculate(width, height, j, 0, width_diff, T);
-	for (j = 1; j < height_diff; ++j)
+	if (height_diff >= 3) {
+		int j, k;
+		for (j = 1; j < width_diff; ++j)
+			calculate(width, height, j, 0, width_diff, T);
+		// fill out second row
+		j = 1;
 		for (k = 0; k < width_diff; ++k)
-			calculate(width, height, k, j, width_diff, T);
+				calculate(width, height, k, j, width_diff, T);
+		// fill out third row + free 1.st row without first elem
+		j = 2;
+		for (k = 0; k < width_diff; ++k)
+				calculate(width, height, k, j, width_diff, T);
+		for (int i = 1; i < width_diff; ++i) {
+			free(T[i].i);
+		}
 
-	#ifdef count_instr
-	// if operations count
-	add_count += width_diff + width_diff * height_diff;
-	#endif
+		for (j = 3; j < height_diff; ++j){
+			// free row 2 before
+			for (int i = (j-2) * width_diff; i < (j-1) * width_diff; ++i) {
+				free(T[i].i);
+			}
+			for (k = 0; k < width_diff; ++k)
+				calculate(width, height, k, j, width_diff, T);
+		}
 
-	// copy 
-	unsigned char *res = malloc(3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
-	memcpy(res, T[width_diff * height_diff - 1].i, 3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
-	for (int i = 1; i < width_diff * height_diff; ++i) {
-		free(T[i].i);
+		#ifdef count_instr
+		// if operations count
+		add_count += width_diff + width_diff * height_diff;
+		#endif
+
+		// copy 
+		unsigned char *res = malloc(3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
+		memcpy(res, T[width_diff * height_diff - 1].i, 3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
+
+		// free last 2 rows
+		for (int i = (height_diff - 2) * width_diff; i < width_diff * height_diff; ++i) {
+			free(T[i].i);
+		}
+
+		#ifdef count_instr
+		// malloc param only
+		add_count += 4;
+		mult_count += 3;
+
+		// memcpy count all
+		add_count += 5;
+		mult_count += 4;
+
+		// index count
+		add_count += width_diff * height_diff - 1;
+		#endif
+		free(T);
+		return res;
+
+	} else {
+		int j, k;
+		for (j = 1; j < width_diff; ++j)
+			calculate(width, height, j, 0, width_diff, T);
+
+		for (j = 1; j < height_diff; ++j)
+			for (k = 0; k < width_diff; ++k)
+				calculate(width, height, k, j, width_diff, T);
+
+		#ifdef count_instr
+		// if operations count
+		add_count += width_diff + width_diff * height_diff;
+		#endif
+
+		// copy 
+		unsigned char *res = malloc(3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
+		memcpy(res, T[width_diff * height_diff - 1].i, 3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
+
+		// free last 2 rows
+		for (int i = 1; i < width_diff * height_diff; ++i) {
+			free(T[i].i);
+		}
+
+		#ifdef count_instr
+		// malloc param only
+		add_count += 4;
+		mult_count += 3;
+
+		// memcpy count all
+		add_count += 5;
+		mult_count += 4;
+
+		// index count
+		add_count += width_diff * height_diff - 1;
+		#endif
+		free(T);
+		return res;
 	}
 
-	#ifdef count_instr
-	// malloc param only
-	add_count += 4;
-	mult_count += 3;
-
-	// memcpy count all
-	add_count += 5;
-	mult_count += 4;
-
-	// index count
-	add_count += width_diff * height_diff - 1;
-	#endif
-
-	free(T);
-	return res;
+	
 }

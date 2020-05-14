@@ -131,7 +131,6 @@ double rdtsc(int width, int height, unsigned char *output, const char *output_fi
         num_runs *= 2;
     }
 #endif
-    printf("num runs: %d\n", num_runs);
     start = start_tsc();
     for (i = 0; i < num_runs; ++i) {
 		run_timed(width, height, output, output_file_name, width_diff, height_diff);	
