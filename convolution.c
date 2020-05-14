@@ -31,60 +31,54 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
     unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
 
-
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             *(part_grad + i*m + j) = 0;
         }
     }
 
-    #ifdef count_instr            //count lines 33-37
-    count_ifs += n+1 + n*(m+1);
-    indexing += n + n*m;
-    pointer_mults += m*n;        //assuming perfect prediciton
-    pointer_adds += 2*m*n;       //assuming perfect prediciton
+    #ifdef count_instr //count 34-38
+    indexing += n*m; // max_i * max_j
+    pointer_adds += n*m; // part_grad liniar in memory, just adds in between
     #endif
 
     for(int i = 1 ; i < n-K ; i++){
         for(int j = 1 ; j < m-K ; j++){
             for(int u = -K ; u <= K; u++){
                 for(int v = -K ; v <= K ; v++){
-                    *(part_grad + i*m + j) += H[u+K][v+K]*F[(i+u)*m + j+v];
+                    *(part_grad + i*m + j) += H[u+K][v+K]*F[(i+u)*m+j+v];
                 }
             }
+
+            #ifdef count_instr // count 47-51
+            indexing += 9;
+            add_count += 9;
+            mult_count += 9;
+            pointer_adds += 6*9+3; // u+K counted only once per v loop
+            pointer_mults += 18;
+            #endif
 
             //calculate absolute value of each element in partial derivative of channel F 
             if(*(part_grad + i*m + j) < 0){
               *(part_grad + i*m + j) = (-1) * (*(part_grad + i*m + j));
 
-              #ifdef count_instr      //count line 55
+              #ifdef count_instr //count 63
               mult_count ++;
-              pointer_adds += 2*2;    //assuming worse case that the after having the pointer arithmetic done its not saved but redone
-              pointer_mults += 2;
               #endif
             }
 
-            #ifdef count_instr  //count line 54
-            count_ifs ++;       //when not taken check must be made too
-            pointer_adds += 2;  //need to dereference first to compare 
+            #ifdef count_instr //count 62
+            count_ifs ++;
+            pointer_adds += 2; // done only once for the above if and operation 
             pointer_mults ++; 
             #endif
         }
     }
 
     #ifdef count_instr 
-    count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4 + (n-2)*(m-2)*3*4; //count lines 46-52
-    indexing += n-2 + (n-2)*(m-2) + (n-2)*(m-2)*3 + (n-2)*(m-2)*3*3;
-    pointer_adds += (n-2)*(m-2)*3*3*(2 + 2 + 3);
-    pointer_mults += (n-2)*(m-2)*3*3*2;
-    add_count += (n-2)*(m-2)*3*3;                              //count directly the add and mult in line 50
-    mult_count += (n-2)*(m-2)*3*3;
-
     //count total
     add_count += count_ifs + indexing + pointer_adds; 
     mult_count += pointer_mults;
-    printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
-    printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
     #endif
 }
 
@@ -167,9 +161,6 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     //count total
     add_count += count_ifs + indexing + pointer_adds; 
     mult_count += pointer_mults;
-    printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
-    printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
-
     #endif
 
     //save img

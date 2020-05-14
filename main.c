@@ -150,6 +150,7 @@ int main(int argc, char const *argv[]) {
 
 		#ifdef count_instr
 		printf("\nADDS=%llu MULTS=%llu\n", add_count, mult_count);
+		printf("TOTAL=%llu\n", add_count + mult_count);
 		#endif
 
 		return to_retun;
@@ -176,6 +177,7 @@ int main(int argc, char const *argv[]) {
 
 		#ifdef count_instr
 		printf("\nADDS=%llu MULTS=%llu\n", add_count, mult_count);
+		printf("TOTAL=%llu\n", add_count + mult_count);
 		#endif
 
 		return out;
@@ -188,6 +190,7 @@ int main(int argc, char const *argv[]) {
     printf("\nRDTSC instruction: %.0lf cycles measured\n", r);
 	#ifdef count_instr
 	printf("\nADDS=%llu MULTS=%llu\n", add_count, mult_count);
+	printf("TOTAL=%llu\n", add_count + mult_count);
 	#endif
 
     return 0;
