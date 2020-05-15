@@ -184,14 +184,11 @@ void calc_energy(int n, int m, int* F, int* part_grad){
 
     int j,i;
     for(j = 1 ; j < width_limit_L3 ; j = j + block_width_L3){
-      for(i = 1 ; i < n-K ; i += block_height_L3){
-
         width_limit_L2 = j + block_width_L3 - block_width_L2 + 1; //take care in case block_width_L2 doesnt divide width_limit_L2
-        int j_L3, i_L3;
+        int j_L3;
 
         for(j_L3 = j ; j_L3 < width_limit_L2; j_L3 += block_width_L2){ //single level 3 block calculation
-          for(i_L3 = i ; i_L3 < i + block_height_L3 ; i_L3 += block_height_L2){
-            for(int ii = i_L3 ; ii < i_L3 + block_height_L2 ; ii++){ //single level 2 block calculation 
+            for(int ii = 1 ; ii < n - K ; ii++){ //single level 2 block calculation 
                 for(int jj = j_L3 ; jj < j_L3 + block_width_L2 ; jj++){
                    int acc1;
                    int acc2;
@@ -223,12 +220,12 @@ void calc_energy(int n, int m, int* F, int* part_grad){
         pointer_adds += 2;  //need to dereference first to compare 
         pointer_mults ++; 
         #endif
-        }
+        
 
 
          //bad non cooparating jjs
         for( ; j_L3 < j + block_width_L3 ; j_L3++){
-          for(i_L3 = 1 ; i_L3 <  i + block_height_L3 ; i_L3++){
+          for(int i_L3 = 1 ; i_L3 <  i + block_height_L3 ; i_L3++){
             int acc1;
             int acc2;
             int acc3;
@@ -246,8 +243,6 @@ void calc_energy(int n, int m, int* F, int* part_grad){
             acc6 = F[(i_L3 + 1) * m + j_L3 + 1] - F[(i_L3 + 1) * m + j_L3 - 1];
             *(part_grad + i_L3*m + j_L3) += ABS(acc4 + acc5 + acc6);
         }
-      }
-
       }
     }
 
