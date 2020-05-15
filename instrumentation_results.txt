@@ -1,10 +1,49 @@
 Initial instrumentation:
 
-Around 335827642608 / 353134523785 cycles measured
+Around 332393654534 / 353134523785 cycles measured
 
 ADDS=256199349211 MULTS=71407335083
 TOTAL=327606684294
 
-// convolution.c calc_energy
+// Instrumentation recalculated: convolution.c calc_energy
 ADDS=192031404679 MULTS=67465715447
 TOTAL=259497120126
+
+// Instrumentation recalculated: convolution.c calc_energy & calc_RGB_energy
+ADDS=186805424269 MULTS=67118364317
+TOTAL=253923788586
+
+// Instrumentation recalculated: convolution.c min_seam.c optimal_image.c
+ADDS=189606904835 MULTS=69098428634
+TOTAL=258705333469
+
+FLOPs count
+
+RDTSC instruction: 336911427375 cycles measured
+
+// All flops
+0.76787343 flops / cycle
+
+// Without indexing
+ADDS=166834032870 MULTS=69098428634
+TOTAL=235932461504
+
+0.7 flops / cycle
+
+// Without indexing and if count
+ADDS=162626325670 MULTS=69098428634
+TOTAL=231724754304
+
+0.687791317 flops / cycle
+
+// Without indexing, if count and pointer count
+ADDS=22756589604 MULTS=20025791743
+TOTAL=42782381347
+
+0.126984061 flops / cycle
+
+// Without indexing, if count, pointer and malloc count
+ADDS=22756588622 MULTS=20025787058
+TOTAL=42782375680
+
+0.126984044 flops / cycle

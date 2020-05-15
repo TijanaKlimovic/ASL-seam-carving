@@ -35,7 +35,6 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 	#endif
 
 	int *the_m = (int *) malloc(rsize * csize * sizeof(int));
-	COUNT(mult_count, 2)
 
 	//call Tijana's energy function to set the_m (M matrix starts as a copy of e1)
 	int *padded_img = padd0_image(rsize, csize, img);
@@ -44,7 +43,7 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 	COUNT(add_count, 2)
 
 	int *backtrack = (int *) malloc(rsize * csize * sizeof(int)); //different from what we return
-	COUNT(mult_count, 2)
+	COUNT(mult_count, 2) // rsize * csize * sizeof(int) counted only once
 
 	int out_cnt, in_cnt; //counters for loops
 	int *row_ptr, *col_ptr; //for calculating where in the img we are (based on is_ver)
@@ -74,15 +73,14 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 
 			//determine the location of the pixel based on is_ver
 			int where = (*row_ptr) * csize + (*col_ptr);
-			COUNT(pointer_adds, 1)
-			COUNT(pointer_mults, 1)
+			COUNT(add_count, 1)
+			COUNT(mult_count, 1)
 
 			int where_before = where - other_step;
-			COUNT(pointer_adds, 1)
+			COUNT(add_count, 1)
 
 			int min_idx;
 			int min_val;
-			//int min_energy;
 
 			if (in_cnt == 0) {
 				COUNT(count_ifs, 1) //if (in_cnt == 0)
@@ -135,8 +133,7 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 		}
 
 	}
-	COUNT(count_ifs, out_lim + (out_lim - 1) * (in_lim + 1))
-	COUNT(indexing, (out_lim - 1) + (out_lim - 1) * in_lim)
+	COUNT(indexing, (out_lim - 1) * in_lim)
 
 	LOG(
 	printf ("[rsize] = %d, [csize] = %d\n", rsize, csize);
@@ -157,32 +154,30 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 	//find the minimum of last row/col of the_m
 	//set the counters to the beginning of the last row/col
 	out_cnt--;
-	COUNT(pointer_adds, 1)
+	COUNT(add_count, 1)
 
 	in_cnt = 0;
 
 	int last_start = (*row_ptr) * csize + (*col_ptr);
-	COUNT(pointer_adds, 1)
-	COUNT(pointer_mults, 1)
+	COUNT(add_count, 1)
+	COUNT(mult_count, 1)
 	LOG(printf("last_start = %d\n", last_start));
 	
 	for (int cnt = 0; cnt < in_lim; cnt++) {
 		int current = last_start + cnt * step;
-		COUNT(pointer_adds, 1)
-		COUNT(pointer_mults, 1)
+		COUNT(add_count, 1)
+		COUNT(mult_count, 1)
 
 		if (the_m[current] < ret) {
 
 			ret = the_m[current];
-			COUNT(pointer_adds, 1)
 
 			direction = cnt;
 		}
-		COUNT(pointer_adds, 1)
+		COUNT(pointer_adds, 1) // acceess the_m only done once
 		COUNT(count_ifs, 1)
 
 	}
-	COUNT(count_ifs, in_lim + 1)
 	COUNT(indexing, in_lim)
 
 	//return the 1D backtrack (only the min seam)
@@ -199,11 +194,10 @@ int min_seam(int rsize, int csize, int *img, int is_ver, int *ret_backtrack) {
 		COUNT(pointer_mults, 1)
 
 		last_start -= other_step;
-		COUNT(pointer_adds, 1)
+		COUNT(add_count, 1)
 	}
-	COUNT(add_count, 1) //int i = out_lim - 1
-	COUNT(count_ifs, out_lim)
-	COUNT(indexing, out_lim - 1)
+	COUNT(add_count, 1) // out_lim - 1
+	COUNT(indexing, out_lim)
 
 	free(the_m);
 	free(backtrack);

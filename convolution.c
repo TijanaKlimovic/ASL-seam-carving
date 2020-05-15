@@ -38,8 +38,7 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
     }
 
     #ifdef count_instr //count 34-38
-    indexing += n*m; // max_i * max_j
-    pointer_adds += n*m; // part_grad liniar in memory, just adds in between
+    indexing += n*m; // // part_grad liniar in memory, just adds for index
     #endif
 
     for(int i = 1 ; i < n-K ; i++){
@@ -51,7 +50,7 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
             }
 
             #ifdef count_instr // count 47-51
-            indexing += 9;
+            // indexing += 9;
             add_count += 9;
             mult_count += 9;
             pointer_adds += 6*9+3; // u+K counted only once per v loop
@@ -107,9 +106,15 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     {-1,0,1}};
 
     int size = 3*n*m ;
-
     int* partial_x = (int*) malloc( size*sizeof(int));
     int* partial_y = (int*) malloc( size*sizeof(int));
+
+    #ifdef count_instr // counts 109-111
+    mult_count += 2;
+
+    // malloc count
+    mult_count++;
+    #endif
 
     //calculate the parital derivatives 
     for(int i = 0 ; i < 3 ; i ++){
@@ -119,11 +124,10 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     }
 
 
-    #ifdef count_instr        //counts lines 120-124
-    count_ifs += 4;          
+    #ifdef count_instr //counts 118-123
     indexing += 3;         
     pointer_adds += 3*4;     
-    pointer_mults += 3*8;    
+    pointer_mults += 3*2; // n*m*i counted once for each iteration
     #endif
 
     for (int i = 0; i < n - 2; i++) {
@@ -133,30 +137,30 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     }
 
 
-    #ifdef count_instr                                      //counts lines 134-138
-    count_ifs += n-1 + (n-2)*(m-1);          
-    indexing += n-2 + (n-2)*(m-2);         
-    pointer_adds += (n-2)*(m-2)*2;     
-    pointer_mults += (n-2)*(m-2);    
+    #ifdef count_instr //counts 134-138
+    indexing += (n-2)*(m-2); // result liniar in memory, just adds for index          
     #endif
 
     //calculate the total 3d energy 
     
-      for(int j = 1 ; j < n-1 ; j ++){
-        for(int k = 1 ; k < m-1 ; k++){
-          for(int i = 0 ; i < 3 ; i ++){
-            //add elementwise along the z axis 
-          *(result+(m-2)*(j-1)+k-1) += *(partial_x + i*m*n + j*m + k) + *(partial_y + i*m*n + j*m + k);
+    for(int j = 1 ; j < n-1 ; j ++){
+      for(int k = 1 ; k < m-1 ; k++){
+        for(int i = 0 ; i < 3 ; i ++){
+          //add elementwise along the z axis 
+          *(result+(m-2)*(j-1)+k-1) += *(partial_x + i*m*n + j*m + k)
+                                    + *(partial_y + i*m*n + j*m + k);
+
+          #ifdef count_instr // count 147-148
+          add_count += 2;
+          pointer_adds += 11;
+          pointer_mults += 7;
+          #endif
         }
-      } 
+      }
     }
 
-    #ifdef count_instr                                       //counts lines 134-138
-    count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4;          
-    indexing += n-2 + (n-2)*(m-2) + (n-2)*(m-2)*3;         
-    pointer_adds += (n-2)*(m-2)*3*(5 + 3 + 3);     
-    pointer_mults += (n-2)*(m-2)*3*7;  
-    add_count +=  (n-2)*(m-2)*3*2;                           //count directly the adds in line 154
+    #ifdef count_instr //count 143-145
+    indexing += 3*(n-2)*(m-2);
 
     //count total
     add_count += count_ifs + indexing + pointer_adds; 

@@ -46,6 +46,9 @@ void calculate(int width, int height, int T_width, int T_height,
 		#ifdef count_instr
 		add_count += 5;
 		mult_count++;
+
+		// pointer count
+		add_count++;
 		#endif
 
 		int *backtrack = (int *)malloc(image_height * sizeof(int));
@@ -66,7 +69,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int k, l;
 		for (k = 0; k < image_height; ++k) { // construct each row at a time
 			int crr_col = 0;
-			for (l = 0; l < image_width; ++l)
+			for (l = 0; l < image_width; ++l) {
 				if (l != backtrack[k]) { // check for elem to remove
 					T[T_index].i[k*(image_width-1)+crr_col]
 						= T[T_index_left].i[k*image_width + l];
@@ -77,14 +80,23 @@ void calculate(int width, int height, int T_width, int T_height,
 					crr_col++;
 
 					#ifdef count_instr
-					// indices only
-					add_count += 15;
+					// pointer count
+					add_count += 17;
 					mult_count += 12;
 
 					// variable add
 					add_count++;
 					#endif
 				}
+
+				#ifdef count_instr
+				// if count
+				add_count++;
+
+				// pointer count
+				add_count++; 
+				#endif
+			}
 		}
 
 		#ifdef count_instr
@@ -103,6 +115,9 @@ void calculate(int width, int height, int T_width, int T_height,
 		#ifdef count_instr
 		add_count += 5;
 		mult_count++;
+
+		// pointer count
+		add_count++;
 		#endif
 
 		int *backtrack = (int *)malloc(image_width * sizeof(int));
@@ -123,7 +138,7 @@ void calculate(int width, int height, int T_width, int T_height,
 		int k, l;
 		for (k = 0; k < image_width; ++k) { // construct each column at a time
 			int crr_row = 0;
-			for (l = 0; l < image_height; ++l)
+			for (l = 0; l < image_height; ++l) {
 				if (l != backtrack[k]) { // check for elem to remove
 					T[T_index].i[crr_row*image_width+k]
 						= T[T_index_up].i[l*image_width + k];
@@ -134,14 +149,23 @@ void calculate(int width, int height, int T_width, int T_height,
 					crr_row++;
 
 					#ifdef count_instr
-					// indices only
-					add_count += 11;
+					// pointer count
+					add_count += 13;
 					mult_count += 12;
 
 					// variable add
 					add_count++;
 					#endif
 				}
+
+				#ifdef count_instr
+				// if count
+				add_count++;
+
+				// pointer count
+				add_count++; 
+				#endif
+			}
 		}
 
 		#ifdef count_instr
@@ -159,6 +183,9 @@ void calculate(int width, int height, int T_width, int T_height,
 		#ifdef count_instr
 		add_count += 5;
 		mult_count++;
+
+		// pointer count
+		add_count++;
 		#endif
 
 		int *backtrack_left = (int *)malloc(image_left_height * sizeof(int));
@@ -177,6 +204,9 @@ void calculate(int width, int height, int T_width, int T_height,
 		#ifdef count_instr
 		add_count += 5;
 		mult_count++;
+
+		// pointer count
+		add_count++;
 		#endif
 
 		int *backtrack_up = (int *)malloc(image_up_width * sizeof(int));
@@ -195,7 +225,7 @@ void calculate(int width, int height, int T_width, int T_height,
 			
 			#ifdef count_instr
 			// malloc param only
-			add_count++;
+			add_count += 3;
 			mult_count += 3;
 
 			// variable add
@@ -205,7 +235,7 @@ void calculate(int width, int height, int T_width, int T_height,
 			int k, l;
 			for (k = 0; k < image_left_height; ++k) { // construct each row at a time
 				int crr_col = 0;
-				for (l = 0; l < image_left_width; ++l)
+				for (l = 0; l < image_left_width; ++l) {
 					if (l != backtrack_left[k]) { // check for elem to remove
 						T[T_index].i[k*(image_left_width-1)+crr_col]
 							= T[T_index_left].i[k*image_left_width + l];
@@ -214,7 +244,25 @@ void calculate(int width, int height, int T_width, int T_height,
 						T[T_index].i[2*image_left_height*(image_left_width-1)+k*(image_left_width-1)+crr_col]
 							= T[T_index_left].i[2*image_left_height*(image_left_width-0)+k*image_left_width + l];
 						crr_col++;
+
+						#ifdef count_instr
+						// pointer count
+						add_count += 17;
+						mult_count += 12;
+
+						// variable add
+						add_count++;
+						#endif
 					}
+
+					#ifdef count_instr
+					// if count
+					add_count++;
+
+					// pointer count
+					add_count++; 
+					#endif
+				}
 			}
 
 			#ifdef count_instr
@@ -239,7 +287,7 @@ void calculate(int width, int height, int T_width, int T_height,
 			int k, l;
 			for (k = 0; k < image_up_width; ++k) { // construct each column at a time
 				int crr_row = 0;
-				for (l = 0; l < image_up_height; ++l)
+				for (l = 0; l < image_up_height; ++l) {
 					if (l != backtrack_up[k]) { // check for elem to remove
 						T[T_index].i[crr_row*image_up_width+k]
 							= T[T_index_up].i[l*image_up_width + k];
@@ -248,7 +296,25 @@ void calculate(int width, int height, int T_width, int T_height,
 						T[T_index].i[2*(image_up_height-1)*image_up_width+crr_row*image_up_width+k]
 							= T[T_index_up].i[2*(image_up_height-0)*image_up_width+l*image_up_width + k];
 						crr_row++;
+
+						#ifdef count_instr
+						// pointer count
+						add_count += 13;
+						mult_count += 12;
+
+						// variable add
+						add_count++;
+						#endif
 					}
+
+					#ifdef count_instr
+					// if count
+					add_count++;
+
+					// pointer count
+					add_count++; 
+					#endif
+				}
 			}
 
 			#ifdef count_instr
@@ -258,8 +324,8 @@ void calculate(int width, int height, int T_width, int T_height,
 		}
 
 		#ifdef count_instr
-		// if operations count
-		add_count++;
+		// if count
+		add_count += 5;
 		#endif
 
 		free(backtrack_left);
@@ -282,7 +348,9 @@ int *optimal_image(int width, int height, int width_diff,
 	T[0].i = image;
 
 	#ifdef count_instr
-	// malloc param only
+	// pointer count
+	add_count++;
+	// malloc param
 	mult_count += 2;
 	#endif
 
@@ -294,7 +362,7 @@ int *optimal_image(int width, int height, int width_diff,
 			calculate(width, height, k, j, width_diff, T);
 
 	#ifdef count_instr
-	// if operations count
+	// index count
 	add_count += width_diff + width_diff * height_diff;
 	#endif
 
@@ -306,13 +374,13 @@ int *optimal_image(int width, int height, int width_diff,
 	}
 
 	#ifdef count_instr
-	// malloc param only
+	// pointer count
+	add_count += 2;
+	mult_count++;
+
+	// size count; done only once
 	add_count += 4;
 	mult_count += 3;
-
-	// memcpy count all
-	add_count += 5;
-	mult_count += 4;
 
 	// index count
 	add_count += width_diff * height_diff - 1;
