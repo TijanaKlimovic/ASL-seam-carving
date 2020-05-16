@@ -4,7 +4,6 @@
 #include "parse_img.h"
 #include "count.h"
 
-#define K 1
 #define ABS(X) (((X)<0) ? (-(X)) : (X))
 // #define debug   //uncomment for debugging
 
@@ -32,24 +31,37 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
     unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
 
-    for(int i = 1 ; i < n-K ; i++){
-        for(int j = 1 ; j < m-K ; j++){
+    for(int i = 1 ; i < n-1 ; i++){
+        for(int j = 1 ; j < m-1 ; j++){
             int acc1;
             int acc2;
             int acc3;
             int acc4;
             int acc5;
             int acc6;
+            int acc_total;
+
+            int accF1 = F[(i - 1) * m + (j - 1)];
+            int accF2 = F[(i - 1) * m + j];
+            int accF3 = F[(i - 1) * m + j + 1];
+            int accF4 = F[i * m + j - 1];
+            int accF5 = F[i * m + j + 1];
+            int accF6 = F[(i + 1) * m + j - 1];
+            int accF7 = F[(i + 1) * m + j];
+            int accF8 = F[(i + 1) * m + j + 1];
+
             //H_y
-            acc1 = -(F[(i - 1) * m + (j - 1)] + ((F[(i - 1) * m + j]) << 1));
-            acc2 = F[(i + 1) * m + (j - 1)] - F[(i - 1) * m + j + 1];
-            acc3 = ((F[(i + 1) * m + j]) << 1) + F[(i + 1) * m + j + 1];
-            *(part_grad + i*m + j) = ABS(acc1 + acc2 + acc3);
+            acc1 = -(accF1 + (accF2 << 1));
+            acc2 = accF6 - accF3;
+            acc3 = (accF7 << 1) + accF8;
+            acc_total = ABS(acc1 + acc2 + acc3);
             //H_x
-            acc4 = F[(i - 1) * m + j + 1] - F[(i - 1) * m + (j - 1)];
-            acc5 = (F[i * m + j + 1] - F[i * m + j - 1]) << 1;
-            acc6 = F[(i + 1) * m + j + 1] - F[(i + 1) * m + j - 1];
-            *(part_grad + i*m + j) += ABS(acc4 + acc5 + acc6);
+            acc4 = accF3 - accF1;
+            acc5 = (accF5 - accF4) << 1;
+            acc6 = accF8 - accF6;
+            acc_total += ABS(acc4 + acc5 + acc6);
+
+            *(part_grad + i*m + j) = acc_total;
 
             #ifdef count_instr      //count line 55
             mult_count ++;
@@ -94,57 +106,49 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
 
-  //fixed kernels 
-  // int H_y[3][3] = {
-  //   {-1,-2,-1},
-  //   {0,0,0},
-  //   {1,2,1}};
-
-  // int H_x[3][3] = {
-  //   {-1,0,1},
-  //   {-2,0,2},
-  //   {-1,0,1}};
-
-    int size = 3*n*m ;
-
-    int* partial = (int*) malloc( size*sizeof(int));
+    int* partial = (int*) malloc(3*n*m*sizeof(int));
 
     //calculate the parital derivatives 
-    for(int i = 0 ; i < 3 ; i ++){
-      //pass the ith channel for energy calculation
-       calc_energy(n,m,channels + n*m*i, partial + n*m*i);
-    }
-
+    //pass the ith channel for energy calculation
+    int step1 = n*m, step2 = 2*n*m;
+    calc_energy(n,m,channels, partial);
+    calc_energy(n,m,channels + step1, partial + step1);
+    calc_energy(n,m,channels + step2, partial + step2);
 
     #ifdef count_instr        //counts lines 120-124
     count_ifs += 4;          
     indexing += 3;         
     pointer_adds += 3*4;     
-    pointer_mults += 3*8;    
-    #endif
-
-    for (int i = 0; i < n - 2; i++) {
-        for (int j = 0; j < m - 2; j++) {
-            result[(m - 2) * i + j] = 0;
-        }
-    }
-
-
-    #ifdef count_instr                                      //counts lines 134-138
-    count_ifs += n-1 + (n-2)*(m-1);          
-    indexing += n-2 + (n-2)*(m-2);         
-    pointer_adds += (n-2)*(m-2)*2;     
-    pointer_mults += (n-2)*(m-2);    
+    pointer_mults += 3*8;
     #endif
 
     //calculate the total 3d energy 
-    
-    for(int i = 0 ; i < 3 ; i++) {
-        for(int j = 1 ; j < n-1 ; j++) {
-            for(int k = 1 ; k < m-1 ; k++) {
-                    //add elementwise along the z axis 
-                    *(result+(m-2)*(j-1)+k-1) += *(partial + i*m*n + j*m + k);
-            }
+    int result_index, partial_index;
+    // first channel
+    for(int j = 1 ; j < n-1 ; j++) {
+        result_index = (m-2)*(j-1)-1;
+        partial_index = j*m;
+        for(int k = 1 ; k < m-1 ; k++) {
+            //add elementwise along the z axis 
+            *(result+result_index+k) = *(partial+partial_index+k);
+        }
+    }
+    // second channel
+    for(int j = 1 ; j < n-1 ; j++) {
+        result_index = (m-2)*(j-1)-1;
+        partial_index = step1 + j*m;
+        for(int k = 1 ; k < m-1 ; k++) {
+            //add elementwise along the z axis 
+            *(result+result_index+k) += *(partial+partial_index+k);
+        }
+    }
+    // third channel
+    for(int j = 1 ; j < n-1 ; j++) {
+        result_index = (m-2)*(j-1)-1;
+        partial_index = step2 + j*m;
+        for(int k = 1 ; k < m-1 ; k++) {
+            //add elementwise along the z axis
+            *(result+result_index+k) += *(partial+partial_index+k);
         }
     }
 
