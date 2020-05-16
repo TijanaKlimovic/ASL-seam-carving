@@ -37,10 +37,10 @@ void calc_energy_1(int n, int m, int * F, int * part_grad) {
     int block_height_L1 = n - K;
     int block_height_r = n - K;
 
-    int block_width_L3 = 166667; //currently going channel by channel maybe later we can parallelise it
-    int block_width_L2 = 21334;
-    int block_width_L1 = 2667;
-    int block_width_r = 3;
+    int block_width_L3 = 99998; //currently going channel by channel maybe later we can parallelise it
+    int block_width_L2 = 12798;
+    int block_width_L1 = 1598;
+    int block_width_r = 1;  //working set size is 4(m+2)+m
 
     int width_limit_L3 = m - K - block_width_L3;
     int width_limit_L2;
@@ -189,6 +189,8 @@ void calc_energy_1(int n, int m, int * F, int * part_grad) {
     #endif
 }
 
+
+//version with no accumulators only accounting for the 
 void calc_energy(int n, int m, int * F, int * part_grad) {
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
@@ -200,45 +202,36 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
     unsigned long long pointer_mults = 0; //                                        -> MULTS
     #endif
 
-    int block_height_L3 = n - K;
-    int block_height_L2 = n - K;
+    //int block_height_L3 = n - K;
+    //int block_height_L2 = n - K;
     int block_height_L1 = n - K;
     int block_height_R = n - K;
 
-    int block_width_L3 = 166665; //currently going channel by channel maybe later we can parallelise it 166667
-    int block_width_L2 = 21332; // 21334
-    int block_width_L1 = 2665; // 2667 but indexing takes away 2 
-    int block_width_R = 3; //16 regs for ints so for 3 rows we have 5 -> since we have index i-1 and i+1 we have 3 
+    //int block_width_L3 = 166665; //currently going channel by channel maybe later we can parallelise it 166667
+    //int block_width_L2 = 21332; // 21334
+    int block_width_L1 = 1598;
+    int block_width_R = 1;  //working set size is 4(m+2)+m
 
-    int width_limit_L3 = m - K - block_width_L3;
-    int width_limit_L2;
+    //int width_limit_L3 = m - K - block_width_L3;
+    //int width_limit_L2;
     int width_limit_L1 = m - K - block_width_L1 + 1;
-    int width_limit_R = m - K - block_width_R + 1;
+    int width_limit_R ; //m - K - block_width_R + 1
 
     int j, i;
-    for (j = 1; j < width_limit_L3; j = j + block_width_L3) {
-        width_limit_L2 = j + block_width_L3 - block_width_L2 + 1; //take care in case block_width_L2 doesnt divide width_limit_L2
+    for (j = 1; j < width_limit_L1; j = j + block_width_L1) {
+        width_limit_R = j + block_width_L1 - block_width_R + 1; //take care in case block_width_L2 doesnt divide width_limit_L2
         int j_L3;
 
-        for (j_L3 = j; j_L3 < width_limit_L2; j_L3 += block_width_L2) { //single level 3 block calculation
+        for (j_L3 = j; j_L3 < width_limit_R; j_L3 += block_width_R) { //single level 3 block calculation
             for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
-                for (int jj = j_L3; jj < j_L3 + block_width_L2; jj++) {
-                    int acc1;
-                    int acc2;
-                    int acc3;
-                    int acc4;
-                    int acc5;
-                    int acc6;
+                for (int jj = j_L3; jj < j_L3 + block_width_R; jj++) {
+                    int acc;
                     //H_y
-                    acc1 = -(F[(ii - 1) * m + (jj - 1)] + ((F[(ii - 1) * m + jj]) << 1));
-                    acc2 = F[(ii + 1) * m + (jj - 1)] - F[(ii - 1) * m + jj + 1];
-                    acc3 = ((F[(ii + 1) * m + jj]) << 1) + F[(ii + 1) * m + jj + 1];
-                    *(part_grad + ii * m + jj) = ABS(acc1 + acc2 + acc3);
+                    *(part_grad + ii * m + jj) = (-(F[(ii - 1) * m + (jj - 1)] + ((F[(ii - 1) * m + jj]) << 1))) + (F[(ii + 1) * m + (jj - 1)] - F[(ii - 1) * m + jj + 1]) + (((F[(ii + 1) * m + jj]) << 1) + F[(ii + 1) * m + jj + 1]);
+                    *(part_grad + ii * m + jj) = ABS(*(part_grad + ii * m + jj));
                     //H_x
-                    acc4 = F[(ii - 1) * m + jj + 1] - F[(ii - 1) * m + (jj - 1)];
-                    acc5 = (F[ii * m + jj + 1] - F[ii * m + jj - 1]) << 1;
-                    acc6 = F[(ii + 1) * m + jj + 1] - F[(ii + 1) * m + jj - 1];
-                    *(part_grad + ii * m + jj) += ABS(acc4 + acc5 + acc6);
+                    acc = (F[(ii - 1) * m + jj + 1] - F[(ii - 1) * m + (jj - 1)]) + (((F[ii * m + jj + 1] - F[ii * m + jj - 1]) << 1)) + (F[(ii + 1) * m + jj + 1] - F[(ii + 1) * m + jj - 1]);
+                    *(part_grad + ii * m + jj) += ABS(acc);
                     #ifdef count_instr //count line 55
                     mult_count++;
                     pointer_adds += 2 * 2; //assuming worse case that the after having the pointer arithmetic done its not saved but redone
@@ -255,49 +248,56 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
         #endif
 
         //bad non cooparating jjs
-        for (; j_L3 < j + block_width_L3; j_L3++) {
-            for (int i_L3 = 1; i_L3 < i + block_height_L3; i_L3++) {
-                int acc1;
-                int acc2;
-                int acc3;
-                int acc4;
-                int acc5;
-                int acc6;
+        for (; j_L3 < j + block_width_L1; j_L3++) {
+            for (int i_L3 = 1; i_L3 < n - K; i_L3++) {
+                int acc;
                 //H_y
-                acc1 = -(F[(i_L3 - 1) * m + (j_L3 - 1)] + ((F[(i_L3 - 1) * m + j_L3]) << 1));
-                acc2 = F[(i_L3 + 1) * m + (j_L3 - 1)] - F[(i_L3 - 1) * m + j_L3 + 1];
-                acc3 = ((F[(i_L3 + 1) * m + j_L3]) << 1) + F[(i_L3 + 1) * m + j_L3 + 1];
-                *(part_grad + i_L3 * m + j_L3) = ABS(acc1 + acc2 + acc3);
+                *(part_grad + i_L3 * m + j_L3) = (-(F[(i_L3 - 1) * m + (j_L3 - 1)] + ((F[(i_L3 - 1) * m + j_L3]) << 1))) + (F[(i_L3 + 1) * m + (j_L3 - 1)] - F[(i_L3 - 1) * m + j_L3 + 1]) + (((F[(i_L3 + 1) * m + j_L3]) << 1) + F[(i_L3 + 1) * m + j_L3 + 1]);
+                *(part_grad + i_L3 * m + j_L3) = ABS(*(part_grad + i_L3 * m + j_L3));
                 //H_x
-                acc4 = F[(i_L3 - 1) * m + j_L3 + 1] - F[(i_L3 - 1) * m + (j_L3 - 1)];
-                acc5 = (F[i_L3 * m + j_L3 + 1] - F[i_L3 * m + j_L3 - 1]) << 1;
-                acc6 = F[(i_L3 + 1) * m + j_L3 + 1] - F[(i_L3 + 1) * m + j_L3 - 1];
-                *(part_grad + i_L3 * m + j_L3) += ABS(acc4 + acc5 + acc6);
+                acc = (F[(i_L3 - 1) * m + j_L3 + 1] - F[(i_L3 - 1) * m + (j_L3 - 1)]) + (((F[i_L3 * m + j_L3 + 1] - F[i_L3 * m + j_L3 - 1]) << 1)) + (F[(i_L3 + 1) * m + j_L3 + 1] - F[(i_L3 + 1) * m + j_L3 - 1]);
+                *(part_grad + i_L3 * m + j_L3) += ABS(acc);
             }
         }
     }
 
     //bad non cooparating js
-    for (; j < m - K; j++) {
-        for (i = 1; i < n - K; i++) {
-            int acc1;
-            int acc2;
-            int acc3;
-            int acc4;
-            int acc5;
-            int acc6;
-            //H_y
-            acc1 = -(F[(i - 1) * m + (j - 1)] + ((F[(i - 1) * m + j]) << 1));
-            acc2 = F[(i + 1) * m + (j - 1)] - F[(i - 1) * m + j + 1];
-            acc3 = ((F[(i + 1) * m + j]) << 1) + F[(i + 1) * m + j + 1];
-            *(part_grad + i * m + j) = ABS(acc1 + acc2 + acc3);
-            //H_x
-            acc4 = F[(i - 1) * m + j + 1] - F[(i - 1) * m + (j - 1)];
-            acc5 = (F[i * m + j + 1] - F[i * m + j - 1]) << 1;
-            acc6 = F[(i + 1) * m + j + 1] - F[(i + 1) * m + j - 1];
-            *(part_grad + i * m + j) += ABS(acc4 + acc5 + acc6);
+    int j_limit =  m - K - block_width_R + 1;
 
-        }
+    for (; j < j_limit; j = j + block_width_R) {
+        for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
+                for (int jj = j; jj < j + block_width_R; jj++) {
+                    int acc;
+                    //H_y
+                    *(part_grad + ii * m + jj) = (-(F[(ii - 1) * m + (jj - 1)] + ((F[(ii - 1) * m + jj]) << 1))) + (F[(ii + 1) * m + (jj - 1)] - F[(ii - 1) * m + jj + 1]) + (((F[(ii + 1) * m + jj]) << 1) + F[(ii + 1) * m + jj + 1]);
+                    *(part_grad + ii * m + jj) = ABS(*(part_grad + ii * m + jj));
+                    //H_x
+                    acc = (F[(ii - 1) * m + jj + 1] - F[(ii - 1) * m + (jj - 1)]) + (((F[ii * m + jj + 1] - F[ii * m + jj - 1]) << 1)) + (F[(ii + 1) * m + jj + 1] - F[(ii + 1) * m + jj - 1]);
+                    *(part_grad + ii * m + jj) += ABS(acc);
+                    #ifdef count_instr //count line 55
+                    mult_count++;
+                    pointer_adds += 2 * 2; //assuming worse case that the after having the pointer arithmetic done its not saved but redone
+                    pointer_mults += 2;
+                    #endif
+                }
+            }        
+    }
+
+     for (; j < m - K; j++) {
+        for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
+                    int acc;
+                    //H_y
+                    *(part_grad + ii * m + j) = -((F[(ii - 1) * m + (j - 1)] + ((F[(ii - 1) * m + j]) << 1))) + (F[(ii + 1) * m + (j - 1)] - F[(ii - 1) * m + j + 1]) + (((F[(ii + 1) * m + j]) << 1) + F[(ii + 1) * m + j + 1]);
+                    *(part_grad + ii * m + j) = ABS(*(part_grad + ii * m + j));
+                    //H_x
+                    acc = (F[(ii - 1) * m + j + 1] - F[(ii - 1) * m + (j - 1)]) + (((F[ii * m + j+ 1] - F[ii * m + j - 1]) << 1)) + (F[(ii + 1) * m + j + 1] - F[(ii + 1) * m + j - 1]);
+                    *(part_grad + ii * m + j) += ABS(acc);
+                    #ifdef count_instr //count line 55
+                    mult_count++;
+                    pointer_adds += 2 * 2; //assuming worse case that the after having the pointer arithmetic done its not saved but redone
+                    pointer_mults += 2;
+                    #endif
+            }        
     }
 
     #ifdef count_instr
