@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "parse_img.h"
+#include "count.h"
 
 #define K 1
 //#define debug   //uncomment for debugging
