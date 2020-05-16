@@ -31,6 +31,7 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
     unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
 
+    int *Fstep = F, *Fstep1 = F+m, *Fstep2 = F+2*m, step = m;
     for(int i = 1 ; i < n-1 ; i++){
         for(int j = 1 ; j < m-1 ; j++){
             int acc1;
@@ -41,14 +42,14 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
             int acc6;
             int acc_total;
 
-            int accF1 = F[(i - 1) * m + (j - 1)];
-            int accF2 = F[(i - 1) * m + j];
-            int accF3 = F[(i - 1) * m + j + 1];
-            int accF4 = F[i * m + j - 1];
-            int accF5 = F[i * m + j + 1];
-            int accF6 = F[(i + 1) * m + j - 1];
-            int accF7 = F[(i + 1) * m + j];
-            int accF8 = F[(i + 1) * m + j + 1];
+            int accF1 = *(Fstep + j - 1);
+            int accF2 = *(Fstep + j);
+            int accF3 = *(Fstep + j + 1);
+            int accF4 = *(Fstep1 + j - 1);
+            int accF5 = *(Fstep1 + j + 1);
+            int accF6 = *(Fstep2 + j - 1);
+            int accF7 = *(Fstep2 + j);
+            int accF8 = *(Fstep2 + j + 1);
 
             //H_y
             acc1 = -(accF1 + (accF2 << 1));
@@ -61,7 +62,7 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
             acc6 = accF8 - accF6;
             acc_total += ABS(acc4 + acc5 + acc6);
 
-            *(part_grad + i*m + j) = acc_total;
+            *(part_grad + step + j) = acc_total;
 
             #ifdef count_instr      //count line 55
             mult_count ++;
@@ -69,6 +70,11 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
             pointer_mults += 2;
             #endif
         }
+
+        Fstep += m;
+        Fstep1 += m;
+        Fstep2 += m;
+        step += m;
 
         #ifdef count_instr  //count line 54
         count_ifs ++;       //when not taken check must be made too
@@ -123,33 +129,93 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     #endif
 
     //calculate the total 3d energy 
-    int result_index, partial_index;
+    int k;
+    int *result_step = result-1, *partial_step = partial;
+    int *result_step1 = result-1, *partial_step1 = partial+step1;
+    int *result_step2 = result-1, *partial_step2 = partial+step2;
     // first channel
     for(int j = 1 ; j < n-1 ; j++) {
-        result_index = (m-2)*(j-1)-1;
-        partial_index = j*m;
-        for(int k = 1 ; k < m-1 ; k++) {
+        partial_step += m;
+        for(k = 1 ; k < m-16 ; k += 16) {
             //add elementwise along the z axis 
-            *(result+result_index+k) = *(partial+partial_index+k);
+            *(result_step+k) = *(partial_step+k);
+            *(result_step+k+1) = *(partial_step+k+1);
+            *(result_step+k+2) = *(partial_step+k+2);
+            *(result_step+k+3) = *(partial_step+k+3);
+            *(result_step+k+4) = *(partial_step+k+4);
+            *(result_step+k+5) = *(partial_step+k+5);
+            *(result_step+k+6) = *(partial_step+k+6);
+            *(result_step+k+7) = *(partial_step+k+7);
+            *(result_step+k+8) = *(partial_step+k+8);
+            *(result_step+k+9) = *(partial_step+k+9);
+            *(result_step+k+10) = *(partial_step+k+10);
+            *(result_step+k+11) = *(partial_step+k+11);
+            *(result_step+k+12) = *(partial_step+k+12);
+            *(result_step+k+13) = *(partial_step+k+13);
+            *(result_step+k+14) = *(partial_step+k+14);
+            *(result_step+k+15) = *(partial_step+k+15);
         }
+        while(k < m-1) {
+            *(result_step+k) = *(partial_step+k);
+            k++;
+        }
+        result_step += m-2;
     }
     // second channel
     for(int j = 1 ; j < n-1 ; j++) {
-        result_index = (m-2)*(j-1)-1;
-        partial_index = step1 + j*m;
-        for(int k = 1 ; k < m-1 ; k++) {
+        partial_step1 += m;
+        for(k = 1 ; k < m-16 ; k += 16) {
             //add elementwise along the z axis 
-            *(result+result_index+k) += *(partial+partial_index+k);
+            *(result_step1+k) += *(partial_step1+k);
+            *(result_step1+k+1) += *(partial_step1+k+1);
+            *(result_step1+k+2) += *(partial_step1+k+2);
+            *(result_step1+k+3) += *(partial_step1+k+3);
+            *(result_step1+k+4) += *(partial_step1+k+4);
+            *(result_step1+k+5) += *(partial_step1+k+5);
+            *(result_step1+k+6) += *(partial_step1+k+6);
+            *(result_step1+k+7) += *(partial_step1+k+7);
+            *(result_step1+k+8) += *(partial_step1+k+8);
+            *(result_step1+k+9) += *(partial_step1+k+9);
+            *(result_step1+k+10) += *(partial_step1+k+10);
+            *(result_step1+k+11) += *(partial_step1+k+11);
+            *(result_step1+k+12) += *(partial_step1+k+12);
+            *(result_step1+k+13) += *(partial_step1+k+13);
+            *(result_step1+k+14) += *(partial_step1+k+14);
+            *(result_step1+k+15) += *(partial_step1+k+15);
         }
+        while(k < m-1) {
+            *(result_step1+k) += *(partial_step1+k);
+            k++;
+        }
+        result_step1 += m-2;
     }
     // third channel
     for(int j = 1 ; j < n-1 ; j++) {
-        result_index = (m-2)*(j-1)-1;
-        partial_index = step2 + j*m;
-        for(int k = 1 ; k < m-1 ; k++) {
-            //add elementwise along the z axis
-            *(result+result_index+k) += *(partial+partial_index+k);
+        partial_step2 += m;
+        for(k = 1 ; k < m-16 ; k += 16) {
+            //add elementwise along the z axis 
+            *(result_step2+k) += *(partial_step2+k);
+            *(result_step2+k+1) += *(partial_step2+k+1);
+            *(result_step2+k+2) += *(partial_step2+k+2);
+            *(result_step2+k+3) += *(partial_step2+k+3);
+            *(result_step2+k+4) += *(partial_step2+k+4);
+            *(result_step2+k+5) += *(partial_step2+k+5);
+            *(result_step2+k+6) += *(partial_step2+k+6);
+            *(result_step2+k+7) += *(partial_step2+k+7);
+            *(result_step2+k+8) += *(partial_step2+k+8);
+            *(result_step2+k+9) += *(partial_step2+k+9);
+            *(result_step2+k+10) += *(partial_step2+k+10);
+            *(result_step2+k+11) += *(partial_step2+k+11);
+            *(result_step2+k+12) += *(partial_step2+k+12);
+            *(result_step2+k+13) += *(partial_step2+k+13);
+            *(result_step2+k+14) += *(partial_step2+k+14);
+            *(result_step2+k+15) += *(partial_step2+k+15);
         }
+        while(k < m-1) {
+            *(result_step2+k) += *(partial_step2+k);
+            k++;
+        }
+        result_step2 += m-2;
     }
 
     #ifdef count_instr                                       //counts lines 134-138
@@ -164,7 +230,6 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     mult_count += pointer_mults;
     printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
     printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
-
     #endif
 
     //save img
@@ -178,8 +243,6 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     // debug = 1;
   #endif
 }
-
-
 
 //first method called before anything else to create a 0 frame aronund original image
 //make sure to free the returned pointer after the first seam is found and removed 
