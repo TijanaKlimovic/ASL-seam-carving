@@ -30,11 +30,6 @@
 
 //--------------- extern count variables --------------
 
-#include "count.h"
-
-//#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #ifdef count_instr 
 unsigned long long add_count = 0;	//count the total number of add instructions
 unsigned long long mult_count = 0; //count the total number of mult instructions
@@ -97,7 +92,6 @@ int run(int width, int height, unsigned char *output, const char *output_file_na
 	unsigned char *res = optimal_image(width, height, width_diff, height_diff, output);
 	save_image(output_file_name, width - width_diff, height - height_diff, res);
 	free(res);
-	//stbi_image_free(loaded); TODO
 	return 0;
 }
 
