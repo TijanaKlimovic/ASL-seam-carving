@@ -30,8 +30,6 @@
 
 //--------------- extern count variables --------------
 
-#include "count.h"
-
 #ifdef count_instr 
 unsigned long long add_count = 0;	//count the total number of add instructions
 unsigned long long mult_count = 0; //count the total number of mult instructions
