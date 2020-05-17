@@ -39,7 +39,7 @@ void calc_energy_1(int n, int m, int * F, int * part_grad) {
 
     int block_width_L3 = 99998; //currently going channel by channel maybe later we can parallelise it
     int block_width_L2 = 12798;
-    int block_width_L1 = 1598;
+    int block_width_L1 = 1400;//1598;
     int block_width_r = 1;  //working set size is 4(m+2)+m
 
     int width_limit_L3 = m - K - block_width_L3;
@@ -222,8 +222,9 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
         width_limit_R = j + block_width_L1 - block_width_R + 1; //take care in case block_width_L2 doesnt divide width_limit_L2
         int j_L3;
 
-        for (j_L3 = j; j_L3 < width_limit_R; j_L3 += block_width_R) { //single level 3 block calculation
-            for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
+        for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
+            for (j_L3 = j; j_L3 < width_limit_R; j_L3 += block_width_R) { //single level 3 block calculation
+            
                 for (int jj = j_L3; jj < j_L3 + block_width_R; jj++) {
                     int acc;
                     //H_y
@@ -264,8 +265,8 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
     //bad non cooparating js
     int j_limit =  m - K - block_width_R + 1;
 
-    for (; j < j_limit; j = j + block_width_R) {
-        for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
+    for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
+        for (; j < j_limit; j = j + block_width_R) {
                 for (int jj = j; jj < j + block_width_R; jj++) {
                     int acc;
                     //H_y
@@ -282,9 +283,8 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
                 }
             }        
     }
-
-     for (; j < m - K; j++) {
-        for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
+    for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
+         for (; j < m - K; j++) {
                     int acc;
                     //H_y
                     *(part_grad + ii * m + j) = -((F[(ii - 1) * m + (j - 1)] + ((F[(ii - 1) * m + j]) << 1))) + (F[(ii + 1) * m + (j - 1)] - F[(ii - 1) * m + j + 1]) + (((F[(ii + 1) * m + j]) << 1) + F[(ii + 1) * m + j + 1]);
