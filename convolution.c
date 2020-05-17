@@ -19,9 +19,9 @@ extern unsigned long long mult_count;  //count the total number of mult instruct
 
 // int debug = 1;
 //assuming that preprocessing is made of 0 padding 
-// Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
-//F is of size 3 x n x m
-void calc_energy(int n, int m, int* F, int* part_grad ){
+// Given n rows, m columns of channel padded of some image and the kernel H computes partial gradient corresponding to H given
+//padded is of size 3 x n x m
+void calc_energy(int n, int m, int* padded, int* energy ){
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
 
@@ -40,16 +40,44 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
             int acc4;
             int acc5;
             int acc6;
+            // channel R
             //H_y
-            acc1 = -(F[(i - 1) * m + (j - 1)] + ((F[(i - 1) * m + j]) << 1));
-            acc2 = F[(i + 1) * m + (j - 1)] - F[(i - 1) * m + j + 1];
-            acc3 = ((F[(i + 1) * m + j]) << 1) + F[(i + 1) * m + j + 1];
-            *(part_grad + i*m + j) = ABS(acc1 + acc2 + acc3);
+            int k = 0;
+            acc1 = -(padded[(i - 1) * m * 3  + (j - 1)*3 + k] + ((padded[(i - 1) * m *3 + j * 3 + k]) << 1));
+            acc2 = padded[(i + 1) * m * 3 + (j - 1) * 3 + k] - padded[(i - 1) * m * 3 + (j + 1) * 3 + k];
+            acc3 = ((padded[(i + 1) * m * 3 + j*3 + k]) << 1) + padded[(i + 1) * m * 3 + (j + 1) * 3 + k];
+            *(energy + (i-1)*(m-2) + (j-1)) = ABS(acc1 + acc2 + acc3);
             //H_x
-            acc4 = F[(i - 1) * m + j + 1] - F[(i - 1) * m + (j - 1)];
-            acc5 = (F[i * m + j + 1] - F[i * m + j - 1]) << 1;
-            acc6 = F[(i + 1) * m + j + 1] - F[(i + 1) * m + j - 1];
-            *(part_grad + i*m + j) += ABS(acc4 + acc5 + acc6);
+            acc4 = padded[(i - 1) * m * 3 + (j + 1) * 3 + k] - padded[(i - 1) * m * 3 + (j - 1) * 3 + k];
+            acc5 = (padded[i * m  * 3+ (j + 1) * 3 + k] - padded[i * m * 3 + (j - 1) * 3 + k]) << 1;
+            acc6 = padded[(i + 1) * m * 3 + (j + 1) * 3 + k] - padded[(i + 1) * m * 3 + (j - 1) * 3 + k];
+            *(energy + (i-1)*(m-2) + (j-1)) += ABS(acc4 + acc5 + acc6);
+
+            // channel G
+            //H_y
+            k = 1;
+            acc1 = -(padded[(i - 1) * m * 3  + (j - 1)*3 + k] + ((padded[(i - 1) * m *3 + j * 3 + k]) << 1));
+            acc2 = padded[(i + 1) * m * 3 + (j - 1) * 3 + k] - padded[(i - 1) * m * 3 + (j + 1) * 3 + k];
+            acc3 = ((padded[(i + 1) * m * 3 + j*3 + k]) << 1) + padded[(i + 1) * m * 3 + (j + 1) * 3 + k];
+            *(energy + (i-1)*(m-2) + (j-1)) += ABS(acc1 + acc2 + acc3);
+            //H_x
+            acc4 = padded[(i - 1) * m * 3 + (j + 1) * 3 + k] - padded[(i - 1) * m * 3 + (j - 1) * 3 + k];
+            acc5 = (padded[i * m  * 3+ (j + 1) * 3 + k] - padded[i * m * 3 + (j - 1) * 3 + k]) << 1;
+            acc6 = padded[(i + 1) * m * 3 + (j + 1) * 3 + k] - padded[(i + 1) * m * 3 + (j - 1) * 3 + k];
+            *(energy + (i-1)*(m-2) + (j-1)) += ABS(acc4 + acc5 + acc6);
+
+            // channel B
+            //H_y
+            k = 2;
+            acc1 = -(padded[(i - 1) * m * 3  + (j - 1)*3 + k] + ((padded[(i - 1) * m *3 + j * 3 + k]) << 1));
+            acc2 = padded[(i + 1) * m * 3 + (j - 1) * 3 + k] - padded[(i - 1) * m * 3 + (j + 1) * 3 + k];
+            acc3 = ((padded[(i + 1) * m * 3 + j*3 + k]) << 1) + padded[(i + 1) * m * 3 + (j + 1) * 3 + k];
+            *(energy + (i-1)*(m-2) + (j-1)) += ABS(acc1 + acc2 + acc3);
+            //H_x
+            acc4 = padded[(i - 1) * m * 3 + (j + 1) * 3 + k] - padded[(i - 1) * m * 3 + (j - 1) * 3 + k];
+            acc5 = (padded[i * m  * 3+ (j + 1) * 3 + k] - padded[i * m * 3 + (j - 1) * 3 + k]) << 1;
+            acc6 = padded[(i + 1) * m * 3 + (j + 1) * 3 + k] - padded[(i + 1) * m * 3 + (j - 1) * 3 + k];
+            *(energy + (i-1)*(m-2) + (j-1)) += ABS(acc4 + acc5 + acc6);
 
             #ifdef count_instr      //count line 55
             mult_count ++;
@@ -76,8 +104,8 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
     //count total
     add_count += count_ifs + indexing + pointer_adds; 
     mult_count += pointer_mults;
-    printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
-    printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
+    printf("NO ADDS paddedOR calc_energy IS: %llu \n", add_count); 
+    printf("NO MULTS paddedOR calc_energy IS: %llu \n", mult_count); 
     #endif
 }
 
@@ -85,7 +113,7 @@ void calc_energy(int n, int m, int* F, int* part_grad ){
 //assumes result is of size n-2 x m-2 
 //calculates the cumulative sum over the individual channel energies
 //returns the energy map result over color image of size  n-2 x m-2 
-void calc_RGB_energy(int n, int m, int* channels, int* result){
+void calc_RGB_energy(int n, int m, int* padded, int* energy){
     
    #ifdef count_instr        //counting adds and mults of this function
     unsigned long long count_ifs = 0;        //includes explicit ifs and for loop ifs  -> ADDS
@@ -105,15 +133,16 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
   //   {-2,0,2},
   //   {-1,0,1}};
 
-    int size = 3*n*m ;
+    int size = (n-2)*(m-2);
 
-    int* partial = (int*) malloc( size*sizeof(int));
+    //int* energy = (int*) malloc( size*sizeof(int));
 
     //calculate the parital derivatives 
-    for(int i = 0 ; i < 3 ; i ++){
-      //pass the ith channel for energy calculation
-       calc_energy(n,m,channels + n*m*i, partial + n*m*i);
-    }
+    // for(int i = 0 ; i < 3 ; i ++){
+    //   //pass the ith channel for energy calculation
+    //    calc_energy(n,m,channels + n*m*i, partial + n*m*i);
+    // }
+    calc_energy(n, m, padded, energy);
 
 
     #ifdef count_instr        //counts lines 120-124
@@ -123,11 +152,11 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     pointer_mults += 3*8;    
     #endif
 
-    for (int i = 0; i < n - 2; i++) {
-        for (int j = 0; j < m - 2; j++) {
-            result[(m - 2) * i + j] = 0;
-        }
-    }
+    // for (int i = 0; i < n - 2; i++) {
+    //     for (int j = 0; j < m - 2; j++) {
+    //         result[(m - 2) * i + j] = 0;
+    //     }
+    // }
 
 
     #ifdef count_instr                                      //counts lines 134-138
@@ -139,14 +168,14 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
 
     //calculate the total 3d energy 
     
-    for(int i = 0 ; i < 3 ; i++) {
-        for(int j = 1 ; j < n-1 ; j++) {
-            for(int k = 1 ; k < m-1 ; k++) {
-                    //add elementwise along the z axis 
-                    *(result+(m-2)*(j-1)+k-1) += *(partial + i*m*n + j*m + k);
-            }
-        }
-    }
+    // for(int i = 0 ; i < 3 ; i++) {
+    //     for(int j = 1 ; j < n-1 ; j++) {
+    //         for(int k = 1 ; k < m-1 ; k++) {
+    //                 //add elementwise along the z axis 
+    //                 *(result+(m-2)*(j-1)+k-1) += *(partial + i*m*n + j*m + k);
+    //         }
+    //     }
+    // }
 
     #ifdef count_instr                                       //counts lines 134-138
     count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4;          
@@ -158,13 +187,13 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     //count total
     add_count += count_ifs + indexing + pointer_adds; 
     mult_count += pointer_mults;
-    printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
-    printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
+    printf("NO ADDS paddedOR calc_energy IS: %llu \n", add_count); 
+    printf("NO MULTS paddedOR calc_energy IS: %llu \n", mult_count); 
 
     #endif
 
     //save img
-    free(partial);
+    //free(partial);
 
   //unsigned char *energy_map = NULL;
   #ifdef debug 
@@ -182,23 +211,25 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
 //repeat for each seam  
 int* padd0_image(int n, int m, unsigned char* channels){
 
-  int size = 3*(n+2)*(m+2);
+  int size = (n+2) * (m+2) * 3;
   int* padded_image = (int*) malloc( size*sizeof(int));
 
-  //int padded_image[3][n+2][m+2];
-  for(int i = 0 ; i < 3 ; i++){
-    for(int j = 0 ; j < n+2 ; j++){
-      for(int k = 0 ; k < m+2 ; k++){
+  //int padded_image[n+2][m+2][3];
+  for(int i = 0 ; i < n+2 ; i++){
+    for(int j = 0 ; j < m+2 ; j++){
+      for(int k = 0 ; k < 3 ; k++){
         //if the column is 0 or m+1 or the row is 0 or n+1 we set 0 otherwise copy the value 
-        if(j == 0 || k == 0 || j == n+1 || k == m+1){
-          padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = 0;
-        }else{
+        if(i == 0 || j == 0 || i == n+1 || j == m+1){
+          //padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = 0;
+          padded_image[i*(m+2)*3 + j*3 + k] = 0;
+        } else{
           //printf("in pad its %f\n", channels[i*n*m + m*j + k]);
-          padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = channels[i*n*m + m*(j-1) + k-1];
+          //padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = channels[i*n*m + m*(j-1) + k-1];
+          padded_image[i*(m+2)*3 + j*3 + k] = channels[(i-1)*m*3 + (j-1)*3 + k];
         }
-      }
     }
   }
+}
   return padded_image;
 }
 

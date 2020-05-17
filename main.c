@@ -11,6 +11,7 @@
 #include <math.h>
 
 #include "tsc_x86.h"
+#include "stb_image.h"
 
 #define NUM_RUNS 1
 #define CYCLES_REQUIRED 1e8
@@ -170,7 +171,8 @@ int main(int argc, char const *argv[]) {
 	if(strcmp(argv[5],"1")){
 		//print_matrix(output, width, height, 3);
 		int out = run(width, height, output, argv[2], width_diff, height_diff);
-		free(output);
+		//free(output);
+		stbi_image_free(output);
 
 		#ifdef count_instr
 		printf("\nADDS=%llu MULTS=%llu\n", add_count, mult_count);
@@ -181,7 +183,8 @@ int main(int argc, char const *argv[]) {
 	//time it
 	double r = rdtsc(width, height, output, argv[2], width_diff, height_diff);
 
-	free(output);
+	//free(output);
+	stbi_image_free(output);
 
     printf("\nRDTSC instruction: %.0lf cycles measured\n", r);
 	#ifdef count_instr

@@ -86,26 +86,27 @@ int allocate_uchar_buffer(int width, int height, unsigned char **buffer) {
 
 int load_image(const char *filename, int *width, int *height, unsigned char **output) {
 	int n;
-	unsigned char *loaded = stbi_load(filename, width, height, &n, C);
-	if (loaded == NULL) {
+	//unsigned char *loaded = stbi_load(filename, width, height, &n, C);
+	*output = stbi_load(filename, width, height, &n, C);
+	if (output == NULL) {
 		printf("Failed to load image %s\n", filename);
 		return 0;
 	}
 	assert(n == C);
-	if (!allocate_uchar_buffer(*width, *height, output)) 
-		return 0;
-	convert_from_rgb(loaded, *output, *width, *height);
-	stbi_image_free(loaded);
+	//if (!allocate_uchar_buffer(*width, *height, output)) 
+	//	return 0;
+	//convert_from_rgb(loaded, *output, *width, *height);
+	//stbi_image_free(loaded);
 	//print_matrix(*output, *width, *height, 3);
 	return 1;
 }
 
 void save_image(const char *filename, int new_width, int new_height, unsigned char *buffer) {
-	unsigned char *output;
-	allocate_uchar_buffer(new_width, new_height, &output);
-	convert_to_rgb(buffer, output, new_width, new_height);
-	stbi_write_png(filename, new_width, new_height, C, output, new_width * C);
-	free(output);
+	//unsigned char *output;
+	//allocate_uchar_buffer(new_width, new_height, &output);
+	//convert_to_rgb(buffer, output, new_width, new_height);
+	stbi_write_png(filename, new_width, new_height, C, buffer, new_width * C);
+	//free(output);
 }
 
 // converts the image pixels into the range of [0-255]
@@ -132,4 +133,3 @@ void save_as_grayscale_image(char *filename, int new_width, int new_height, int 
 	stbi_write_png(filename, new_width, new_height, 1, output, new_width);
 	free(output);
 }
-

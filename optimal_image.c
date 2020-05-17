@@ -27,8 +27,7 @@ struct cell_T {
 
 // height -> horizontal seam -> row
 // width -> vertical seam -> column
-void calculate(int width, int height, int T_width, int T_height, 
-	int width_diff, struct cell_T *T) {
+void calculate(int width, int height, int T_width, int T_height, int width_diff, struct cell_T *T) {
 	int T_index = T_height * width_diff + T_width;
 
 	#ifdef count_instr
@@ -68,12 +67,12 @@ void calculate(int width, int height, int T_width, int T_height,
 			int crr_col = 0;
 			for (l = 0; l < image_width; ++l)
 				if (l != backtrack[k]) { // check for elem to remove
-					T[T_index].i[k*(image_width-1)+crr_col]
-						= T[T_index_left].i[k*image_width + l];
-					T[T_index].i[image_height*(image_width-1)+k*(image_width-1)+crr_col]
-						= T[T_index_left].i[image_height*image_width+k*image_width + l];
-					T[T_index].i[2*image_height*(image_width-1)+k*(image_width-1)+crr_col]
-						= T[T_index_left].i[2*image_height*image_width+k*image_width + l];
+					// remove R 
+					T[T_index].i[k*(image_width-1)*3 + crr_col*3] = T[T_index_left].i[k*image_width*3 + l*3];
+					// remove G
+					T[T_index].i[k*(image_width-1)*3 + crr_col*3 + 1] = T[T_index_left].i[k*image_width*3 + l*3 + 1];
+					// remove B
+					T[T_index].i[k*(image_width-1)*3 + crr_col*3 + 2] = T[T_index_left].i[k*image_width*3 + l*3 + 2];
 					crr_col++;
 
 					#ifdef count_instr
@@ -125,12 +124,12 @@ void calculate(int width, int height, int T_width, int T_height,
 			int crr_row = 0;
 			for (l = 0; l < image_height; ++l)
 				if (l != backtrack[k]) { // check for elem to remove
-					T[T_index].i[crr_row*image_width+k]
-						= T[T_index_up].i[l*image_width + k];
-					T[T_index].i[(image_height-1)*image_width+crr_row*image_width+k]
-						= T[T_index_up].i[image_height*image_width+l*image_width + k];
-					T[T_index].i[2*(image_height-1)*image_width+crr_row*image_width+k]
-						= T[T_index_up].i[2*image_height*image_width+l*image_width + k];
+					// remove R
+					T[T_index].i[crr_row*image_width*3 + k*3] = T[T_index_up].i[l*image_width*3 + k*3];
+					// remove G
+					T[T_index].i[crr_row*image_width*3 + k*3 + 1] = T[T_index_up].i[l*image_width*3 + k*3 + 1];
+					// remove B
+					T[T_index].i[crr_row*image_width*3 + k*3 + 2] = T[T_index_up].i[l*image_width*3 + k*3 + 2];
 					crr_row++;
 
 					#ifdef count_instr
@@ -207,12 +206,12 @@ void calculate(int width, int height, int T_width, int T_height,
 				int crr_col = 0;
 				for (l = 0; l < image_left_width; ++l)
 					if (l != backtrack_left[k]) { // check for elem to remove
-						T[T_index].i[k*(image_left_width-1)+crr_col]
-							= T[T_index_left].i[k*image_left_width + l];
-						T[T_index].i[image_left_height*(image_left_width-1)+k*(image_left_width-1)+crr_col]
-							= T[T_index_left].i[image_left_height*(image_left_width-0)+k*image_left_width + l];
-						T[T_index].i[2*image_left_height*(image_left_width-1)+k*(image_left_width-1)+crr_col]
-							= T[T_index_left].i[2*image_left_height*(image_left_width-0)+k*image_left_width + l];
+						// remove R
+						T[T_index].i[k*(image_left_width-1)*3 + crr_col*3] = T[T_index_left].i[k*image_left_width*3 + l*3];
+						// remove G
+						T[T_index].i[k*(image_left_width-1)*3 + crr_col*3 + 1] = T[T_index_left].i[k*image_left_width*3 + l*3 + 1];
+						// remove B
+						T[T_index].i[k*(image_left_width-1)*3 + crr_col*3 + 2] = T[T_index_left].i[k*image_left_width*3 + l*3 + 2];
 						crr_col++;
 					}
 			}
@@ -241,12 +240,12 @@ void calculate(int width, int height, int T_width, int T_height,
 				int crr_row = 0;
 				for (l = 0; l < image_up_height; ++l)
 					if (l != backtrack_up[k]) { // check for elem to remove
-						T[T_index].i[crr_row*image_up_width+k]
-							= T[T_index_up].i[l*image_up_width + k];
-						T[T_index].i[(image_up_height-1)*image_up_width+crr_row*image_up_width+k]
-							= T[T_index_up].i[(image_up_height-0)*image_up_width+l*image_up_width + k];
-						T[T_index].i[2*(image_up_height-1)*image_up_width+crr_row*image_up_width+k]
-							= T[T_index_up].i[2*(image_up_height-0)*image_up_width+l*image_up_width + k];
+						// remove R
+						T[T_index].i[crr_row*image_up_width*3 + k*3] = T[T_index_up].i[l*image_up_width*3 + k*3];
+						// remove G
+						T[T_index].i[crr_row*image_up_width*3 + k*3 + 1] = T[T_index_up].i[l*image_up_width*3 + k*3 + 1];
+						// remove B
+						T[T_index].i[crr_row*image_up_width*3 + k*3 + 2] = T[T_index_up].i[l*image_up_width*3 + k*3 + 2];
 						crr_row++;
 					}
 			}
