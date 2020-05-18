@@ -330,15 +330,15 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 			}
 
 		for (j = 3; j < height_diff; ++j){
+			int i = (j-2) * width_diff;
 			for (k = 0; k < width_diff; ++k){
 				// free cell in row 2 above
-				int i = (j-2) * width_diff + k;
-				free(T[i].i);
+				free(T[i+k].i);
 				calculate(width, height, k, j, width_diff, T);
 			}
 
 			#ifdef count_instr
-			add_count += 2; // (j-2) & +k
+			add_count += 1; // (j-2) 
 			mult_count += 1; // (j-2)*width_diff
 			#endif
 		}
