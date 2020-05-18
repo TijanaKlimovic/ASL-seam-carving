@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "parse_img.h"
-#include "count.h"
 
 #define K 1
 //#define debug   //uncomment for debugging
@@ -83,8 +82,8 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
     //count total
     add_count += count_ifs + indexing + pointer_adds; 
     mult_count += pointer_mults;
-    printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
-    printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
+    // printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
+    // printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
     #endif
 }
 
@@ -167,8 +166,8 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
     //count total
     add_count += count_ifs + indexing + pointer_adds; 
     mult_count += pointer_mults;
-    printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
-    printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
+    // printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
+    // printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
 
     #endif
 
