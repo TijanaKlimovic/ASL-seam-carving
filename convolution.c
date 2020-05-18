@@ -6,7 +6,7 @@
 
 #define K 1
 #define ABS(X)(((X) < 0) ? (-(X)) : (X))
-//#define debug   //uncomment for debugging
+// #define debug   //uncomment for debugging
 
 //--------------------  counter for instructions -------------------
 
@@ -191,7 +191,7 @@ void calc_energy_1(int n, int m, int * F, int * part_grad) {
 
 
 //version with no accumulators only accounting for the 
-void calc_energy_no_acc(int n, int m, int * F, int * part_grad) {
+void calc_energy(int n, int m, int * F, int * part_grad) {
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
 
@@ -210,12 +210,14 @@ void calc_energy_no_acc(int n, int m, int * F, int * part_grad) {
     //int block_width_L3 = 166665; //currently going channel by channel maybe later we can parallelise it 166667
     //int block_width_L2 = 21332; // 21334
     int block_width_L1 = 1598;
-    int block_width_R = 1;  //working set size is 4(m+2)+m
+    int block_width_R = 2;  //working set size is 4(m+2)+m
 
     //int width_limit_L3 = m - K - block_width_L3;
     //int width_limit_L2;
     int width_limit_L1 = m - K - block_width_L1 + 1;
     int width_limit_R ; //m - K - block_width_R + 1
+
+    int j_old;
 
     int j, i;
     for (j = 1; j < width_limit_L1; j = j + block_width_L1) {
@@ -240,6 +242,18 @@ void calc_energy_no_acc(int n, int m, int * F, int * part_grad) {
                     #endif
                 }
             }
+
+            //bad non cooparating jjs
+            for (; j_L3 < j + block_width_L1; j_L3++) {
+                int acc;
+                //H_y
+                *(part_grad + ii * m + j_L3) = (-(F[(ii - 1) * m + (j_L3 - 1)] + ((F[(ii - 1) * m + j_L3]) << 1))) + (F[(ii + 1) * m + (j_L3 - 1)] - F[(ii - 1) * m + j_L3 + 1]) + (((F[(ii + 1) * m + j_L3]) << 1) + F[(ii + 1) * m + j_L3 + 1]);
+                *(part_grad + ii * m + j_L3) = ABS(*(part_grad + ii * m + j_L3));
+                //H_x
+                acc = (F[(ii - 1) * m + j_L3 + 1] - F[(ii - 1) * m + (j_L3 - 1)]) + (((F[ii * m + j_L3 + 1] - F[ii * m + j_L3 - 1]) << 1)) + (F[(ii + 1) * m + j_L3 + 1] - F[(ii + 1) * m + j_L3 - 1]);
+                *(part_grad + ii * m + j_L3) += ABS(acc);
+            }
+            
         }
 
         #ifdef count_instr //count line 54
@@ -248,25 +262,14 @@ void calc_energy_no_acc(int n, int m, int * F, int * part_grad) {
         pointer_mults++;
         #endif
 
-        //bad non cooparating jjs
-        for (; j_L3 < j + block_width_L1; j_L3++) {
-            for (int i_L3 = 1; i_L3 < n - K; i_L3++) {
-                int acc;
-                //H_y
-                *(part_grad + i_L3 * m + j_L3) = (-(F[(i_L3 - 1) * m + (j_L3 - 1)] + ((F[(i_L3 - 1) * m + j_L3]) << 1))) + (F[(i_L3 + 1) * m + (j_L3 - 1)] - F[(i_L3 - 1) * m + j_L3 + 1]) + (((F[(i_L3 + 1) * m + j_L3]) << 1) + F[(i_L3 + 1) * m + j_L3 + 1]);
-                *(part_grad + i_L3 * m + j_L3) = ABS(*(part_grad + i_L3 * m + j_L3));
-                //H_x
-                acc = (F[(i_L3 - 1) * m + j_L3 + 1] - F[(i_L3 - 1) * m + (j_L3 - 1)]) + (((F[i_L3 * m + j_L3 + 1] - F[i_L3 * m + j_L3 - 1]) << 1)) + (F[(i_L3 + 1) * m + j_L3 + 1] - F[(i_L3 + 1) * m + j_L3 - 1]);
-                *(part_grad + i_L3 * m + j_L3) += ABS(acc);
-            }
-        }
     }
 
     //bad non cooparating js
     int j_limit =  m - K - block_width_R + 1;
+    j_old = j;
 
     for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
-        for (; j < j_limit; j = j + block_width_R) {
+        for (j = j_old; j < j_limit; j = j + block_width_R) {
                 for (int jj = j; jj < j + block_width_R; jj++) {
                     int acc;
                     //H_y
@@ -283,8 +286,11 @@ void calc_energy_no_acc(int n, int m, int * F, int * part_grad) {
                 }
             }        
     }
+
+    j_old = j;
+
     for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
-         for (; j < m - K; j++) {
+         for (j = j_old; j < m - K; j++) {
                     int acc;
                     //H_y
                     *(part_grad + ii * m + j) = -((F[(ii - 1) * m + (j - 1)] + ((F[(ii - 1) * m + j]) << 1))) + (F[(ii + 1) * m + (j - 1)] - F[(ii - 1) * m + j + 1]) + (((F[(ii + 1) * m + j]) << 1) + F[(ii + 1) * m + j + 1]);
@@ -317,7 +323,7 @@ void calc_energy_no_acc(int n, int m, int * F, int * part_grad) {
 }
 
 //version with accumulators and scalar replacement
-void calc_energy(int n, int m, int * F, int * part_grad) {
+void calc_energy_acc(int n, int m, int * F, int * part_grad) {
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
 
