@@ -338,8 +338,8 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 			}
 
 			#ifdef count_instr
-			add_count += 2; // (j-2) & (j-1)
-			mult_count += 2; // (j-2)*width_diff & (j-1)*width_diff 
+			add_count += 2; // (j-2) & +k
+			mult_count += 1; // (j-2)*width_diff
 			#endif
 		}
 
