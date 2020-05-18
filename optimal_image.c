@@ -15,19 +15,19 @@ extern unsigned long long mult_count; 	//count the total number of mult instruct
 //------------------------------------------------------------------
 
 
-// Data structure to hold information in a T cell
-struct cell_T {
-	// optimal cost to get to this dimension
-	int optimal_cost;
-	// corresponding matrix for this dimension,
-	// obtained based on optimal cost
-	// size is 3 * (width - row) * (height - column)
-	unsigned char *i;
-};
+// // Data structure to hold information in a T cell
+// struct cell_T {
+// 	// optimal cost to get to this dimension
+// 	int optimal_cost;
+// 	// corresponding matrix for this dimension,
+// 	// obtained based on optimal cost
+// 	// size is 3 * (width - row) * (height - column)
+// 	unsigned char *i;
+// };
 
 // height -> horizontal seam -> row
 // width -> vertical seam -> column
-void calculate(int width, int height, int T_width, int T_height, int width_diff, struct cell_T *T) {
+void calculate(int width, int height, int T_width, int T_height, int width_diff, int *cost, unsigned char **imgs) {
 	int T_index = T_height * width_diff + T_width;
 
 	#ifdef count_instr
@@ -38,7 +38,8 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 	if (T_height == 0) {
 		// first row -> vertical seam only
 		int T_index_left = T_height * width_diff + T_width - 1;
-		unsigned char *image_left = T[T_index_left].i;
+		//unsigned char *image_left = T[T_index_left].i;
+		unsigned char *image_left = imgs[T_index_left];
 		int image_width = width - T_width + 1;
 		int image_height = height - T_height;
 
@@ -50,8 +51,10 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 		int *backtrack = (int *)malloc(image_height * sizeof(int));
 		int optimal_cost = min_seam(image_height, image_width, image_left, 1, backtrack);
 
-		T[T_index].optimal_cost = T[T_index_left].optimal_cost + optimal_cost;
-		T[T_index].i = (unsigned char *)malloc(3 * image_height * (image_width - 1) * sizeof(unsigned char));
+		//T[T_index].optimal_cost = T[T_index_left].optimal_cost + optimal_cost;
+		cost[T_index] = cost[T_index_left] + optimal_cost;
+		//T[T_index].i = (unsigned char *)malloc(3 * image_height * (image_width - 1) * sizeof(unsigned char));
+		imgs[T_index] = (unsigned char *)malloc(3 * image_height * (image_width - 1) * sizeof(unsigned char));
 
 		#ifdef count_instr
 		// malloc param only
@@ -68,11 +71,11 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 			for (l = 0; l < image_width; ++l)
 				if (l != backtrack[k]) { // check for elem to remove
 					// remove R 
-					T[T_index].i[k*(image_width-1)*3 + crr_col*3] = T[T_index_left].i[k*image_width*3 + l*3];
+					imgs[T_index][k*(image_width-1)*3 + crr_col*3] = imgs[T_index_left][k*image_width*3 + l*3];
 					// remove G
-					T[T_index].i[k*(image_width-1)*3 + crr_col*3 + 1] = T[T_index_left].i[k*image_width*3 + l*3 + 1];
+					imgs[T_index][k*(image_width-1)*3 + crr_col*3 + 1] = imgs[T_index_left][k*image_width*3 + l*3 + 1];
 					// remove B
-					T[T_index].i[k*(image_width-1)*3 + crr_col*3 + 2] = T[T_index_left].i[k*image_width*3 + l*3 + 2];
+					imgs[T_index][k*(image_width-1)*3 + crr_col*3 + 2] = imgs[T_index_left][k*image_width*3 + l*3 + 2];
 					crr_col++;
 
 					#ifdef count_instr
@@ -95,7 +98,7 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 	} else if (T_width == 0) {
 		// first column -> horizontal seam only
 		int T_index_up = (T_height - 1) * width_diff + T_width;
-		unsigned char *image_up = T[T_index_up].i;
+		unsigned char *image_up = imgs[T_index_up];
 		int image_width = width - T_width;
 		int image_height = height - T_height + 1;
 
@@ -107,8 +110,8 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 		int *backtrack = (int *)malloc(image_width * sizeof(int));
 		int optimal_cost = min_seam(image_height, image_width, image_up, 0, backtrack);
 
-		T[T_index].optimal_cost = T[T_index_up].optimal_cost + optimal_cost;
-		T[T_index].i = (unsigned char *)malloc(3 * (image_height - 1) * image_width * sizeof(unsigned char));
+		cost[T_index]= cost[T_index_up] + optimal_cost;
+		imgs[T_index] = (unsigned char *)malloc(3 * (image_height - 1) * image_width * sizeof(unsigned char));
 
 		#ifdef count_instr
 		// malloc param only
@@ -125,11 +128,11 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 			for (l = 0; l < image_height; ++l)
 				if (l != backtrack[k]) { // check for elem to remove
 					// remove R
-					T[T_index].i[crr_row*image_width*3 + k*3] = T[T_index_up].i[l*image_width*3 + k*3];
+					imgs[T_index][crr_row*image_width*3 + k*3] = imgs[T_index_up][l*image_width*3 + k*3];
 					// remove G
-					T[T_index].i[crr_row*image_width*3 + k*3 + 1] = T[T_index_up].i[l*image_width*3 + k*3 + 1];
+					imgs[T_index][crr_row*image_width*3 + k*3 + 1] = imgs[T_index_up][l*image_width*3 + k*3 + 1];
 					// remove B
-					T[T_index].i[crr_row*image_width*3 + k*3 + 2] = T[T_index_up].i[l*image_width*3 + k*3 + 2];
+					imgs[T_index][crr_row*image_width*3 + k*3 + 2] = imgs[T_index_up][l*image_width*3 + k*3 + 2];
 					crr_row++;
 
 					#ifdef count_instr
@@ -151,7 +154,7 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 		free(backtrack);
 	} else {
 		int T_index_left = T_height * width_diff + T_width - 1;
-		unsigned char *image_left = T[T_index_left].i;
+		unsigned char *image_left = imgs[T_index_left];
 		int image_left_width = width - T_width + 1;
 		int image_left_height = height - T_height;
 
@@ -169,7 +172,7 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 		#endif
 
 		int T_index_up = (T_height - 1) * width_diff + T_width;
-		unsigned char *image_up = T[T_index_up].i;
+		unsigned char *image_up = imgs[T_index_up];
 		int image_up_width = width - T_width;
 		int image_up_height = height - T_height + 1;
 
@@ -187,10 +190,10 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 		#endif
 
 		// remove column
-		if (T[T_index_left].optimal_cost + optimal_cost_left <=
-			T[T_index_up].optimal_cost + optimal_cost_up) {
-			T[T_index].optimal_cost = T[T_index_left].optimal_cost + optimal_cost_left;
-			T[T_index].i = (unsigned char *)malloc(3 * image_left_height * (image_left_width - 1) * sizeof(unsigned char));
+		if (cost[T_index_left] + optimal_cost_left <=
+			cost[T_index_up] + optimal_cost_up) {
+			cost[T_index] = cost[T_index_left] + optimal_cost_left;
+			imgs[T_index] = (unsigned char *)malloc(3 * image_left_height * (image_left_width - 1) * sizeof(unsigned char));
 			
 			#ifdef count_instr
 			// malloc param only
@@ -207,11 +210,11 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 				for (l = 0; l < image_left_width; ++l)
 					if (l != backtrack_left[k]) { // check for elem to remove
 						// remove R
-						T[T_index].i[k*(image_left_width-1)*3 + crr_col*3] = T[T_index_left].i[k*image_left_width*3 + l*3];
+						imgs[T_index][k*(image_left_width-1)*3 + crr_col*3] = imgs[T_index_left][k*image_left_width*3 + l*3];
 						// remove G
-						T[T_index].i[k*(image_left_width-1)*3 + crr_col*3 + 1] = T[T_index_left].i[k*image_left_width*3 + l*3 + 1];
+						imgs[T_index][k*(image_left_width-1)*3 + crr_col*3 + 1] = imgs[T_index_left][k*image_left_width*3 + l*3 + 1];
 						// remove B
-						T[T_index].i[k*(image_left_width-1)*3 + crr_col*3 + 2] = T[T_index_left].i[k*image_left_width*3 + l*3 + 2];
+						imgs[T_index][k*(image_left_width-1)*3 + crr_col*3 + 2] = imgs[T_index_left][k*image_left_width*3 + l*3 + 2];
 						crr_col++;
 					}
 			}
@@ -223,8 +226,8 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 
 		// remove row
 		} else {
-			T[T_index].optimal_cost = T[T_index_up].optimal_cost + optimal_cost_up;
-			T[T_index].i = (unsigned char *)malloc(3 * (image_up_height - 1) * image_up_width * sizeof(unsigned char));
+			cost[T_index] = cost[T_index_up] + optimal_cost_up;
+			imgs[T_index] = (unsigned char *)malloc(3 * (image_up_height - 1) * image_up_width * sizeof(unsigned char));
 			
 			#ifdef count_instr
 			// malloc param only
@@ -241,11 +244,11 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 				for (l = 0; l < image_up_height; ++l)
 					if (l != backtrack_up[k]) { // check for elem to remove
 						// remove R
-						T[T_index].i[crr_row*image_up_width*3 + k*3] = T[T_index_up].i[l*image_up_width*3 + k*3];
+						imgs[T_index][crr_row*image_up_width*3 + k*3] = imgs[T_index_up][l*image_up_width*3 + k*3];
 						// remove G
-						T[T_index].i[crr_row*image_up_width*3 + k*3 + 1] = T[T_index_up].i[l*image_up_width*3 + k*3 + 1];
+						imgs[T_index][crr_row*image_up_width*3 + k*3 + 1] = imgs[T_index_up][l*image_up_width*3 + k*3 + 1];
 						// remove B
-						T[T_index].i[crr_row*image_up_width*3 + k*3 + 2] = T[T_index_up].i[l*image_up_width*3 + k*3 + 2];
+						imgs[T_index][crr_row*image_up_width*3 + k*3 + 2] = imgs[T_index_up][l*image_up_width*3 + k*3 + 2];
 						crr_row++;
 					}
 			}
@@ -266,8 +269,7 @@ void calculate(int width, int height, int T_width, int T_height, int width_diff,
 	}
 }
 
-unsigned char *optimal_image(int width, int height, int width_diff,
-	int height_diff, unsigned char *image) {
+unsigned char *optimal_image(int width, int height, int width_diff, int height_diff, unsigned char *image) {
 	width_diff++;
 	height_diff++;
 
@@ -275,10 +277,14 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 	add_count += 2;
 	#endif
 
-	struct cell_T *T = (struct cell_T *)malloc(width_diff
-		* height_diff * sizeof(struct cell_T));
-	T[0].optimal_cost = 0;
-	T[0].i = image;
+	int *cost = (int*)malloc(width_diff* height_diff * sizeof(int)); // int array
+	unsigned char **imgs = malloc(width_diff* height_diff * sizeof(unsigned char *)); // unsigned char* array
+	//struct cell_T *T = (struct cell_T *)malloc(width_diff* height_diff * sizeof(struct cell_T));
+	cost[0] = 0;
+	imgs[0] = image;
+
+	//T[0].optimal_cost = 0;
+	//T[0].i = image;
 
 	#ifdef count_instr
 	// malloc param only
@@ -288,26 +294,26 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 	if (height_diff >= 3) {
 		int j, k;
 		for (j = 1; j < width_diff; ++j)
-			calculate(width, height, j, 0, width_diff, T);
+			calculate(width, height, j, 0, width_diff, cost, imgs);
 		// fill out second row
 		j = 1;
 		for (k = 0; k < width_diff; ++k)
-				calculate(width, height, k, j, width_diff, T);
+				calculate(width, height, k, j, width_diff, cost, imgs);
 		// fill out third row + free 1.st row without first elem
 		j = 2;
 		for (k = 0; k < width_diff; ++k)
-				calculate(width, height, k, j, width_diff, T);
+				calculate(width, height, k, j, width_diff, cost, imgs);
 		for (int i = 1; i < width_diff; ++i) {
-			free(T[i].i);
+			free(imgs[i]);
 		}
 
 		for (j = 3; j < height_diff; ++j){
 			// free row 2 before
 			for (int i = (j-2) * width_diff; i < (j-1) * width_diff; ++i) {
-				free(T[i].i);
+				free(imgs[i]);
 			}
 			for (k = 0; k < width_diff; ++k)
-				calculate(width, height, k, j, width_diff, T);
+				calculate(width, height, k, j, width_diff, cost, imgs);
 		}
 
 		#ifdef count_instr
@@ -317,11 +323,11 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 
 		// copy 
 		unsigned char *res = malloc(3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
-		memcpy(res, T[width_diff * height_diff - 1].i, 3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
+		memcpy(res, imgs[width_diff * height_diff - 1], 3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
 
 		// free last 2 rows
 		for (int i = (height_diff - 2) * width_diff; i < width_diff * height_diff; ++i) {
-			free(T[i].i);
+			free(imgs[i]);
 		}
 
 		#ifdef count_instr
@@ -336,17 +342,18 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 		// index count
 		add_count += width_diff * height_diff - 1;
 		#endif
-		free(T);
+		free(imgs);
+		free(cost);
 		return res;
 
 	} else {
 		int j, k;
 		for (j = 1; j < width_diff; ++j)
-			calculate(width, height, j, 0, width_diff, T);
+			calculate(width, height, j, 0, width_diff, cost, imgs);
 
 		for (j = 1; j < height_diff; ++j)
 			for (k = 0; k < width_diff; ++k)
-				calculate(width, height, k, j, width_diff, T);
+				calculate(width, height, k, j, width_diff, cost, imgs);
 
 		#ifdef count_instr
 		// if operations count
@@ -355,11 +362,11 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 
 		// copy 
 		unsigned char *res = malloc(3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
-		memcpy(res, T[width_diff * height_diff - 1].i, 3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
+		memcpy(res, imgs[width_diff * height_diff - 1], 3 * (width - width_diff + 1) * (height - height_diff + 1) * sizeof(unsigned char));
 
 		// free last 2 rows
 		for (int i = 1; i < width_diff * height_diff; ++i) {
-			free(T[i].i);
+			free(imgs[i]);
 		}
 
 		#ifdef count_instr
@@ -374,7 +381,8 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 		// index count
 		add_count += width_diff * height_diff - 1;
 		#endif
-		free(T);
+		free(imgs);
+		free(cost);
 		return res;
 	}
 
