@@ -295,19 +295,27 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 				calculate(width, height, k, j, width_diff, T);
 		// fill out third row + free 1.st row without first elem
 		j = 2;
-		for (k = 0; k < width_diff; ++k)
+		calculate(width, height, 0, j, width_diff, T);
+		for (k = 1; k < width_diff; ++k){
 				calculate(width, height, k, j, width_diff, T);
-		for (int i = 1; i < width_diff; ++i) {
-			free(T[i].i);
-		}
+				free(T[k].i);
+			}
+
+		// for (int i = 1; i < width_diff; ++i) {
+		// 	free(T[i].i);
+		// }
 
 		for (j = 3; j < height_diff; ++j){
 			// free row 2 before
-			for (int i = (j-2) * width_diff; i < (j-1) * width_diff; ++i) {
+			// for (int i = (j-2) * width_diff; i < (j-1) * width_diff; ++i) {
+			// 	free(T[i].i);
+			// }
+			for (k = 0; k < width_diff; ++k){
+				int i = (j-2) * width_diff + k;
 				free(T[i].i);
-			}
-			for (k = 0; k < width_diff; ++k)
 				calculate(width, height, k, j, width_diff, T);
+			}
+
 		}
 
 		#ifdef count_instr
