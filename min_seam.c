@@ -25,8 +25,6 @@ extern unsigned long long mult_count; 	//count the total number of mult instruct
 int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_backtrack) {
 
 	#ifdef count_instr        //counting adds and mults of this function
-    int count_ifs = 0;        //includes explicit ifs and for loop ifs  -> ADDS
-    int indexing = 0;         //includes increments of i.j,k variables  -> ADDS
     int pointer_adds = 0;     //pointer arithmetic                      -> ADDS
     int pointer_mults = 0;    //                                        -> MULTS
     //EACH COUNT IS FOR THE COMMAND(S) ABOVE IT
@@ -45,7 +43,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 
 	// find vertical min seam
 	if (is_ver) {
-		COUNT(count_ifs, 1)
 		// traverse matrix in row major order
 		for (int i = 1; i < rsize; i++) { //start from second row	
 			for (int j = 0; j < csize; j++) {
@@ -61,7 +58,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 
 				// first col
 				if (j == 0) {
-					COUNT(count_ifs, 1) 
 					MIN2(the_m[where_before], 
 						 the_m[where_before + 1], 
 						 min_val, 
@@ -73,7 +69,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 
 				// last col
 				} else if (j == csize - 1) {
-					COUNT(count_ifs, 2) //if (in_cnt == 0) else if (in_cnt == csize - 1)
 					COUNT(add_count, 1) //in_lim - 1
 					MIN2(the_m[where_before - 1],
 						 the_m[where_before],
@@ -89,7 +84,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 					COUNT(add_count, 1)
 
 				} else {
-					COUNT(count_ifs, 2) //if (in_cnt == 0) else if (in_cnt == in_lim - 1) else
 					COUNT(add_count, 1) //in_lim - 1
 
 					MIN3(the_m[where_before - 1], 
@@ -109,54 +103,38 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 			}
 		}
 
-		// what's the use of these?
-		COUNT(count_ifs, rsize + (rsize - 1) * (csize + 1)) 
-		COUNT(indexing, (rsize - 1) + (rsize - 1) * csize)
-
 		//process the data to return in appropriate format
 		int ret = INT_MAX;
 		int direction = -1; //used in turning 2D backtrack into 1D
 
 		//find the index of the minimum value of last row in the dp matrix
 		int last_row = (rsize - 1)  * csize;
-		COUNT(pointer_adds, 1)
-		COUNT(pointer_mults, 1)
+		COUNT(add_count, 1)
+		COUNT(mult_count, 1)
 		for (int cnt = 0; cnt < csize; cnt++) {
 			int current = last_row + cnt;
-			COUNT(pointer_adds, 1)
+			COUNT(add_count, 1)
 			if (the_m[current] < ret) {
 				ret = the_m[current];
-				COUNT(pointer_adds, 1)
 				direction = cnt;
 			}
 			COUNT(pointer_adds, 1)
-			COUNT(count_ifs, 1)
 		}
-		COUNT(count_ifs, csize + 1)
-		COUNT(indexing, csize) // ??
-
-		//return the 1D backtrack (only the min seam)
-		// direction -= last_start;
 
 		for (int i = rsize - 1; i >= 0; i--) {
 			ret_backtrack[i] = direction;
 			COUNT(pointer_adds, 1)
 			direction = backtrack[last_row + direction];
 			COUNT(pointer_adds, 2)
-			COUNT(pointer_mults, 1)
 			last_row -= csize;
 			COUNT(pointer_adds, 1)
 		}
 		COUNT(add_count, 1) //int i = out_lim - 1
-		COUNT(count_ifs, rsize)
-		COUNT(indexing, rsize - 1)
 
 		free(the_m);
 		free(backtrack);
 		free(padded_img);
 
-		COUNT(add_count, count_ifs)
-		COUNT(add_count, indexing)
 		COUNT(add_count, pointer_adds)
 		COUNT(mult_count, pointer_mults)
 		
@@ -180,8 +158,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 
 				// first row
 				if (j == 0) {
-					COUNT(count_ifs, 1) //if (in_cnt == 0)
-
 					MIN2(the_m[where_before], 
 						 the_m[where_before + csize], 
 						 min_val, 
@@ -193,7 +169,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 
 				// last row
 				} else if (j == rsize - 1) {
-					COUNT(count_ifs, 2) //if (in_cnt == 0) else if (in_cnt == in_lim - 1)
 					COUNT(add_count, 1) //in_lim - 1
 
 					MIN2(the_m[where_before - csize],
@@ -210,7 +185,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 					COUNT(add_count, 1)
 
 				} else {
-					COUNT(count_ifs, 2) //if (in_cnt == 0) else if (in_cnt == in_lim - 1) else
 					COUNT(add_count, 1) //in_lim - 1
 
 					MIN3(the_m[where_before - csize], 
@@ -229,8 +203,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 				COUNT(add_count, 1)
 			}
 		}
-		COUNT(count_ifs, csize + (csize - 1) * (rsize + 1))
-		COUNT(indexing, (csize - 1) + (csize - 1) * rsize)
 
 		//process the data to return in appropriate format
 		int ret = INT_MAX;
@@ -239,25 +211,18 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 		//find the minimum of last row/col of the_m
 		//set the counters to the beginning of the last row/col
 		int last_col = csize - 1;
-		COUNT(pointer_adds, 1)
+		COUNT(add_count, 1)
 		
 		for (int cnt = 0; cnt < rsize; cnt++) {
 			int current = last_col + (cnt * csize);
-			COUNT(pointer_adds, 1)
-			COUNT(pointer_mults, 1)
+			COUNT(add_count, 1)
+			COUNT(mult_count, 1)
 			if (the_m[current] < ret) {
 				ret = the_m[current];
-				COUNT(pointer_adds, 1)
 				direction = cnt;
 			}
 			COUNT(pointer_adds, 1)
-			COUNT(count_ifs, 1)
 		}
-		COUNT(count_ifs, rsize + 1)
-		COUNT(indexing, rsize)
-
-		//return the 1D backtrack (only the min seam)
-		// direction -= last_start;
 
 		for (int i = csize - 1; i >= 0; i--) {
 			ret_backtrack[i] = direction;
@@ -272,8 +237,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 		free(backtrack);
 		free(padded_img);
 
-		COUNT(add_count, count_ifs)
-		COUNT(add_count, indexing)
 		COUNT(add_count, pointer_adds)
 		COUNT(mult_count, pointer_mults)
 		

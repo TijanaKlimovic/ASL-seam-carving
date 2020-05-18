@@ -24,25 +24,15 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
     // i,j are the current pixel
 
     #ifdef count_instr        //counting adds and mults of this function
-    unsigned long long count_ifs = 0;        //includes explicit ifs and for loop ifs  -> ADDS
-    unsigned long long indexing = 0;         //includes increments of i.j,k variables  -> ADDS
     unsigned long long pointer_adds = 0;     //pointer arithmetic                      -> ADDS
     unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
-
 
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             *(part_grad + i*m + j) = 0;
         }
     }
-
-    #ifdef count_instr            //count lines 33-37
-    count_ifs += n+1 + n*(m+1);
-    indexing += n + n*m;
-    pointer_mults += m*n;        //assuming perfect prediciton
-    pointer_adds += 2*m*n;       //assuming perfect prediciton
-    #endif
 
     for(int i = 1 ; i < n-K ; i++){
         for(int j = 1 ; j < m-K ; j++){
@@ -52,38 +42,34 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
                 }
             }
 
+            #ifdef count_instr // count 39-43
+            // indexing += 9;
+            add_count += 9;
+            mult_count += 9;
+            pointer_adds += 6*9+3; // u+K counted only once per v loop
+            pointer_mults += 18;
+            #endif
+
             //calculate absolute value of each element in partial derivative of channel F 
             if(*(part_grad + i*m + j) < 0){
-              *(part_grad + i*m + j) = (-1) * (*(part_grad + i*m + j));
+                *(part_grad + i*m + j) = (-1) * (*(part_grad + i*m + j));
 
-              #ifdef count_instr      //count line 55
-              mult_count ++;
-              pointer_adds += 2*2;    //assuming worse case that the after having the pointer arithmetic done its not saved but redone
-              pointer_mults += 2;
-              #endif
+                #ifdef count_instr //count 55
+                mult_count ++;
+                #endif
             }
 
-            #ifdef count_instr  //count line 54
-            count_ifs ++;       //when not taken check must be made too
-            pointer_adds += 2;  //need to dereference first to compare 
+            #ifdef count_instr //count 54
+            pointer_adds += 2; // done only once for the above if and operation 
             pointer_mults ++; 
             #endif
         }
     }
 
     #ifdef count_instr 
-    count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4 + (n-2)*(m-2)*3*4; //count lines 46-52
-    indexing += n-2 + (n-2)*(m-2) + (n-2)*(m-2)*3 + (n-2)*(m-2)*3*3;
-    pointer_adds += (n-2)*(m-2)*3*3*(2 + 2 + 3);
-    pointer_mults += (n-2)*(m-2)*3*3*2;
-    add_count += (n-2)*(m-2)*3*3;                              //count directly the add and mult in line 50
-    mult_count += (n-2)*(m-2)*3*3;
-
     //count total
-    add_count += count_ifs + indexing + pointer_adds; 
+    add_count += pointer_adds; 
     mult_count += pointer_mults;
-    // printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
-    // printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
     #endif
 }
 
@@ -93,42 +79,40 @@ void calc_energy(int n, int m, int* F, int* part_grad, int H[3][3] ){
 //returns the energy map result over color image of size  n-2 x m-2 
 void calc_RGB_energy(int n, int m, int* channels, int* result){
     
-   #ifdef count_instr        //counting adds and mults of this function
-    unsigned long long count_ifs = 0;        //includes explicit ifs and for loop ifs  -> ADDS
-    unsigned long long indexing = 0;         //includes increments of i.j,k variables  -> ADDS
+    #ifdef count_instr        //counting adds and mults of this function
     unsigned long long pointer_adds = 0;     //pointer arithmetic                      -> ADDS
     unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
 
-  //fixed kernels 
-  int H_y[3][3] = {
-    {-1,-2,-1},
-    {0,0,0},
-    {1,2,1}};
+    //fixed kernels 
+    int H_y[3][3] = {
+      {-1,-2,-1},
+      {0,0,0},
+      {1,2,1}};
 
-  int H_x[3][3] = {
-    {-1,0,1},
-    {-2,0,2},
-    {-1,0,1}};
+    int H_x[3][3] = {
+      {-1,0,1},
+      {-2,0,2},
+      {-1,0,1}};
 
     int size = 3*n*m ;
-
     int* partial_x = (int*) malloc( size*sizeof(int));
     int* partial_y = (int*) malloc( size*sizeof(int));
 
+    #ifdef count_instr // counts 98
+    mult_count += 2;
+    #endif
+
     //calculate the parital derivatives 
     for(int i = 0 ; i < 3 ; i ++){
-      //pass the ith channel for energy calculation
-       calc_energy(n,m,channels + n*m*i, partial_x + n*m*i, H_x);
-       calc_energy(n,m,channels + n*m*i, partial_y + n*m*i, H_y);
+        //pass the ith channel for energy calculation
+        calc_energy(n,m,channels + n*m*i, partial_x + n*m*i, H_x);
+        calc_energy(n,m,channels + n*m*i, partial_y + n*m*i, H_y);
     }
 
-
-    #ifdef count_instr        //counts lines 120-124
-    count_ifs += 4;          
-    indexing += 3;         
+    #ifdef count_instr //counts 107-111
     pointer_adds += 3*4;     
-    pointer_mults += 3*8;    
+    pointer_mults += 3*2; // n*m*i counted once for each iteration
     #endif
 
     for (int i = 0; i < n - 2; i++) {
@@ -137,51 +121,40 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
         }
     }
 
-
-    #ifdef count_instr                                      //counts lines 134-138
-    count_ifs += n-1 + (n-2)*(m-1);          
-    indexing += n-2 + (n-2)*(m-2);         
-    pointer_adds += (n-2)*(m-2)*2;     
-    pointer_mults += (n-2)*(m-2);    
-    #endif
-
     //calculate the total 3d energy 
-    
-      for(int j = 1 ; j < n-1 ; j ++){
+    for(int j = 1 ; j < n-1 ; j ++){
         for(int k = 1 ; k < m-1 ; k++){
-          for(int i = 0 ; i < 3 ; i ++){
-            //add elementwise along the z axis 
-          *(result+(m-2)*(j-1)+k-1) += *(partial_x + i*m*n + j*m + k) + *(partial_y + i*m*n + j*m + k);
-        }
-      } 
+            for(int i = 0 ; i < 3 ; i ++){
+                //add elementwise along the z axis 
+                *(result+(m-2)*(j-1)+k-1) += *(partial_x + i*m*n + j*m + k)
+                                          + *(partial_y + i*m*n + j*m + k);
+
+                #ifdef count_instr // count 129-130
+                add_count += 2;
+                pointer_adds += 11;
+                pointer_mults += 7;
+                #endif
+            }
+        } 
     }
 
-    #ifdef count_instr                                       //counts lines 134-138
-    count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4;          
-    indexing += n-2 + (n-2)*(m-2) + (n-2)*(m-2)*3;         
-    pointer_adds += (n-2)*(m-2)*3*(5 + 3 + 3);     
-    pointer_mults += (n-2)*(m-2)*3*7;  
-    add_count +=  (n-2)*(m-2)*3*2;                           //count directly the adds in line 154
-
+    #ifdef count_instr
     //count total
-    add_count += count_ifs + indexing + pointer_adds; 
+    add_count += pointer_adds; 
     mult_count += pointer_mults;
-    // printf("NO ADDS FOR calc_energy IS: %llu \n", add_count); 
-    // printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count); 
-
     #endif
 
     //save img
     free(partial_x);
     free(partial_y);
 
-  //unsigned char *energy_map = NULL;
-  #ifdef debug 
-    char *fname = "energy_map.png";
-    save_as_grayscale_image(fname, m-2, n-2, result);
-    printf("Saved first energy map as %s\n", fname);
-    debug = 1;
-  #endif
+    //unsigned char *energy_map = NULL;
+    #ifdef debug 
+      char *fname = "energy_map.png";
+      save_as_grayscale_image(fname, m-2, n-2, result);
+      printf("Saved first energy map as %s\n", fname);
+      debug = 1;
+    #endif
 }
 
 
