@@ -6,7 +6,7 @@
 
 #define K 1
 #define ABS(X)(((X) < 0) ? (-(X)) : (X))
-// #define debug   //uncomment for debugging
+//#define debug   //uncomment for debugging
 
 //--------------------  counter for instructions -------------------
 
@@ -298,12 +298,16 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
                 int e = F[ii * m + j_L3 + 1];
                 int w = F[ii * m + j_L3 - 1];
 
+                int dst = *(part_grad + ii * m + j_L3);
+
                 //H_y
-                *(part_grad + ii * m + j_L3) = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
-                *(part_grad + ii * m + j_L3) = ABS(*(part_grad + ii * m + j_L3));
+                dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
+                dst = ABS(dst);
                 //H_x
                 acc = (ne - nw) + (((e - w) << 1)) + (se - sw);
-                *(part_grad + ii * m + j_L3) += ABS(acc);
+                dst += ABS(acc);
+
+                *(part_grad + ii * m + j_L3) = dst;
 
             }
             
@@ -321,27 +325,46 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
     int j_limit =  m - K - block_width_R + 1;
     j_old = j;
 
-    for (int ii = 1; ii < n - K; ii++) { //single level 2 block calculation 
+    for (int ii = 1; ii < n - K; ii++) { //single level reg block calculation 
         for (j = j_old; j < j_limit; j = j + block_width_R) {
-                for (int jj = j; jj < j + block_width_R; jj++) {
+               // for (int jj = j; jj < j + block_width_R; jj++) {
                     int acc;
+                    int acc2;
 
-                    int nw = F[(ii - 1) * m + (jj - 1)];
-                    int n = F[(ii - 1) * m + jj];
-                    int ne = F[(ii - 1) * m + jj + 1];
-                    int se = F[(ii + 1) * m + jj + 1];
-                    int sw = F[(ii + 1) * m + (jj - 1)];
-                    int s = F[(ii + 1) * m + jj];
-                    int e = F[ii * m + jj + 1];
-                    int w = F[ii * m + jj - 1];
+                    int nw = F[(ii - 1) * m + (j - 1)];
+                    int n = F[(ii - 1) * m + j];
+                    int ne = F[(ii - 1) * m + j + 1];
+                    int se = F[(ii + 1) * m + j + 1];
+                    int sw = F[(ii + 1) * m + j - 1];
+                    int s = F[(ii + 1) * m + j];
+                    int e = F[ii * m + j + 1];
+                    int w = F[ii * m + j - 1];
+
+                    int nee = F[(ii - 1) * m + j + 2]; //lol
+                    int see = F[(ii + 1) * m + j + 2];
+                    int ee = F[ii * m + j + 2];
+                    int center = F[ii * m + j];
+
+                    int dst = *(part_grad + ii * m + j);
+                    int dst2 = *(part_grad + ii * m + j + 1);
 
                     //H_y
-                    *(part_grad + ii * m + jj) = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
-                    *(part_grad + ii * m + jj) = ABS(*(part_grad + ii * m + jj));
+                    dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
+                    dst = ABS(dst);
                     //H_x
                     acc = (ne - nw) + (((e - w) << 1)) + (se - sw);
-                    *(part_grad + ii * m + jj) += ABS(acc);
-                }
+                    dst += ABS(acc);
+
+                    //H_y
+                    dst2 = (-(n + ((ne) << 1))) + (s - nee) + (((se) << 1) + see);
+                    dst2 = ABS(dst2);
+                    //H_x
+                    acc2 = (nee - n) + (((ee - center) << 1)) + (see - s);
+                    dst2 += ABS(acc2);
+                    
+                    *(part_grad + ii * m + j) = dst;
+                    *(part_grad + ii * m + j + 1) = dst2;
+                //}
             }        
     }
 
@@ -360,12 +383,16 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
                 int e = F[ii * m + j + 1];
                 int w = F[ii * m + j - 1];
 
+                int dst = *(part_grad + ii * m + j);
+
                 //H_y
-                *(part_grad + ii * m + j) = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
-                *(part_grad + ii * m + j) = ABS(*(part_grad + ii * m + j));
+                dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
+                dst = ABS(dst);
                 //H_x
                 acc = (ne - nw) + (((e - w) << 1)) + (se - sw);
-                *(part_grad + ii * m + j) += ABS(acc);
+                dst += ABS(acc);
+
+                *(part_grad + ii * m + j) = dst;
             }        
     }
 
