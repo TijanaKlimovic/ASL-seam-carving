@@ -15,9 +15,9 @@ extern unsigned long long mult_count; 	//count the total number of mult instruct
 
 //------------------------------------------------------------------
 
-#define MIN2(X, Y, M, IDX) if (X < Y) {M = X; IDX = 0;} else {M = Y; IDX = 1;} COUNT(count_ifs, 1)
+#define MIN2(X, Y, M, IDX) if (X < Y) {M = X; IDX = 0;} else {M = Y; IDX = 1;}
 
-#define MIN3(X, Y, Z, M, IDX) if ((X < Y) && (X < Z)) {M = X; IDX = -1;} else {MIN2(Y, Z, M, IDX)} COUNT(count_ifs, 3)
+#define MIN3(X, Y, Z, M, IDX) if ((X < Y) && (X < Z)) {M = X; IDX = -1;} else {MIN2(Y, Z, M, IDX)}
 
 // #define LOG(X) X
 #define LOG(X)
