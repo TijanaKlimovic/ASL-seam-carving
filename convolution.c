@@ -29,12 +29,6 @@ void calc_energy(int n, int m, int* F, int* part_grad){
     unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            *(part_grad + i*m + j) = 0;
-        }
-    }
-
     for(int i = 1 ; i < n-K ; i++){
         for(int j = 1 ; j < m-K ; j++){
             int acc1;
@@ -54,13 +48,13 @@ void calc_energy(int n, int m, int* F, int* part_grad){
             acc6 = F[(i + 1) * m + j + 1] - F[(i + 1) * m + j - 1];
             *(part_grad + i*m + j) += ABS(acc4 + acc5 + acc6);
 
-            #ifdef count_instr //count 46-54
-            pointer_adds += 7; pointer_mults += 2; // 46
-            pointer_adds += 8; pointer_mults += 2; // 47
-            pointer_adds += 7; pointer_mults += 2; // 48
-            pointer_adds += 8; pointer_mults += 2; // 51
-            pointer_adds += 6; pointer_mults += 2; // 52
-            pointer_adds += 8; pointer_mults += 2; // 53
+            #ifdef count_instr //count 41-49
+            pointer_adds += 7; pointer_mults += 2; // 41
+            pointer_adds += 8; pointer_mults += 2; // 42
+            pointer_adds += 7; pointer_mults += 2; // 43
+            pointer_adds += 8; pointer_mults += 2; // 46
+            pointer_adds += 6; pointer_mults += 2; // 47
+            pointer_adds += 8; pointer_mults += 2; // 48
 
             // values adds
             add_count += 13;
@@ -88,7 +82,7 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
 
     int* partial = (int*) malloc(3*n*m*sizeof(int));
 
-    #ifdef count_instr // counts 88
+    #ifdef count_instr // counts 83
     mult_count += 3;
     #endif
 
@@ -98,7 +92,7 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
         calc_energy(n,m,channels + n*m*i, partial + n*m*i);
     }
 
-    #ifdef count_instr //counts 95-98
+    #ifdef count_instr //counts 90-93
     pointer_adds += 3*2;
     pointer_mults += 3*2; // n*m*i counted once for each iteration
     #endif
@@ -116,7 +110,7 @@ void calc_RGB_energy(int n, int m, int* channels, int* result){
                 //add elementwise along the z axis 
                 *(result+(m-2)*(j-1)+k-1) += *(partial + i*m*n + j*m + k);
 
-                #ifdef count_instr // count 116
+                #ifdef count_instr // count 111
                 add_count += 2;
                 pointer_adds += 8;
                 pointer_mults += 4;
