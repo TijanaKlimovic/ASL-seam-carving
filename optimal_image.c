@@ -325,9 +325,9 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 		j = 2;
 		calculate(width, height, 0, j, width_diff, T);
 		for (k = 1; k < width_diff; ++k){
-				calculate(width, height, k, j, width_diff, T);
-				free(T[k].i);
-			}
+			calculate(width, height, k, j, width_diff, T);
+			free(T[k].i);
+		}
 
 		for (j = 3; j < height_diff; ++j){
 			int i = (j-2) * width_diff;
@@ -335,6 +335,11 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 				// free cell in row 2 above
 				free(T[i+k].i);
 				calculate(width, height, k, j, width_diff, T);
+
+				#ifdef count_instr
+				// pointer count
+				add_count += 2; // T[i+k]
+				#endif
 			}
 
 			#ifdef count_instr
