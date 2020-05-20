@@ -11,6 +11,18 @@
 #define C (3)
 
 void print_matrix(unsigned char *matrix, int width, int height, int channels) {
+	for (int i = 0; i < height; ++i) {
+		for (int j = 0; j < width; ++j) {
+			for (int k = 0; k < channels; ++k) {
+				printf("%12d ", matrix[i*width*channels + j*channels + k]);
+			}
+		}
+		printf("\n");	
+	}
+	printf("\n");
+}
+
+void print_matrix_int(int *matrix, int width, int height, int channels) {
 	for (int k = 0; k < channels; ++k) {
 		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < width; ++j) {

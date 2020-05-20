@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # build c small unit tests
-gcc main_test.c ../convolution.c ../parse_img.c ../min_seam.c ../optimal_image.c -o small_tests -lm
+gcc -O3 -fno-tree-vectorize main_test.c ../convolution.c ../parse_img.c ../min_seam.c ../optimal_image.c -o small_tests -lm
 echo "Running small unit tests"
 ./small_tests
 
