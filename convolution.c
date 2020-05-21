@@ -38,14 +38,14 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
     unsigned long long pointer_mults = 0;    //                                        -> MULTS
     #endif
     int i_limit = n - K;
-    int j_limit = m - K - 11;
+    int j_limit = m - K - 9;
 
     for(int i = 1 ; i < i_limit ; i++){
         int j;
-        for(j = 1 ; j < j_limit ; j += 12){
-            short *row0 = padded + i * m * 3 + j * 3;
-            short *row1 = padded + (i + 1) * m * 3 + j * 3;
-            short *row2 = padded + (i + 2) * m * 3 + j * 3;
+        for(j = 1 ; j < j_limit ; j += 10){
+            short *row0 = padded + (i - 1) * m * 3 + (j - 1) * 3;
+            short *row1 = padded + (i    ) * m * 3 + (j - 1) * 3;
+            short *row2 = padded + (i + 1) * m * 3 + (j - 1) * 3;
 
             //loads are all unaligned because we're dealing with shorts
             __m256i r1 = _mm256_loadu_si256((__m256i *) (row0 + 3));
@@ -102,17 +102,22 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
             r15.intrin = _mm256_add_epi16(r9, r14);
             r15.intrin = _mm256_add_epi16(r15.intrin, r13);
 
-            short result0 = ABS( r2.data[ 0] +  r2.data[ 1] +  r2.data[ 2]) + ABS( r7.data[ 0] +  r7.data[ 1] +  r7.data[ 2]);
-            short result1 = ABS( r2.data[ 3] +  r2.data[ 4] +  r2.data[ 5]) + ABS( r7.data[ 3] +  r7.data[ 4] +  r7.data[ 5]);
-            short result2 = ABS( r2.data[ 6] +  r2.data[ 7] +  r2.data[ 8]) + ABS( r7.data[ 6] +  r7.data[ 7] +  r7.data[ 8]);
-            short result3 = ABS( r2.data[ 9] +  r2.data[10] +  r2.data[11]) + ABS( r7.data[ 9] +  r7.data[10] +  r7.data[11]);
-            short result4 = ABS( r2.data[12] +  r2.data[13] +  r2.data[14]) + ABS( r7.data[12] +  r7.data[13] +  r7.data[14]);
+            r2.intrin = _mm256_abs_epi16(r2.intrin);
+            r7.intrin = _mm256_abs_epi16(r7.intrin);
+            r10.intrin = _mm256_abs_epi16(r10.intrin);
+            r15.intrin = _mm256_abs_epi16(r15.intrin);
 
-            short result5 = ABS(r10.data[ 0] + r10.data[ 1] + r10.data[ 2]) + ABS(r15.data[ 0] + r15.data[ 1] + r15.data[ 2]);
-            short result6 = ABS(r10.data[ 3] + r10.data[ 4] + r10.data[ 5]) + ABS(r15.data[ 3] + r15.data[ 4] + r15.data[ 5]);
-            short result7 = ABS(r10.data[ 6] + r10.data[ 7] + r10.data[ 8]) + ABS(r15.data[ 6] + r15.data[ 7] + r15.data[ 8]);
-            short result8 = ABS(r10.data[ 9] + r10.data[10] + r10.data[11]) + ABS(r15.data[ 9] + r15.data[10] + r15.data[11]);
-            short result9 = ABS(r10.data[12] + r10.data[13] + r10.data[14]) + ABS(r15.data[12] + r15.data[13] + r15.data[14]);
+            short result0 =  r2.data[ 0] +  r2.data[ 1] +  r2.data[ 2] +  r7.data[ 0] +  r7.data[ 1] +  r7.data[ 2];
+            short result1 =  r2.data[ 3] +  r2.data[ 4] +  r2.data[ 5] +  r7.data[ 3] +  r7.data[ 4] +  r7.data[ 5];
+            short result2 =  r2.data[ 6] +  r2.data[ 7] +  r2.data[ 8] +  r7.data[ 6] +  r7.data[ 7] +  r7.data[ 8];
+            short result3 =  r2.data[ 9] +  r2.data[10] +  r2.data[11] +  r7.data[ 9] +  r7.data[10] +  r7.data[11];
+            short result4 =  r2.data[12] +  r2.data[13] +  r2.data[14] +  r7.data[12] +  r7.data[13] +  r7.data[14];
+
+            short result5 = r10.data[ 0] + r10.data[ 1] + r10.data[ 2] + r15.data[ 0] + r15.data[ 1] + r15.data[ 2];
+            short result6 = r10.data[ 3] + r10.data[ 4] + r10.data[ 5] + r15.data[ 3] + r15.data[ 4] + r15.data[ 5];
+            short result7 = r10.data[ 6] + r10.data[ 7] + r10.data[ 8] + r15.data[ 6] + r15.data[ 7] + r15.data[ 8];
+            short result8 = r10.data[ 9] + r10.data[10] + r10.data[11] + r15.data[ 9] + r15.data[10] + r15.data[11];
+            short result9 = r10.data[12] + r10.data[13] + r10.data[14] + r15.data[12] + r15.data[13] + r15.data[14];
 
             *(energy + (i - 1) * (m - 2) + j - 1) = (int) result0;
             *(energy + (i - 1) * (m - 2) + j    ) = (int) result1;
