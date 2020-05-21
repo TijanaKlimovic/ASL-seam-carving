@@ -6,23 +6,11 @@
 #include "../convolution.h"
 #include <string.h>
 
-void print_matrix_int(int *matrix, int width, int height, int channels) {
-	for (int k = 0; k < channels; ++k) {
-		for (int i = 0; i < height; ++i) {
-			for (int j = 0; j < width; ++j) {
-				printf("%12d ", matrix[k * width * height + i * width + j]);
-			}
-			printf("\n");
-		}
-		printf("\n\n");	
-	}
-}
-
 int compare_matrix(unsigned char *m, unsigned char *expected, int h, int w, int channels) {
-	for (int k = 0; k < channels; ++k) {
-		for (int i = 0; i < h; ++i) {
-			for (int j = 0; j < w; ++j) {
-				int index = k * h * w + i * w + j;
+	for (int i = 0; i < h; ++i) {
+		for (int j = 0; j < w; ++j) {
+			for (int k = 0; k < channels; k++) {
+				int index = i * w * channels + j * channels + k;
 				if (m[index] != expected[index]) {
 					return 1;
 				}
@@ -33,10 +21,10 @@ int compare_matrix(unsigned char *m, unsigned char *expected, int h, int w, int 
 }
 
 int compare_matrix_int(int *m, int *expected, int h, int w, int channels) {
-	for (int k = 0; k < channels; ++k) {
-		for (int i = 0; i < h; ++i) {
-			for (int j = 0; j < w; ++j) {
-				int index = k * h * w + i * w + j;
+	for (int i = 0; i < h; ++i) {
+		for (int j = 0; j < w; ++j) {
+			for (int k = 0; k < channels; k++) {
+				int index = i * w * channels + j * channels + k;
 				if (m[index] != expected[index]) {
 					return 1;
 				}
@@ -52,7 +40,10 @@ void test_pad_image(unsigned char *img, int *expected, int h, int w) {
 		printf("test_pad_image FAILED\n");
 		print_matrix_int(out, w+2, h+2, 3);
 		print_matrix_int(expected, w+2, h+2, 3);
+	} else {
+		printf("test_pad_image PASSED\n");
 	}
+	
 	free(out);
 }
 
@@ -64,6 +55,8 @@ void test_calc_RGB_energy(unsigned char *img, int *expected, int h, int w) {
 	calc_RGB_energy(h+2, w+2, padded, out);
 	if (compare_matrix_int(out, expected, h, w, 1) == 1) {
 		printf("test_calc_RGB_energy FAILED\n");
+	} else {
+		printf("test_calc_RGB_energy PASSED\n");
 	}
 	//print_matrix(out, w, h, 1);
 	free(padded);
@@ -81,6 +74,8 @@ void test_min_seam(unsigned char *img, int expected, int h, int w, int is_vertic
 	int min_cost = min_seam(h, w, img, is_vertical, backtrack);
 	if (min_cost != expected) {
 		printf("test_min_seam FAILED\n");
+	} else {
+		printf("test_min_seam PASSED\n");
 	}
 	free(backtrack);
 }
@@ -90,6 +85,10 @@ void test_optimal_image(unsigned char *img, unsigned char *expected, int h, int 
 	out = optimal_image(w, h, w_diff, h_diff, img);
 	if (compare_matrix(out, expected, h-h_diff, w-w_diff, 3) == 1) {
 		printf("test_optimal_image FAILED\n");
+		print_matrix(out, w, h, 3);
+		print_matrix(expected, w, h, 3); 
+	} else {
+		printf("test_optimal_image PASSED\n");
 	}
 	free(out);
 }
@@ -107,24 +106,13 @@ int main(int argc, char const *argv[]) {
 
 	{
 		int expected[] = {
-							0,0,0,0,0,
-							0,180,184,179,0,
-							0,179,212,255,0,
-							0,162,170,220,0,
-							0,0,0,0,0,
-
-							0,0,0,0,0,
-							0,227,228,176,0,
-							0,185,236,215,0,
-							0,162,204,196,0,
-							0,0,0,0,0,
-
-							0,0,0,0,0,
-							0,241,241,239,0,
-							0,238,240,240,0,
-							0,236,240,245,0,
-							0,0,0,0,0
+							0,0,0, 0  ,0  ,0  , 0  ,0  ,0  , 0  ,  0,  0, 0,0,0,
+							0,0,0, 180,227,241, 184,228,241, 179,176,239, 0,0,0,
+							0,0,0, 179,185,238, 212,236,240, 255,215,240, 0,0,0,
+							0,0,0, 162,162,236, 170,204,240, 220,196,245, 0,0,0,
+							0,0,0, 0  ,0  ,0  , 0  ,0  ,0  , 0  ,  0,  0, 0,0,0
 											};
+
 		test_pad_image(img, expected, height, width);
 	}
 
@@ -149,14 +137,8 @@ int main(int argc, char const *argv[]) {
 
 	{ // test 2nd horizontal seam
 		unsigned char img[] = {
-							180,184,179,
-							162,170,220,
-
-							227,228,176,
-							162,204,196,
-
-							241,241,239,
-							236,240,245
+							180,227,241, 184,228,241, 179,176,239,
+							162,162,236, 170,204,240, 220,196,245
 											};
 		int expected = 9954;
 		test_min_seam(img, expected, height - 1, width, 0);
@@ -164,17 +146,9 @@ int main(int argc, char const *argv[]) {
 
 	{ // test 2nd vertical seam
 		unsigned char img[] = {
-							180,179,
-							179,255,
-							162,220,
-
-							227,176,
-							185,215,
-							162,196,
-
-							241,239,
-							238,240,
-							236,245
+							180,227,241, 179,176,239,
+							179,185,238, 255,215,240,
+							162,162,236, 220,196,245
 											};
 		int expected = 10064;
 		test_min_seam(img, expected, height, width - 1, 1);
@@ -182,17 +156,9 @@ int main(int argc, char const *argv[]) {
 
 	{	// test edge case : remove 0 seam
 		unsigned char expected[] = {
-							180,184,179,
-							179,212,255,
-							162,170,220,
-
-							227,228,176,
-							185,236,215,
-							162,204,196,
-
-							241,241,239,
-							238,240,240,
-							236,240,245
+							180,227,241, 184,228,241, 179,176,239,
+							179,185,238, 212,236,240, 255,215,240,
+							162,162,236, 170,204,240, 220,196,245
 											};
 		test_optimal_image(img, expected, height, width, 0, 0);
 	}
@@ -204,17 +170,9 @@ int main(int argc, char const *argv[]) {
 			return 1;
 		}
 		unsigned char expected[] = {
-							180,179,
-							179,255,
-							162,220,
-
-							227,176,
-							185,215,
-							162,196,
-
-							241,239,
-							238,240,
-							236,245
+							180,227,241, 179,176,239,
+							179,185,238, 255,215,240,
+							162,162,236, 220,196,245
 											};
 		test_optimal_image(img, expected, height, width, 0, 1);
 	}
@@ -226,14 +184,8 @@ int main(int argc, char const *argv[]) {
 			return 1;
 		}
 		unsigned char expected[] = {
-							180,184,179,
-							162,170,220,
-
-							227,228,176,
-							162,204,196,
-
-							241,241,239,
-							236,240,245
+							180,227,241, 184,228,241, 179,176,239,
+							162,162,236, 170,204,240, 220,196,245
 											};
 		test_optimal_image(img, expected, height, width, 1, 0);
 	}
@@ -245,14 +197,8 @@ int main(int argc, char const *argv[]) {
 			return 1;
 		}
 		unsigned char expected[] = {
-							180,179,
-							162,220,
-
-							227,176,
-							162,196,
-
-							241,239,
-							236,245
+							180,227,241, 179,176,239,
+							162,162,236, 220,196,245
 											};
 		test_optimal_image(img, expected, height, width, 1, 1);
 	}
@@ -264,11 +210,7 @@ int main(int argc, char const *argv[]) {
 			return 1;
 		}
 		unsigned char expected[] = {
-							162,170,179,
-
-							162,204,176,
-
-							236,240,239
+							162,162,236, 170,204,240, 179,176,239, 
 											};
 		test_optimal_image(img, expected, height, width, 2, 0);
 	}	
@@ -280,11 +222,7 @@ int main(int argc, char const *argv[]) {
 			return 1;
 		}
 		unsigned char expected[] = {
-							162,
-
-							162,
-
-							236
+							162,162,236
 											};
 		test_optimal_image(img, expected, height, width, 2, 2);
 	}
@@ -301,20 +239,11 @@ int main(int argc, char const *argv[]) {
 
 	{
 		int expected[] = {
-							0,0,0,0,0,
-							0,191,229,251,0,
-							0,162,203,238,0,
-							0,0,0,0,0,
+							0,0,0, 0  ,0 ,  0, 0  , 0, 0, 0  ,  0 ,0, 0,0,0,
+							0,0,0, 191,53,105, 229,47,69, 251,105,64, 0,0,0,
+							0,0,0, 162,58,137, 203,52,97, 238,48,60,  0,0,0,
+							0,0,0, 0  ,0 ,  0, 0  , 0, 0, 0  ,  0 ,0, 0,0,0,
 
-							0,0,0,0,0,
-							0,53,47,105,0,
-							0,58,52,48,0,
-							0,0,0,0,0,
-
-							0,0,0,0,0,
-							0,105,69,64,0,
-							0,137,97,60,0,
-							0,0,0,0,0
 											};
 		test_pad_image(img, expected, height, width);
 	}
@@ -339,14 +268,8 @@ int main(int argc, char const *argv[]) {
 
 	{	// test removing a vertical seam
 		unsigned char expected[] = {
-							191,251,
-							162,238,
-
-							53,105,
-							58,48,
-
-							105,64,
-							137,60,
+							191,53,105, 251,105,64,
+							162,58,137, 238,48,60
 											};
 		test_optimal_image(img, expected, height, width, 0, 1);
 	}
@@ -358,11 +281,7 @@ int main(int argc, char const *argv[]) {
 			return 1;
 		}
 		unsigned char expected[] = {
-							191,203,238,
-
-							53,52,48,
-
-							105,97,60,
+							191,53,105, 203,52,97, 238,48,60
 											};
 		test_optimal_image(img, expected, height, width, 1, 0);
 	}
@@ -373,12 +292,9 @@ int main(int argc, char const *argv[]) {
 			printf("Cannot load image");
 			return 1;
 		}
+		
 		unsigned char expected[] = {
-							191,238,
-
-							53,48,
-
-							105,60,
+							191,53,105, 238,48,60
 											};
 		test_optimal_image(img, expected, height, width, 1, 1);
 	}
