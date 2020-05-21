@@ -144,7 +144,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 			 val2,
 			 min_val,
 			 min_idx)
-		min_idx--;
 		backtrack[where] = column_lim + min_idx;
 		dp[where] += min_val;
 
