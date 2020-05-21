@@ -25,7 +25,7 @@ extern unsigned long long mult_count; 	//count the total number of mult instruct
 int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_backtrack) {
 
 	int *the_m = (int *) malloc(rsize * csize * sizeof(int));
-	int *padded_img = padd0_image(rsize, csize, img); //TODO try converting in pad to uchar
+	short *padded_img = padd0_image(rsize, csize, img); //TODO try converting in pad to uchar
 	calc_RGB_energy(rsize + 2, csize + 2, padded_img, the_m);
 	// contains index of the value from the prev row/column from where we came here
 	int *backtrack = (int *) malloc(rsize * csize * sizeof(int)); //different from what we returnCOUNT(mult_count, 2)
