@@ -6,6 +6,18 @@
 #include "../convolution.h"
 #include <string.h>
 
+void print_matrix_short(short *matrix, int width, int height, int channels) {
+	for (int k = 0; k < channels; ++k) {
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j) {
+				printf("%12d ", matrix[k * width * height + i * width + j]);
+			}
+			printf("\n");
+		}
+		printf("\n\n");	
+	}
+}
+
 int compare_matrix(unsigned char *m, unsigned char *expected, int h, int w, int channels) {
 	for (int i = 0; i < h; ++i) {
 		for (int j = 0; j < w; ++j) {
@@ -34,12 +46,26 @@ int compare_matrix_int(int *m, int *expected, int h, int w, int channels) {
 	return 0;
 }
 
-void test_pad_image(unsigned char *img, int *expected, int h, int w) {
-	int *out = padd0_image(h, w, img); // need to free out
-	if (compare_matrix_int(out, expected, h+2, w+2, 3) == 1) {
+int compare_matrix_short(short *m, short *expected, int h, int w, int channels) {
+	for (int i = 0; i < h; ++i) {
+		for (int j = 0; j < w; ++j) {
+			for (int k = 0; k < channels; k++) {
+				int index = i * w * channels + j * channels + k;
+				if (m[index] != expected[index]) {
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+void test_pad_image(unsigned char *img, short *expected, int h, int w) {
+	short *out = padd0_image(h, w, img); // need to free out
+	if (compare_matrix_short(out, expected, h+2, w+2, 3) == 1) {
 		printf("test_pad_image FAILED\n");
-		print_matrix_int(out, w+2, h+2, 3);
-		print_matrix_int(expected, w+2, h+2, 3);
+		print_matrix_short(out, w+2, h+2, 3);
+		print_matrix_short(expected, w+2, h+2, 3);
 	} else {
 		printf("test_pad_image PASSED\n");
 	}
@@ -49,7 +75,7 @@ void test_pad_image(unsigned char *img, int *expected, int h, int w) {
 
 void test_calc_RGB_energy(unsigned char *img, int *expected, int h, int w) {
 	int *out = malloc(h * w * sizeof(int));
-	int *padded = padd0_image(h, w, img);
+	short *padded = padd0_image(h, w, img);
 	//print_matrix(padded, w+2, h+2, 3);
 
 	calc_RGB_energy(h+2, w+2, padded, out);
@@ -105,7 +131,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{
-		int expected[] = {
+		short expected[] = {
 							0,0,0, 0  ,0  ,0  , 0  ,0  ,0  , 0  ,  0,  0, 0,0,0,
 							0,0,0, 180,227,241, 184,228,241, 179,176,239, 0,0,0,
 							0,0,0, 179,185,238, 212,236,240, 255,215,240, 0,0,0,
@@ -238,7 +264,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	{
-		int expected[] = {
+		short expected[] = {
 							0,0,0, 0  ,0 ,  0, 0  , 0, 0, 0  ,  0 ,0, 0,0,0,
 							0,0,0, 191,53,105, 229,47,69, 251,105,64, 0,0,0,
 							0,0,0, 162,58,137, 203,52,97, 238,48,60,  0,0,0,
