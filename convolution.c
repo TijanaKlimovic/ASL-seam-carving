@@ -4,7 +4,12 @@
 #include "parse_img.h"
 
 #define K 1
-#define ABS(X) (((X)<0) ? (-(X)) : (X))
+#ifdef count_instr 
+#define ABS(X)(((X) < 0) ? (mult_count++, (-(X))) : (X))
+#else 
+#define ABS(X)(((X) < 0) ? (-(X)) : (X))
+#endif
+
 //#define debug   //uncomment for debugging
 
 //--------------------  counter for instructions -------------------
@@ -20,73 +25,262 @@ extern unsigned long long mult_count;  //count the total number of mult instruct
 // assuming that preprocessing is made of 0 padding 
 // Given n rows, m columns of channel F of some image and the kernel H computes partial gradient corresponding to H given
 // F is of size 3 x n x m
-void calc_energy(int n, int m, int* F, int* part_grad){
+void calc_energy(int n, int m, int * F, int * part_grad) {
     //start at 1 and end at n-1/m-1 to avoid padding
     // i,j are the current pixel
 
-    #ifdef count_instr        //counting adds and mults of this function
-    unsigned long long pointer_adds = 0;     //pointer arithmetic                      -> ADDS
-    unsigned long long pointer_mults = 0;    //                                        -> MULTS
+    #ifdef count_instr //counting adds and mults of this function
+    unsigned long long count_ifs = 0; //includes explicit ifs and for loop ifs -> ADDS
+    unsigned long long indexing = 0; //includes increments of i.j,k variables  -> ADDS
+    unsigned long long pointer_adds = 0; //pointer arithmetic                  -> ADDS
+    unsigned long long pointer_mults = 0; //                                   -> MULTS
+    unsigned long long shifts = 0;
+    #endif
+ 
+    int block_width_L1 = 1598;      //working set size is 4(m+2)+m
+    int block_width_R = 2;          //working set size is 3(m+2)+m
+
+    int width_limit_L1 = m - K - block_width_L1 + 1;
+    int width_limit_R ; //m - K - block_width_R + 1
+
+    int j, j_old;
+    int ii_limit = n - K;
+
+    #ifdef count_instr 
+    add_count += 6;
     #endif
 
-    int *Fstep = F, *Fstep1 = F+m, *Fstep2 = F+2*m, step = m;
-    for(int i = 1 ; i < n-K ; i++){
-        for(int j = 1 ; j < m-K ; j++){
-            int acc1;
-            int acc2;
-            int acc3;
-            int acc4;
-            int acc5;
-            int acc6;
-            int acc_total;
+    for (j = 1; j < width_limit_L1; j = j + block_width_L1) {
+        width_limit_R = j + block_width_L1 - block_width_R + 1; //take care in case block_width_L2 doesnt divide width_limit_L2
+        int j_L3;
 
-            int accF1 = *(Fstep + j - 1);
-            int accF2 = *(Fstep + j);
-            int accF3 = *(Fstep + j + 1);
-            int accF4 = *(Fstep1 + j - 1);
-            int accF5 = *(Fstep1 + j + 1);
-            int accF6 = *(Fstep2 + j - 1);
-            int accF7 = *(Fstep2 + j);
-            int accF8 = *(Fstep2 + j + 1);
+        #ifdef count_instr 
+        add_count += 3; //width_limit_R
+        #endif
+
+        for (int ii = 1; ii < ii_limit; ii++) { //single level 2 block calculation 
+            for (j_L3 = j; j_L3 < width_limit_R; j_L3 += block_width_R) { //single level 3 block calculation
+                int acc;
+                int acc2;
+
+                int nw = F[(ii - 1) * m + (j_L3 - 1)];  //3 
+                int n = F[(ii - 1) * m + j_L3]; //2
+                int ne = F[(ii - 1) * m + j_L3 + 1]; //3
+                int se = F[(ii + 1) * m + j_L3 + 1]; //3 
+                int sw = F[(ii + 1) * m + j_L3 - 1]; //3
+                int s = F[(ii + 1) * m + j_L3]; //2
+                int e = F[ii * m + j_L3 + 1]; //2
+                int w = F[ii * m + j_L3 - 1]; //2
+
+                //total 20 adds
+
+                int nee = F[(ii - 1) * m + j_L3 + 2]; //LOL 3
+                int see = F[(ii + 1) * m + j_L3 + 2]; //3
+                int ee = F[ii * m + j_L3 + 2]; //2
+                int center = F[ii * m + j_L3]; //1
+
+                int dst = *(part_grad + ii * m + j_L3); //2
+                int dst2 = *(part_grad + ii * m + j_L3 + 1);    //3
+
+                //H_y
+                dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se); //5
+                dst = ABS(dst);
+                //H_x
+                acc = (ne - nw) + (((e - w) << 1)) + (se - sw); //5
+                dst += ABS(acc); //1
+
+                //H_y
+                dst2 = (-(n + ((ne) << 1))) + (s - nee) + (((se) << 1) + see); //5
+                dst2 = ABS(dst2);
+                //H_x
+                acc2 = (nee - n) + (((ee - center) << 1)) + (see - s); //5
+                dst2 += ABS(acc2); //1
+                
+                *(part_grad + ii * m + j_L3) = dst; //2
+                *(part_grad + ii * m + j_L3 + 1) = dst2; //3
+
+                #ifdef count_instr 
+                count_ifs += 5; //4 from abs and 1 for comparing in for loop
+                indexing += 1;
+                pointer_adds += 39; 
+                pointer_mults += 16;
+                add_count += 22;
+                mult_count += 2; //-1 multiplications 
+                shifts += 6;
+                #endif 
+            }
+
+            //bad non cooparating jjs
+            for (; j_L3 < j + block_width_L1; j_L3++) {
+                int acc;
+
+                int nw = F[(ii - 1) * m + (j_L3 - 1)];
+                int n = F[(ii - 1) * m + j_L3];
+                int ne = F[(ii - 1) * m + j_L3 + 1];
+                int se = F[(ii + 1) * m + j_L3 + 1];
+                int sw = F[(ii + 1) * m + (j_L3 - 1)];
+                int s = F[(ii + 1) * m + j_L3];
+                int e = F[ii * m + j_L3 + 1];
+                int w = F[ii * m + j_L3 - 1];
+
+                int dst = *(part_grad + ii * m + j_L3);
+
+                //H_y
+                dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
+                dst = ABS(dst);
+                //H_x
+                acc = (ne - nw) + (((e - w) << 1)) + (se - sw);
+                dst += ABS(acc);
+
+                *(part_grad + ii * m + j_L3) = dst;
+
+                #ifdef count_instr 
+                count_ifs += 3; //abs and for loop condition
+                indexing += 1;  //jl INCREMENTS
+                pointer_adds += 24; 
+                pointer_mults += 10;
+                add_count += 11;
+                mult_count += 1;
+                shifts += 3;
+                #endif
+
+            }
+
+        #ifdef count_instr 
+        count_ifs+= 2; //when not taken check must be made too and for loop condition for ii
+        indexing += 1;  //ii increments 
+        #endif
+        }
+        #ifdef count_instr 
+        count_ifs+= 2; //when not taken check must be made too and for loop condition for j
+        indexing += 1;  //j increments 
+        #endif
+    }
+
+    //bad non cooparating js
+    int j_limit =  m - K - block_width_R + 1;
+    j_old = j;
+
+    #ifdef count_instr 
+    count_ifs++; //js last for loop comparison 
+    add_count += 3; //j_limit
+    #endif
+
+    for (int ii = 1; ii < ii_limit; ii++) { //single level reg block calculation 
+        for (j = j_old; j < j_limit; j = j + block_width_R) {
+            int acc;
+            int acc2;
+
+            int nw = F[(ii - 1) * m + (j - 1)];
+            int n = F[(ii - 1) * m + j];
+            int ne = F[(ii - 1) * m + j + 1];
+            int se = F[(ii + 1) * m + j + 1];
+            int sw = F[(ii + 1) * m + j - 1];
+            int s = F[(ii + 1) * m + j];
+            int e = F[ii * m + j + 1];
+            int w = F[ii * m + j - 1];
+
+            //20 pointer adds and 8 mults
+
+            int nee = F[(ii - 1) * m + j + 2]; //LOL
+            int see = F[(ii + 1) * m + j + 2];
+            int ee = F[ii * m + j + 2];
+            int center = F[ii * m + j];
+
+            int dst = *(part_grad + ii * m + j);
+            int dst2 = *(part_grad + ii * m + j + 1);
+
+            //14 pointer adds and 6 mults
 
             //H_y
-            acc1 = -(accF1 + (accF2 << 1));
-            acc2 = accF6 - accF3;
-            acc3 = (accF7 << 1) + accF8;
-            acc_total = ABS(acc1 + acc2 + acc3);
+            dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
+            dst = ABS(dst);
             //H_x
-            acc4 = accF3 - accF1;
-            acc5 = (accF5 - accF4) << 1;
-            acc6 = accF8 - accF6;
-            acc_total += ABS(acc4 + acc5 + acc6);
+            acc = (ne - nw) + (((e - w) << 1)) + (se - sw);
+            dst += ABS(acc);
 
-            *(part_grad + step + j) = acc_total;
+            //H_y
+            dst2 = (-(n + ((ne) << 1))) + (s - nee) + (((se) << 1) + see);
+            dst2 = ABS(dst2);
+            //H_x
+            acc2 = (nee - n) + (((ee - center) << 1)) + (see - s);
+            dst2 += ABS(acc2);
+            
+            *(part_grad + ii * m + j) = dst;
+            *(part_grad + ii * m + j + 1) = dst2;
 
-            #ifdef count_instr //count 46-54
-            pointer_adds += 7; pointer_mults += 2; // 46
-            pointer_adds += 8; pointer_mults += 2; // 47
-            pointer_adds += 7; pointer_mults += 2; // 48
-            pointer_adds += 8; pointer_mults += 2; // 51
-            pointer_adds += 6; pointer_mults += 2; // 52
-            pointer_adds += 8; pointer_mults += 2; // 53
-
-            // values adds
-            add_count += 13;
-            #endif
-        }
-
-        Fstep += m;
-        Fstep1 += m;
-        Fstep2 += m;
-        step += m;
+            #ifdef count_instr 
+            count_ifs += 5; //4 from abs and 1 for comparing in for loop
+            indexing += 1;
+            pointer_adds += 39; 
+            pointer_mults += 16;
+            add_count += 22;
+            mult_count += 2; //-1 multiplications 
+            shifts += 6;
+            #endif 
+        }        
+        #ifdef count_instr 
+        count_ifs += 2; //one for j that isnt taken and 1 for ii for condition 
+        indexing += 1; //ii increments
+        #endif 
     }
 
     #ifdef count_instr 
+    count_ifs ++; //one for ii not taken
+    #endif 
+
+    j_old = j;
+
+    for (int ii = 1; ii < ii_limit; ii++) { //single level 2 block calculation 
+         for (j = j_old; j < m - K; j++) {
+            int acc;
+
+            int nw = F[(ii - 1) * m + (j - 1)];
+            int n = F[(ii - 1) * m + j];
+            int ne = F[(ii - 1) * m + j + 1];
+            int se = F[(ii + 1) * m + j + 1];
+            int sw = F[(ii + 1) * m + (j - 1)];
+            int s = F[(ii + 1) * m + j];
+            int e = F[ii * m + j + 1];
+            int w = F[ii * m + j - 1];
+
+            int dst = *(part_grad + ii * m + j);
+
+            //H_y
+            dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
+            dst = ABS(dst);
+            //H_x
+            acc = (ne - nw) + (((e - w) << 1)) + (se - sw);
+            dst += ABS(acc);
+
+            *(part_grad + ii * m + j) = dst;
+
+            #ifdef count_instr 
+            count_ifs += 3; //abs and for loop condition
+            indexing += 1;  //j INCREMENTS
+            pointer_adds += 24; 
+            pointer_mults += 10;
+            add_count += 11;
+            mult_count += 1;
+            shifts += 3;
+            #endif
+        }     
+        #ifdef count_instr 
+        count_ifs+= 2; //when not taken check must be made too and for loop condition for ii
+        indexing += 1;  //ii increments 
+        #endif   
+    }
+
+    #ifdef count_instr
     //count total
-    add_count += pointer_adds; 
+    count_ifs++;
+    add_count += count_ifs + indexing + pointer_adds;
     mult_count += pointer_mults;
+    printf("NO ADDS FOR calc_energy IS: %llu \n", add_count);
+    printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count);
     #endif
 }
+
 
 //assumes channels is padded with 0 of size 3 x n x m
 //assumes result is of size n-2 x m-2 
