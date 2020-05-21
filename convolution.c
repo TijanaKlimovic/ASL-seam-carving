@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include "parse_img.h"
-// #include "count.h"
+#include "count.h"
 
 #define K 1
 #ifdef count_instr 
-#define ABS(X)(((X) < 0) ? ((-(X)), count_ifs++) : (X))
+#define ABS(X)(((X) < 0) ? (mult_count++, (-(X))) : (X))
 #else 
 #define ABS(X)(((X) < 0) ? (-(X)) : (X))
 #endif
@@ -32,9 +32,6 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
     unsigned long long pointer_mults = 0; //                                   -> MULTS
     unsigned long long shifts = 0;
     #endif
-
-    int block_height_L1 = n - K;
-    int block_height_R = n - K;
  
     int block_width_L1 = 1598;      //working set size is 4(m+2)+m
     int block_width_R = 2;          //working set size is 3(m+2)+m
@@ -53,12 +50,16 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
         width_limit_R = j + block_width_L1 - block_width_R + 1; //take care in case block_width_L2 doesnt divide width_limit_L2
         int j_L3;
 
+        #ifdef count_instr 
+        add_count += 3; //width_limit_R
+        #endif
+
         for (int ii = 1; ii < ii_limit; ii++) { //single level 2 block calculation 
             for (j_L3 = j; j_L3 < width_limit_R; j_L3 += block_width_R) { //single level 3 block calculation
                 int acc;
                 int acc2;
 
-                int nw = F[(ii - 1) * m + (j_L3 - 1)];  //3
+                int nw = F[(ii - 1) * m + (j_L3 - 1)];  //3 
                 int n = F[(ii - 1) * m + j_L3]; //2
                 int ne = F[(ii - 1) * m + j_L3 + 1]; //3
                 int se = F[(ii + 1) * m + j_L3 + 1]; //3 
@@ -66,6 +67,8 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
                 int s = F[(ii + 1) * m + j_L3]; //2
                 int e = F[ii * m + j_L3 + 1]; //2
                 int w = F[ii * m + j_L3 - 1]; //2
+
+                //total 20 adds
 
                 int nee = F[(ii - 1) * m + j_L3 + 2]; //LOL 3
                 int see = F[(ii + 1) * m + j_L3 + 2]; //3
@@ -76,31 +79,31 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
                 int dst2 = *(part_grad + ii * m + j_L3 + 1);    //3
 
                 //H_y
-                dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
+                dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se); //5
                 dst = ABS(dst);
                 //H_x
-                acc = (ne - nw) + (((e - w) << 1)) + (se - sw);
-                dst += ABS(acc);
+                acc = (ne - nw) + (((e - w) << 1)) + (se - sw); //5
+                dst += ABS(acc); //1
 
                 //H_y
-                dst2 = (-(n + ((ne) << 1))) + (s - nee) + (((se) << 1) + see);
+                dst2 = (-(n + ((ne) << 1))) + (s - nee) + (((se) << 1) + see); //5
                 dst2 = ABS(dst2);
                 //H_x
-                acc2 = (nee - n) + (((ee - center) << 1)) + (see - s);
-                dst2 += ABS(acc2);
+                acc2 = (nee - n) + (((ee - center) << 1)) + (see - s); //5
+                dst2 += ABS(acc2); //1
                 
-                *(part_grad + ii * m + j_L3) = dst;
-                *(part_grad + ii * m + j_L3 + 1) = dst2;
+                *(part_grad + ii * m + j_L3) = dst; //2
+                *(part_grad + ii * m + j_L3 + 1) = dst2; //3
 
                 #ifdef count_instr 
-                indexing += 0;
-                pointer_adds += 0; 
-                pointer_mults += 0;
-                add_count += 
-                mult_count += 
-                shifts += 
-                #endif
-
+                count_ifs += 5; //4 from abs and 1 for comparing in for loop
+                indexing += 1;
+                pointer_adds += 39; 
+                pointer_mults += 16;
+                add_count += 22;
+                mult_count += 2; //-1 multiplications 
+                shifts += 6;
+                #endif 
             }
 
             //bad non cooparating jjs
@@ -127,18 +130,37 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
 
                 *(part_grad + ii * m + j_L3) = dst;
 
+                #ifdef count_instr 
+                count_ifs += 3; //abs and for loop condition
+                indexing += 1;  //jl INCREMENTS
+                pointer_adds += 24; 
+                pointer_mults += 10;
+                add_count += 11;
+                mult_count += 1;
+                shifts += 3;
+                #endif
+
             }
+
+        #ifdef count_instr 
+        count_ifs+= 2; //when not taken check must be made too and for loop condition for ii
+        indexing += 1;  //ii increments 
+        #endif
         }
-        #ifdef count_instr //count line 54
-        count_ifs++; //when not taken check must be made too
-        pointer_adds += 2; //need to dereference first to compare 
-        pointer_mults++;
+        #ifdef count_instr 
+        count_ifs+= 2; //when not taken check must be made too and for loop condition for j
+        indexing += 1;  //j increments 
         #endif
     }
 
     //bad non cooparating js
     int j_limit =  m - K - block_width_R + 1;
     j_old = j;
+
+    #ifdef count_instr 
+    count_ifs++; //js last for loop comparison 
+    add_count += 3; //j_limit
+    #endif
 
     for (int ii = 1; ii < ii_limit; ii++) { //single level reg block calculation 
         for (j = j_old; j < j_limit; j = j + block_width_R) {
@@ -154,6 +176,8 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
             int e = F[ii * m + j + 1];
             int w = F[ii * m + j - 1];
 
+            //20 pointer adds and 8 mults
+
             int nee = F[(ii - 1) * m + j + 2]; //LOL
             int see = F[(ii + 1) * m + j + 2];
             int ee = F[ii * m + j + 2];
@@ -161,6 +185,8 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
 
             int dst = *(part_grad + ii * m + j);
             int dst2 = *(part_grad + ii * m + j + 1);
+
+            //14 pointer adds and 6 mults
 
             //H_y
             dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
@@ -178,46 +204,72 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
             
             *(part_grad + ii * m + j) = dst;
             *(part_grad + ii * m + j + 1) = dst2;
+
+            #ifdef count_instr 
+            count_ifs += 5; //4 from abs and 1 for comparing in for loop
+            indexing += 1;
+            pointer_adds += 39; 
+            pointer_mults += 16;
+            add_count += 22;
+            mult_count += 2; //-1 multiplications 
+            shifts += 6;
+            #endif 
         }        
+        #ifdef count_instr 
+        count_ifs += 2; //one for j that isnt taken and 1 for ii for condition 
+        indexing += 1; //ii increments
+        #endif 
     }
+
+    #ifdef count_instr 
+    count_ifs ++; //one for ii not taken
+    #endif 
 
     j_old = j;
 
     for (int ii = 1; ii < ii_limit; ii++) { //single level 2 block calculation 
          for (j = j_old; j < m - K; j++) {
-                int acc;
+            int acc;
 
-                int nw = F[(ii - 1) * m + (j - 1)];
-                int n = F[(ii - 1) * m + j];
-                int ne = F[(ii - 1) * m + j + 1];
-                int se = F[(ii + 1) * m + j + 1];
-                int sw = F[(ii + 1) * m + (j - 1)];
-                int s = F[(ii + 1) * m + j];
-                int e = F[ii * m + j + 1];
-                int w = F[ii * m + j - 1];
+            int nw = F[(ii - 1) * m + (j - 1)];
+            int n = F[(ii - 1) * m + j];
+            int ne = F[(ii - 1) * m + j + 1];
+            int se = F[(ii + 1) * m + j + 1];
+            int sw = F[(ii + 1) * m + (j - 1)];
+            int s = F[(ii + 1) * m + j];
+            int e = F[ii * m + j + 1];
+            int w = F[ii * m + j - 1];
 
-                int dst = *(part_grad + ii * m + j);
+            int dst = *(part_grad + ii * m + j);
 
-                //H_y
-                dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
-                dst = ABS(dst);
-                //H_x
-                acc = (ne - nw) + (((e - w) << 1)) + (se - sw);
-                dst += ABS(acc);
+            //H_y
+            dst = (-(nw + ((n) << 1))) + (sw - ne) + (((s) << 1) + se);
+            dst = ABS(dst);
+            //H_x
+            acc = (ne - nw) + (((e - w) << 1)) + (se - sw);
+            dst += ABS(acc);
 
-                *(part_grad + ii * m + j) = dst;
-            }        
+            *(part_grad + ii * m + j) = dst;
+
+            #ifdef count_instr 
+            count_ifs += 3; //abs and for loop condition
+            indexing += 1;  //j INCREMENTS
+            pointer_adds += 24; 
+            pointer_mults += 10;
+            add_count += 11;
+            mult_count += 1;
+            shifts += 3;
+            #endif
+        }     
+        #ifdef count_instr 
+        count_ifs+= 2; //when not taken check must be made too and for loop condition for ii
+        indexing += 1;  //ii increments 
+        #endif   
     }
 
     #ifdef count_instr
-    count_ifs += n - 1 + (n - 2) * (m - 1) + (n - 2) * (m - 2) * 4 + (n - 2) * (m - 2) * 3 * 4; //count lines 46-52
-    indexing += n - 2 + (n - 2) * (m - 2) + (n - 2) * (m - 2) * 3 + (n - 2) * (m - 2) * 3 * 3;
-    pointer_adds += (n - 2) * (m - 2) * 3 * 3 * (2 + 2 + 3);
-    pointer_mults += (n - 2) * (m - 2) * 3 * 3 * 2;
-    add_count += (n - 2) * (m - 2) * 3 * 3; //count directly the add and mult in line 50
-    mult_count += (n - 2) * (m - 2) * 3 * 3;
-
     //count total
+    count_ifs++;
     add_count += count_ifs + indexing + pointer_adds;
     mult_count += pointer_mults;
     printf("NO ADDS FOR calc_energy IS: %llu \n", add_count);
