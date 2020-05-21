@@ -39,7 +39,7 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
     #endif
     int i_limit = n - K;
 
-    int block_width_L1 = 532;      //working set size is 4(m+2)+m
+    int block_width_L1 = 1065;      //working set size is 4(m+2)+m
     int width_limit_L1 = m - K - block_width_L1 + 1;
 
     int jj, jj_old;
