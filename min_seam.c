@@ -102,7 +102,7 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 
 		int j;
 		prev_row_idx_aux = (i-1) * csize - 1;
-		for (j = 1; j < column_lim-7; j+=8) {
+		for (j = 1; j < column_lim-8; j+=8) {
 			where = row + j;
 			prev_row_idx = prev_row_idx_aux + j;
 			// load
