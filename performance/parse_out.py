@@ -12,25 +12,25 @@ with open("cycles.txt", "r") as f:
             c.append(int(cycles))
 print()
 
-# parse inctrumentation output
-o = []
-print("flops:")
-with open("counts.txt", "r") as f:
-    for line in f:
-        if line.startswith("ADDS"):
-            adds = line.split(" ")[0].split("=")[1]
-            mults = line.split(" ")[1].split("=")[1]
-            ops = int(adds) + int(mults)
-            print(ops)
-            o.append(ops)
+# # parse inctrumentation output
+# o = []
+# print("flops:")
+# with open("counts.txt", "r") as f:
+#     for line in f:
+#         if line.startswith("ADDS"):
+#             adds = line.split(" ")[0].split("=")[1]
+#             mults = line.split(" ")[1].split("=")[1]
+#             ops = int(adds) + int(mults)
+#             print(ops)
+#             o.append(ops)
 
-print()
+# print()
 
-# calculate performance [flop/cycle
+# # calculate performance [flop/cycle
 
-perf = []
-print("performances [flops/cycle]")
-for cnt, op in zip(c, o):
-    perf = op / cnt
-    print(perf)
+# perf = []
+# print("performances [flops/cycle]")
+# for cnt, op in zip(c, o):
+#     perf = op / cnt
+#     print(perf)
             
