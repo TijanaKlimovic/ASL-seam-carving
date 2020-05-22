@@ -23,24 +23,49 @@ extern unsigned long long mult_count; 	//count the total number of mult instruct
 
 void rotate(int *energy, int *rotated, int h, int w) { 
     for (int i = 0; i < h; i++) { 
-        for (int j = 0; j < w; j++) { 
-            rotated[j * h + (h - i - 1)] = energy[i * w + j]; 
+    	int rotated_idx = h-i-1;
+    	int energy_idx = i*w;
+
+    	int j = 0;
+        for (; j < w-7; j+=8) {
+	    	int cnt1 = j+1;
+	    	int cnt2 = j+2;
+	    	int cnt3 = j+3;
+	    	int cnt4 = j+4;
+	    	int cnt5 = j+5;
+	    	int cnt6 = j+6;
+	    	int cnt7 = j+7;
+
+	        rotated[rotated_idx + j * h] = energy[energy_idx + j]; 
+	        rotated[rotated_idx + cnt1 * h] = energy[energy_idx + cnt1]; 
+	        rotated[rotated_idx + cnt2 * h] = energy[energy_idx + cnt2]; 
+	        rotated[rotated_idx + cnt3 * h] = energy[energy_idx + cnt3]; 
+	        rotated[rotated_idx + cnt4 * h] = energy[energy_idx + cnt4]; 
+	        rotated[rotated_idx + cnt5 * h] = energy[energy_idx + cnt5]; 
+	        rotated[rotated_idx + cnt6 * h] = energy[energy_idx + cnt6]; 
+	        rotated[rotated_idx + cnt7 * h] = energy[energy_idx + cnt7];
         } 
+
+        while (j < w) {
+            rotated[rotated_idx + j * h] = energy[energy_idx + j]; 
+            j++;
+        }
     } 
 }
 
 int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_backtrack) {
-	int *energy = (int *) malloc(rsize * csize * sizeof(int));
+	int size = rsize * csize;
+	int *energy = (int *) malloc(size * sizeof(int));
 	short *padded_img = padd0_image(rsize, csize, img); //TODO try converting in pad to uchar
 	calc_RGB_energy(rsize + 2, csize + 2, padded_img, energy);
 
 	// contains index of the value from the prev row/column from where we came here
-	int *backtrack = (int *) malloc(rsize * csize * sizeof(int)); //different from what we returnCOUNT(mult_count, 2)
+	int *backtrack = (int *) malloc(size * sizeof(int)); //different from what we returnCOUNT(mult_count, 2)
 
 	// if horizontal seam -> rotate +90 degrees the energy map
 	int *dp;
 	if (is_ver == 0) {
-		dp = malloc(rsize * csize * sizeof(int));
+		dp = malloc(size * sizeof(int));
 		rotate(energy, dp, rsize, csize);
 		int tmp = rsize;
 		rsize = csize;
@@ -55,20 +80,17 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 	int column_lim = csize - 1;
 	int min_idx;
 	int min_val;
-	int prev_row_idx;
+	int prev_row_idx, prev_row_idx_aux;
 	for (int i = 1; i < rsize; i++) { //start from second row	
-		// first col, j == 0
+		// first column, j == 0
 		int row = i * csize;
 		int where = row;
 		int where_before = where - csize;
 		
-		int val1 = dp[where_before];
-		int val2 = dp[where_before + 1];
-		MIN2(val1, 
-			 val2, 
-			 min_val, 
+		MIN2(dp[where_before],
+			 dp[where_before + 1],
+			 min_val,
 			 min_idx);
-
 		backtrack[where] = min_idx;
 		dp[where] += min_val;
 
@@ -79,9 +101,10 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 		__m256i incr = _mm256_set1_epi32(8);
 
 		int j;
-		for (j = 1; j < column_lim - 8; j+=8) {
+		prev_row_idx_aux = (i-1) * csize - 1;
+		for (j = 1; j < column_lim-7; j+=8) {
 			where = row + j;
-			prev_row_idx = (i-1) * csize + j-1;
+			prev_row_idx = prev_row_idx_aux + j;
 			// load
 			__m256i y1 = _mm256_loadu_si256((__m256i *) (dp + prev_row_idx));
 			__m256i y2 = _mm256_loadu_si256((__m256i *) (dp + prev_row_idx + 1));
@@ -114,15 +137,11 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 			where = row + j;
 			where_before = where - csize;
 
-			val1 = dp[where_before - 1];
-			val2 = dp[where_before];
-			int val3 =  dp[where_before + 1];
-			MIN3(val1, 
-				 val2, 
-				 val3, 
+			MIN3(dp[where_before - 1], 
+				 dp[where_before], 
+				 dp[where_before + 1], 
 				 min_val, 
 				 min_idx)
-
 			backtrack[where] = j + min_idx;
 			dp[where] += min_val;
 		}
@@ -131,13 +150,10 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 		where = row + column_lim;
 		where_before = where - csize;
 		
-		val1 = dp[where_before - 1];
-		val2 =  dp[where_before];
-		MIN21(val1,
-			 val2,
+		MIN21(dp[where_before - 1],
+			 dp[where_before],
 			 min_val,
 			 min_idx)
-
 		backtrack[where] = column_lim + min_idx;
 		dp[where] += min_val;
 	}
@@ -147,21 +163,95 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 	int direction = -1; //used in turning 2D backtrack into 1D
 	int row_lim = rsize - 1;
 
-
 	//find the index of the minimum value of last row in the dp matrix
 	int last_row = row_lim  * csize;
-	for (int cnt = 0; cnt < csize; cnt++) {
-		int current = last_row + cnt;
-		int min = dp[current];
-		if (min < ret) {
-			ret = min;
+	int cnt = 0;
+	for (; cnt < csize-11; cnt+=12) {
+		int cnt1 = cnt + 1;
+		int cnt2 = cnt + 2;
+		int cnt3 = cnt + 3;
+		int cnt4 = cnt + 4;
+		int cnt5 = cnt + 5;
+		int cnt6 = cnt + 6;
+		int cnt7 = cnt + 7;
+		int cnt8 = cnt + 8;
+		int cnt9 = cnt + 9;
+		int cnt10 = cnt + 10;
+		int cnt11 = cnt + 11;
+
+		int current0 = last_row + cnt;
+		int current1 = last_row + cnt1;
+		int current2 = last_row + cnt2;
+		int current3 = last_row + cnt3;
+		int current4 = last_row + cnt4;
+		int current5 = last_row + cnt5;
+		int current6 = last_row + cnt6;
+		int current7 = last_row + cnt7;
+		int current8 = last_row + cnt8;
+		int current9 = last_row + cnt9;
+		int current10 = last_row + cnt10;
+		int current11 = last_row + cnt11;
+
+		if (dp[current0] < ret) {
+			ret = dp[current0];
 			direction = cnt;
+		}
+		if (dp[current1] < ret) {
+			ret = dp[current1];
+			direction = cnt1;
+		}
+		if (dp[current2] < ret) {
+			ret = dp[current2];
+			direction = cnt2;
+		}
+		if (dp[current3] < ret) {
+			ret = dp[current3];
+			direction = cnt3;
+		}
+		if (dp[current4] < ret) {
+			ret = dp[current4];
+			direction = cnt4;
+		}
+		if (dp[current5] < ret) {
+			ret = dp[current5];
+			direction = cnt5;
+		}
+		if (dp[current6] < ret) {
+			ret = dp[current6];
+			direction = cnt6;
+		}
+		if (dp[current7] < ret) {
+			ret = dp[current7];
+			direction = cnt7;
+		}
+		if (dp[current8] < ret) {
+			ret = dp[current8];
+			direction = cnt8;
+		}
+		if (dp[current9] < ret) {
+			ret = dp[current9];
+			direction = cnt9;
+		}
+		if (dp[current10] < ret) {
+			ret = dp[current10];
+			direction = cnt10;
+		}
+		if (dp[current11] < ret) {
+			ret = dp[current11];
+			direction = cnt11;
 		}
 	}
 
-	//return the 1D backtrack (only the min seam)
-	// direction -= last_start;
+	while (cnt < csize) {
+		int current = last_row + cnt;
+		if (dp[current] < ret) {
+			ret = dp[current];
+			direction = cnt;
+		}
+		cnt++;
+	}
 
+	//return the 1D backtrack (only the min seam)
 	if (is_ver == 1) {
 		for (int i = row_lim; i >= 0; i--) {
 			ret_backtrack[i] = direction;
@@ -177,9 +267,10 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 			last_row -= csize;
 		}
 	}
+
 	free(dp);
 	free(backtrack);
-	free(padded_img);		
+	free(padded_img);
 	return ret;
 }
 
