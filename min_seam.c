@@ -23,49 +23,25 @@ extern unsigned long long mult_count; 	//count the total number of mult instruct
 
 void rotate(int *energy, int *rotated, int h, int w) { 
     for (int i = 0; i < h; i++) { 
-    	int rotated_idx = h-i-1;
-    	int energy_idx = i*w;
-
-    	int j = 0;
-        for (; j < w-7; j+=8) {
-	    	int cnt1 = j+1;
-	    	int cnt2 = j+2;
-	    	int cnt3 = j+3;
-	    	int cnt4 = j+4;
-	    	int cnt5 = j+5;
-	    	int cnt6 = j+6;
-	    	int cnt7 = j+7;
-
-	        rotated[rotated_idx + j * h] = energy[energy_idx + j]; 
-	        rotated[rotated_idx + cnt1 * h] = energy[energy_idx + cnt1]; 
-	        rotated[rotated_idx + cnt2 * h] = energy[energy_idx + cnt2]; 
-	        rotated[rotated_idx + cnt3 * h] = energy[energy_idx + cnt3]; 
-	        rotated[rotated_idx + cnt4 * h] = energy[energy_idx + cnt4]; 
-	        rotated[rotated_idx + cnt5 * h] = energy[energy_idx + cnt5]; 
-	        rotated[rotated_idx + cnt6 * h] = energy[energy_idx + cnt6]; 
-	        rotated[rotated_idx + cnt7 * h] = energy[energy_idx + cnt7];
+        for (int j = 0; j < w; j++) { 
+            rotated[j * h + (h - i - 1)] = energy[i * w + j]; 
         } 
-
-        while (j < w) {
-            rotated[rotated_idx + j * h] = energy[energy_idx + j]; 
-            j++;
-        }
     } 
 }
 
 int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_backtrack) {
-	int size = rsize * csize;
-	int *energy = (int *) malloc(size * sizeof(int));
+
+	int *energy = (int *) malloc(rsize * csize * sizeof(int));
 	short *padded_img = padd0_image(rsize, csize, img); //TODO try converting in pad to uchar
 	calc_RGB_energy(rsize + 2, csize + 2, padded_img, energy);
 
 	// contains index of the value from the prev row/column from where we came here
-	int *backtrack = (int *) malloc(size * sizeof(int)); //different from what we returnCOUNT(mult_count, 2)
+	int *backtrack = (int *) malloc(rsize * csize * sizeof(int)); //different from what we returnCOUNT(mult_count, 2)
 
 	// if horizontal seam -> rotate +90 degrees the energy map
 	int *dp;
 	if (is_ver == 0) {
-		dp = malloc(size * sizeof(int));
+		dp = malloc(rsize * csize * sizeof(int));
 		rotate(energy, dp, rsize, csize);
 		int tmp = rsize;
 		rsize = csize;
@@ -80,7 +56,7 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 	int column_lim = csize - 1;
 	int min_idx;
 	int min_val;
-	int prev_row_idx, prev_row_idx_aux;
+	int prev_row_idx;
 	for (int i = 1; i < rsize; i++) { //start from second row	
 		// first column, j == 0
 		int row = i * csize;
@@ -101,10 +77,9 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 		__m256i incr = _mm256_set1_epi32(8);
 
 		int j;
-		prev_row_idx_aux = (i-1) * csize - 1;
 		for (j = 1; j < column_lim-8; j+=8) {
 			where = row + j;
-			prev_row_idx = prev_row_idx_aux + j;
+			prev_row_idx = (i-1) * csize - 1 + j;
 			// load
 			__m256i y1 = _mm256_loadu_si256((__m256i *) (dp + prev_row_idx));
 			__m256i y2 = _mm256_loadu_si256((__m256i *) (dp + prev_row_idx + 1));
