@@ -166,7 +166,7 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 	//find the index of the minimum value of last row in the dp matrix
 	int last_row = row_lim  * csize;
 	int cnt = 0;
-	for (; cnt < csize-11; cnt+=12) {
+	for (; cnt < csize-7; cnt+=8) {
 		int cnt1 = cnt + 1;
 		int cnt2 = cnt + 2;
 		int cnt3 = cnt + 3;
@@ -174,10 +174,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 		int cnt5 = cnt + 5;
 		int cnt6 = cnt + 6;
 		int cnt7 = cnt + 7;
-		int cnt8 = cnt + 8;
-		int cnt9 = cnt + 9;
-		int cnt10 = cnt + 10;
-		int cnt11 = cnt + 11;
 
 		int current0 = last_row + cnt;
 		int current1 = last_row + cnt1;
@@ -187,10 +183,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 		int current5 = last_row + cnt5;
 		int current6 = last_row + cnt6;
 		int current7 = last_row + cnt7;
-		int current8 = last_row + cnt8;
-		int current9 = last_row + cnt9;
-		int current10 = last_row + cnt10;
-		int current11 = last_row + cnt11;
 
 		if (dp[current0] < ret) {
 			ret = dp[current0];
@@ -223,22 +215,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 		if (dp[current7] < ret) {
 			ret = dp[current7];
 			direction = cnt7;
-		}
-		if (dp[current8] < ret) {
-			ret = dp[current8];
-			direction = cnt8;
-		}
-		if (dp[current9] < ret) {
-			ret = dp[current9];
-			direction = cnt9;
-		}
-		if (dp[current10] < ret) {
-			ret = dp[current10];
-			direction = cnt10;
-		}
-		if (dp[current11] < ret) {
-			ret = dp[current11];
-			direction = cnt11;
 		}
 	}
 
