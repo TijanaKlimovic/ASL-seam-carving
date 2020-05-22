@@ -168,22 +168,21 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 
     __m256i incr = _mm256_set1_epi32(8);
     __m256i idx = _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0);
-    __m256i minindices = idx;
+    __m256i minindices = _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0);
     __m256i minvalues = _mm256_loadu_si256((__m256i*)(dp+last_row));
 
 	int cnt = 8;
 	for (; cnt < csize-7; cnt+=8) {
 		idx = _mm256_add_epi32(idx, incr);
-
 		__m256i values = _mm256_loadu_si256((__m256i*)(dp + last_row + cnt));
-        __m256i mask = _mm256_cmpgt_epi32(values, minvalues);
+        __m256i mask = _mm256_cmpgt_epi32(minvalues, values);
         minvalues = _mm256_blendv_epi8(minvalues, values, mask);
         minindices = _mm256_blendv_epi8(minindices, idx, mask);
 	}
 
     // find min index in vector result (in an extremely naive way)
     int32_t values_array[8];
-    uint32_t indices_array[8];
+    int32_t indices_array[8];
 
     _mm256_storeu_si256((__m256i*)values_array, minvalues);
     _mm256_storeu_si256((__m256i*)indices_array, minindices);
@@ -197,6 +196,10 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
         }
     }
 
+    if (csize < 8) {
+    	ret = INT_MAX;
+    	cnt = 0;
+    }
 	while (cnt < csize) {
 		int current = last_row + cnt;
 		if (dp[current] < ret) {
