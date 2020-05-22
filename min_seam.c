@@ -165,58 +165,37 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 
 	//find the index of the minimum value of last row in the dp matrix
 	int last_row = row_lim  * csize;
-	int cnt = 0;
+
+    __m256i incr = _mm256_set1_epi32(8);
+    __m256i idx = _mm256_set_epi32(7, 6, 5, 4, 3, 2, 1, 0);
+    __m256i minindices = idx;
+    __m256i minvalues = _mm256_loadu_si256((__m256i*)(dp+last_row));
+
+	int cnt = 8;
 	for (; cnt < csize-7; cnt+=8) {
-		int cnt1 = cnt + 1;
-		int cnt2 = cnt + 2;
-		int cnt3 = cnt + 3;
-		int cnt4 = cnt + 4;
-		int cnt5 = cnt + 5;
-		int cnt6 = cnt + 6;
-		int cnt7 = cnt + 7;
+		idx = _mm256_add_epi32(idx, incr);
 
-		int current0 = last_row + cnt;
-		int current1 = last_row + cnt1;
-		int current2 = last_row + cnt2;
-		int current3 = last_row + cnt3;
-		int current4 = last_row + cnt4;
-		int current5 = last_row + cnt5;
-		int current6 = last_row + cnt6;
-		int current7 = last_row + cnt7;
-
-		if (dp[current0] < ret) {
-			ret = dp[current0];
-			direction = cnt;
-		}
-		if (dp[current1] < ret) {
-			ret = dp[current1];
-			direction = cnt1;
-		}
-		if (dp[current2] < ret) {
-			ret = dp[current2];
-			direction = cnt2;
-		}
-		if (dp[current3] < ret) {
-			ret = dp[current3];
-			direction = cnt3;
-		}
-		if (dp[current4] < ret) {
-			ret = dp[current4];
-			direction = cnt4;
-		}
-		if (dp[current5] < ret) {
-			ret = dp[current5];
-			direction = cnt5;
-		}
-		if (dp[current6] < ret) {
-			ret = dp[current6];
-			direction = cnt6;
-		}
-		if (dp[current7] < ret) {
-			ret = dp[current7];
-			direction = cnt7;
-		}
+		__m256i values = _mm256_loadu_si256((__m256i*)(dp + last_row + cnt));
+        __m256i mask = _mm256_cmpgt_epi32(values, minvalues);
+        minvalues = _mm256_blendv_epi8(minvalues, values, mask);
+        minindices = _mm256_blendv_epi8(minindices, idx, mask);
 	}
+
+    // find min index in vector result (in an extremely naive way)
+    int32_t values_array[8];
+    uint32_t indices_array[8];
+
+    _mm256_storeu_si256((__m256i*)values_array, minvalues);
+    _mm256_storeu_si256((__m256i*)indices_array, minindices);
+
+    ret = values_array[0];
+    direction = indices_array[0];
+    for (int i = 1; i < 8; i++) {
+        if (values_array[i] < ret) {
+            ret = values_array[i];
+            direction = indices_array[i];
+        }
+    }
 
 	while (cnt < csize) {
 		int current = last_row + cnt;
