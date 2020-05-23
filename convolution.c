@@ -48,10 +48,15 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
 
         for(int i = 1 ; i < i_limit ; i++){
             int j;
+            int i1m = (i - 1) * m * 3;
+            int i2m = i * m * 3;
+            int i3m = (i + 1) * m * 3;
+            int im = (i - 1) * (m - 2);
             for(j = jj ; j < j_limit ; j += 10){
-                short *row0 = padded + (i - 1) * m * 3 + (j - 1) * 3;
-                short *row1 = padded + (i    ) * m * 3 + (j - 1) * 3;
-                short *row2 = padded + (i + 1) * m * 3 + (j - 1) * 3;
+                short *row0 = padded + i1m + (j - 1) * 3;
+                short *row1 = padded + i2m + (j - 1) * 3;
+                short *row2 = padded + i3m + (j - 1) * 3;
+                int imj = im + j;
 
                 //loads are all unaligned because we're dealing with shorts
                 __m256i r1 = _mm256_loadu_si256((__m256i *) (row0 + 3));
@@ -125,16 +130,16 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
                 short result8 = r10.data[ 9] + r10.data[10] + r10.data[11] + r15.data[ 9] + r15.data[10] + r15.data[11];
                 short result9 = r10.data[12] + r10.data[13] + r10.data[14] + r15.data[12] + r15.data[13] + r15.data[14];
 
-                *(energy + (i - 1) * (m - 2) + j - 1) = (int) result0;
-                *(energy + (i - 1) * (m - 2) + j    ) = (int) result1;
-                *(energy + (i - 1) * (m - 2) + j + 1) = (int) result2;
-                *(energy + (i - 1) * (m - 2) + j + 2) = (int) result3;
-                *(energy + (i - 1) * (m - 2) + j + 3) = (int) result4;
-                *(energy + (i - 1) * (m - 2) + j + 4) = (int) result5;
-                *(energy + (i - 1) * (m - 2) + j + 5) = (int) result6;
-                *(energy + (i - 1) * (m - 2) + j + 6) = (int) result7;
-                *(energy + (i - 1) * (m - 2) + j + 7) = (int) result8;
-                *(energy + (i - 1) * (m - 2) + j + 8) = (int) result9;
+                *(energy + imj - 1) = (int) result0;
+                *(energy + imj    ) = (int) result1;
+                *(energy + imj + 1) = (int) result2;
+                *(energy + imj + 2) = (int) result3;
+                *(energy + imj + 3) = (int) result4;
+                *(energy + imj + 4) = (int) result5;
+                *(energy + imj + 5) = (int) result6;
+                *(energy + imj + 6) = (int) result7;
+                *(energy + imj + 7) = (int) result8;
+                *(energy + imj + 8) = (int) result9;
             }
             
             for(; j < jj + block_width_L1 ; j++) {
@@ -144,44 +149,49 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
                 int acc4;
                 int acc5;
                 int acc6;
+
+                int j1 = (j - 1) * 3;
+                int j2 = j * 3;
+                int j3 = (j + 1) * 3;
+                int *energy_pos = energy + im + j - 1;
+
                 // channel R
                 //H_y
-                int k = 0;
-                acc1 = -(padded[(i - 1) * m * 3  + (j - 1)*3 + k] + ((padded[(i - 1) * m *3 + j * 3 + k]) << 1));
-                acc2 = padded[(i + 1) * m * 3 + (j - 1) * 3 + k] - padded[(i - 1) * m * 3 + (j + 1) * 3 + k];
-                acc3 = ((padded[(i + 1) * m * 3 + j*3 + k]) << 1) + padded[(i + 1) * m * 3 + (j + 1) * 3 + k];
-                *(energy + (i-1)*(m-2) + (j-1)) = (int) ABS(acc1 + acc2 + acc3);
+                acc1 = -(padded[i1m  + j1] + ((padded[i1m + j2]) << 1));
+                acc2 = padded[i3m + j1] - padded[i1m + j3];
+                acc3 = ((padded[i3m + j2]) << 1) + padded[i3m + j3];
+                *(energy_pos) = (int) ABS(acc1 + acc2 + acc3);
                 //H_x
-                acc4 = padded[(i - 1) * m * 3 + (j + 1) * 3 + k] - padded[(i - 1) * m * 3 + (j - 1) * 3 + k];
-                acc5 = (padded[i * m  * 3+ (j + 1) * 3 + k] - padded[i * m * 3 + (j - 1) * 3 + k]) << 1;
-                acc6 = padded[(i + 1) * m * 3 + (j + 1) * 3 + k] - padded[(i + 1) * m * 3 + (j - 1) * 3 + k];
-                *(energy + (i-1)*(m-2) + (j-1)) += (int) ABS(acc4 + acc5 + acc6);
+                acc4 = padded[i1m + j3] - padded[i1m + j1];
+                acc5 = (padded[i2m + j3] - padded[i2m + j1]) << 1;
+                acc6 = padded[i3m + j3] - padded[i3m + j1];
+                *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
 
                 // channel G
                 //H_y
-                k = 1;
-                acc1 = -(padded[(i - 1) * m * 3  + (j - 1)*3 + k] + ((padded[(i - 1) * m *3 + j * 3 + k]) << 1));
-                acc2 = padded[(i + 1) * m * 3 + (j - 1) * 3 + k] - padded[(i - 1) * m * 3 + (j + 1) * 3 + k];
-                acc3 = ((padded[(i + 1) * m * 3 + j*3 + k]) << 1) + padded[(i + 1) * m * 3 + (j + 1) * 3 + k];
-                *(energy + (i-1)*(m-2) + (j-1)) += (int) ABS(acc1 + acc2 + acc3);
+                int k = 1;
+                acc1 = -(padded[i1m  + j1 + k] + ((padded[i1m + j2 + k]) << 1));
+                acc2 = padded[i3m + j1 + k] - padded[i1m + j3 + k];
+                acc3 = ((padded[i3m + j2 + k]) << 1) + padded[i3m + j3 + k];
+                *(energy_pos) += (int) ABS(acc1 + acc2 + acc3);
                 //H_x
-                acc4 = padded[(i - 1) * m * 3 + (j + 1) * 3 + k] - padded[(i - 1) * m * 3 + (j - 1) * 3 + k];
-                acc5 = (padded[i * m  * 3+ (j + 1) * 3 + k] - padded[i * m * 3 + (j - 1) * 3 + k]) << 1;
-                acc6 = padded[(i + 1) * m * 3 + (j + 1) * 3 + k] - padded[(i + 1) * m * 3 + (j - 1) * 3 + k];
-                *(energy + (i-1)*(m-2) + (j-1)) += (int) ABS(acc4 + acc5 + acc6);
+                acc4 = padded[i1m + j3 + k] - padded[i1m + j1 + k];
+                acc5 = (padded[i2m + j3 + k] - padded[i2m + j1 + k]) << 1;
+                acc6 = padded[i3m + j3 + k] - padded[i3m + j1 + k];
+                *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
 
                 // channel B
                 //H_y
                 k = 2;
-                acc1 = -(padded[(i - 1) * m * 3  + (j - 1)*3 + k] + ((padded[(i - 1) * m *3 + j * 3 + k]) << 1));
-                acc2 = padded[(i + 1) * m * 3 + (j - 1) * 3 + k] - padded[(i - 1) * m * 3 + (j + 1) * 3 + k];
-                acc3 = ((padded[(i + 1) * m * 3 + j*3 + k]) << 1) + padded[(i + 1) * m * 3 + (j + 1) * 3 + k];
-                *(energy + (i-1)*(m-2) + (j-1)) += (int) ABS(acc1 + acc2 + acc3);
+                acc1 = -(padded[i1m  + j1 + k] + ((padded[i1m + j2 + k]) << 1));
+                acc2 = padded[i3m + j1 + k] - padded[i1m + j3 + k];
+                acc3 = ((padded[i3m + j2 + k]) << 1) + padded[i3m + j3 + k];
+                *(energy_pos) += (int) ABS(acc1 + acc2 + acc3);
                 //H_x
-                acc4 = padded[(i - 1) * m * 3 + (j + 1) * 3 + k] - padded[(i - 1) * m * 3 + (j - 1) * 3 + k];
-                acc5 = (padded[i * m  * 3+ (j + 1) * 3 + k] - padded[i * m * 3 + (j - 1) * 3 + k]) << 1;
-                acc6 = padded[(i + 1) * m * 3 + (j + 1) * 3 + k] - padded[(i + 1) * m * 3 + (j - 1) * 3 + k];
-                *(energy + (i-1)*(m-2) + (j-1)) += (int) ABS(acc4 + acc5 + acc6);
+                acc4 = padded[i1m + j3 + k] - padded[i1m + j1 + k];
+                acc5 = (padded[i2m + j3 + k] - padded[i2m + j1 + k]) << 1;
+                acc6 = padded[i3m + j3 + k] - padded[i3m + j1 + k];
+                *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
             }
 
         }
@@ -191,12 +201,16 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
     int jj_limit =  m - K - 9;
     jj_old = jj;
 
-
     for (int i = 1; i < i_limit; i++) { //single level reg block calculation 
+        int i1m = (i - 1) * m * 3;
+        int i2m = i * m * 3;
+        int i3m = (i + 1) * m * 3;
+        int im = (i - 1) * (m - 2);
         for (jj = jj_old; jj < jj_limit; jj += 10) {
-            short *row0 = padded + (i - 1) * m * 3 + (jj - 1) * 3;
-            short *row1 = padded + (i    ) * m * 3 + (jj - 1) * 3;
-            short *row2 = padded + (i + 1) * m * 3 + (jj - 1) * 3;
+            short *row0 = padded + i1m + (jj - 1) * 3;
+            short *row1 = padded + i2m + (jj - 1) * 3;
+            short *row2 = padded + i3m + (jj - 1) * 3;
+            int imj = im + jj;
 
             //loads are all unaligned because we're dealing with shorts
             __m256i r1 = _mm256_loadu_si256((__m256i *) (row0 + 3));
@@ -270,16 +284,16 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
             short result8 = r10.data[ 9] + r10.data[10] + r10.data[11] + r15.data[ 9] + r15.data[10] + r15.data[11];
             short result9 = r10.data[12] + r10.data[13] + r10.data[14] + r15.data[12] + r15.data[13] + r15.data[14];
 
-            *(energy + (i - 1) * (m - 2) + jj - 1) = (int) result0;
-            *(energy + (i - 1) * (m - 2) + jj    ) = (int) result1;
-            *(energy + (i - 1) * (m - 2) + jj + 1) = (int) result2;
-            *(energy + (i - 1) * (m - 2) + jj + 2) = (int) result3;
-            *(energy + (i - 1) * (m - 2) + jj + 3) = (int) result4;
-            *(energy + (i - 1) * (m - 2) + jj + 4) = (int) result5;
-            *(energy + (i - 1) * (m - 2) + jj + 5) = (int) result6;
-            *(energy + (i - 1) * (m - 2) + jj + 6) = (int) result7;
-            *(energy + (i - 1) * (m - 2) + jj + 7) = (int) result8;
-            *(energy + (i - 1) * (m - 2) + jj + 8) = (int) result9;
+            *(energy + imj - 1) = (int) result0;
+            *(energy + imj    ) = (int) result1;
+            *(energy + imj + 1) = (int) result2;
+            *(energy + imj + 2) = (int) result3;
+            *(energy + imj + 3) = (int) result4;
+            *(energy + imj + 4) = (int) result5;
+            *(energy + imj + 5) = (int) result6;
+            *(energy + imj + 6) = (int) result7;
+            *(energy + imj + 7) = (int) result8;
+            *(energy + imj + 8) = (int) result9;
         }
 
         //jj_old = jj;
@@ -291,71 +305,52 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
             int acc4;
             int acc5;
             int acc6;
+
+            int j1 = (jj - 1) * 3;
+            int j2 = jj * 3;
+            int j3 = (jj + 1) * 3;
+            int *energy_pos = energy + im + jj - 1;
+
             // channel R
             //H_y
-            int k = 0;
-            acc1 = -(padded[(i - 1) * m * 3  + (jj - 1)*3 + k] + ((padded[(i - 1) * m *3 + jj * 3 + k]) << 1));
-            acc2 = padded[(i + 1) * m * 3 + (jj - 1) * 3 + k] - padded[(i - 1) * m * 3 + (jj + 1) * 3 + k];
-            acc3 = ((padded[(i + 1) * m * 3 + jj*3 + k]) << 1) + padded[(i + 1) * m * 3 + (jj + 1) * 3 + k];
-            *(energy + (i-1)*(m-2) + (jj-1)) = (int) ABS(acc1 + acc2 + acc3);
+            acc1 = -(padded[i1m  + j1] + ((padded[i1m + j2]) << 1));
+            acc2 = padded[i3m + j1] - padded[i1m + j3];
+            acc3 = ((padded[i3m + j2]) << 1) + padded[i3m + j3];
+            *(energy_pos) = (int) ABS(acc1 + acc2 + acc3);
             //H_x
-            acc4 = padded[(i - 1) * m * 3 + (jj + 1) * 3 + k] - padded[(i - 1) * m * 3 + (jj - 1) * 3 + k];
-            acc5 = (padded[i * m  * 3+ (jj + 1) * 3 + k] - padded[i * m * 3 + (jj - 1) * 3 + k]) << 1;
-            acc6 = padded[(i + 1) * m * 3 + (jj + 1) * 3 + k] - padded[(i + 1) * m * 3 + (jj - 1) * 3 + k];
-            *(energy + (i-1)*(m-2) + (jj-1)) += (int) ABS(acc4 + acc5 + acc6);
+            acc4 = padded[i1m + j3] - padded[i1m + j1];
+            acc5 = (padded[i2m + j3] - padded[i2m + j1]) << 1;
+            acc6 = padded[i3m + j3] - padded[i3m + j1];
+            *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
 
-            // channel G
+           // channel G
             //H_y
-            k = 1;
-            acc1 = -(padded[(i - 1) * m * 3  + (jj - 1)*3 + k] + ((padded[(i - 1) * m *3 + jj * 3 + k]) << 1));
-            acc2 = padded[(i + 1) * m * 3 + (jj - 1) * 3 + k] - padded[(i - 1) * m * 3 + (jj + 1) * 3 + k];
-            acc3 = ((padded[(i + 1) * m * 3 + jj*3 + k]) << 1) + padded[(i + 1) * m * 3 + (jj + 1) * 3 + k];
-            *(energy + (i-1)*(m-2) + (jj-1)) += (int) ABS(acc1 + acc2 + acc3);
+            int k = 1;
+            acc1 = -(padded[i1m  + j1 + k] + ((padded[i1m + j2 + k]) << 1));
+            acc2 = padded[i3m + j1 + k] - padded[i1m + j3 + k];
+            acc3 = ((padded[i3m + j2 + k]) << 1) + padded[i3m + j3 + k];
+            *(energy_pos) += (int) ABS(acc1 + acc2 + acc3);
             //H_x
-            acc4 = padded[(i - 1) * m * 3 + (jj + 1) * 3 + k] - padded[(i - 1) * m * 3 + (jj - 1) * 3 + k];
-            acc5 = (padded[i * m  * 3+ (jj + 1) * 3 + k] - padded[i * m * 3 + (jj - 1) * 3 + k]) << 1;
-            acc6 = padded[(i + 1) * m * 3 + (jj + 1) * 3 + k] - padded[(i + 1) * m * 3 + (jj - 1) * 3 + k];
-            *(energy + (i-1)*(m-2) + (jj-1)) += (int) ABS(acc4 + acc5 + acc6);
+            acc4 = padded[i1m + j3 + k] - padded[i1m + j1 + k];
+            acc5 = (padded[i2m + j3 + k] - padded[i2m + j1 + k]) << 1;
+            acc6 = padded[i3m + j3 + k] - padded[i3m + j1 + k];
+            *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
 
             // channel B
             //H_y
             k = 2;
-            acc1 = -(padded[(i - 1) * m * 3  + (jj - 1)*3 + k] + ((padded[(i - 1) * m *3 + jj * 3 + k]) << 1));
-            acc2 = padded[(i + 1) * m * 3 + (jj - 1) * 3 + k] - padded[(i - 1) * m * 3 + (jj + 1) * 3 + k];
-            acc3 = ((padded[(i + 1) * m * 3 + jj*3 + k]) << 1) + padded[(i + 1) * m * 3 + (jj + 1) * 3 + k];
-            *(energy + (i-1)*(m-2) + (jj-1)) += (int) ABS(acc1 + acc2 + acc3);
+            acc1 = -(padded[i1m  + j1 + k] + ((padded[i1m + j2 + k]) << 1));
+            acc2 = padded[i3m + j1 + k] - padded[i1m + j3 + k];
+            acc3 = ((padded[i3m + j2 + k]) << 1) + padded[i3m + j3 + k];
+            *(energy_pos) += (int) ABS(acc1 + acc2 + acc3);
             //H_x
-            acc4 = padded[(i - 1) * m * 3 + (jj + 1) * 3 + k] - padded[(i - 1) * m * 3 + (jj - 1) * 3 + k];
-            acc5 = (padded[i * m  * 3+ (jj + 1) * 3 + k] - padded[i * m * 3 + (jj - 1) * 3 + k]) << 1;
-            acc6 = padded[(i + 1) * m * 3 + (jj + 1) * 3 + k] - padded[(i + 1) * m * 3 + (jj - 1) * 3 + k];
-            *(energy + (i-1)*(m-2) + (jj-1)) += (int) ABS(acc4 + acc5 + acc6);
+            acc4 = padded[i1m + j3 + k] - padded[i1m + j1 + k];
+            acc5 = (padded[i2m + j3 + k] - padded[i2m + j1 + k]) << 1;
+            acc6 = padded[i3m + j3 + k] - padded[i3m + j1 + k];
+            *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
         }
 
     }
-    
-
-
-    #ifdef debug 
-    char *fname = "energy_map.png";
-    save_as_grayscale_image(fname, m-2, n-2, energy);
-    printf("Saved first energy map as %s\n", fname);
-    // debug = 1;
-    #endif
-
-    #ifdef count_instr 
-    count_ifs += n-1 + (n-2)*(m-1) + (n-2)*(m-2)*4 + (n-2)*(m-2)*3*4; //count lines 46-52
-    indexing += n-2 + (n-2)*(m-2) + (n-2)*(m-2)*3 + (n-2)*(m-2)*3*3;
-    pointer_adds += (n-2)*(m-2)*3*3*(2 + 2 + 3);
-    pointer_mults += (n-2)*(m-2)*3*3*2;
-    add_count += (n-2)*(m-2)*3*3;                              //count directly the add and mult in line 50
-    mult_count += (n-2)*(m-2)*3*3;
-
-    //count total
-    add_count += count_ifs + indexing + pointer_adds; 
-    mult_count += pointer_mults;
-    printf("NO ADDS paddedOR calc_energy IS: %llu \n", add_count); 
-    printf("NO MULTS paddedOR calc_energy IS: %llu \n", mult_count); 
-    #endif
 }
 
 
@@ -364,25 +359,27 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
 //repeat for each seam  
 short* padd0_image(int n, int m, unsigned char* channels){
 
-  int size = (n+2) * (m+2) * 3;
-  short* padded_image = (short*) malloc( size*sizeof(short));
+    int size = (n+2) * (m+2) * 3;
+    short* padded_image = (short*) malloc( size*sizeof(short));
 
-  //int padded_image[n+2][m+2][3];
-  for(int i = 0 ; i < n+2 ; i++){
-    for(int j = 0 ; j < m+2 ; j++){
-      for(int k = 0 ; k < 3 ; k++){
-        //if the column is 0 or m+1 or the row is 0 or n+1 we set 0 otherwise copy the value 
-        if(i == 0 || j == 0 || i == n+1 || j == m+1){
-          //padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = 0;
-          padded_image[i*(m+2)*3 + j*3 + k] = 0;
-        } else{
-          //printf("in pad its %f\n", channels[i*n*m + m*j + k]);
-          //padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = channels[i*n*m + m*(j-1) + k-1];
-          padded_image[i*(m+2)*3 + j*3 + k] = (short) (channels[(i-1)*m*3 + (j-1)*3 + k]);
+    //int padded_image[n+2][m+2][3];
+    for(int i = 0 ; i < n+2 ; i++){
+        int i1_idx = i*(m+2)*3;
+        int i2_idx = (i-1)*m*3;
+        for(int j = 0 ; j < m+2 ; j++){
+            if(i == 0 || j == 0 || i == n+1 || j == m+1){
+                //padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = 0;
+                padded_image[i1_idx + j*3] = 0;
+                padded_image[i1_idx + j*3 + 1] = 0;
+                padded_image[i1_idx + j*3 + 2] = 0;
+            } else{
+                padded_image[i1_idx + j*3] = (short) (channels[i2_idx + (j-1)*3]);
+                padded_image[i1_idx + j*3 + 1] = (short) (channels[i2_idx + (j-1)*3 + 1]);
+                padded_image[i1_idx + j*3 + 2] = (short) (channels[i2_idx + (j-1)*3 + 2]);
+            }
         }
     }
-  }
-}
-  return padded_image;
+
+    return padded_image;
 }
 

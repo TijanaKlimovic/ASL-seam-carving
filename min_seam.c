@@ -23,25 +23,28 @@ extern unsigned long long mult_count; 	//count the total number of mult instruct
 
 void rotate(int *energy, int *rotated, int h, int w) { 
     for (int i = 0; i < h; i++) { 
+    	int rotated_idx = h - i - 1;
+    	int energy_idx = i * w;
         for (int j = 0; j < w; j++) { 
-            rotated[j * h + (h - i - 1)] = energy[i * w + j]; 
+            rotated[j * h + rotated_idx] = energy[energy_idx + j]; 
         } 
     } 
 }
 
 int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_backtrack) {
 
-	int *energy = (int *) malloc(rsize * csize * sizeof(int));
+	int size = rsize * csize;
+	int *energy = (int *) malloc(size * sizeof(int));
 	short *padded_img = padd0_image(rsize, csize, img); //TODO try converting in pad to uchar
 	calc_RGB_energy(rsize + 2, csize + 2, padded_img, energy);
 
 	// contains index of the value from the prev row/column from where we came here
-	int *backtrack = (int *) malloc(rsize * csize * sizeof(int)); //different from what we returnCOUNT(mult_count, 2)
+	int *backtrack = (int *) malloc(size * sizeof(int)); //different from what we returnCOUNT(mult_count, 2)
 
 	// if horizontal seam -> rotate +90 degrees the energy map
 	int *dp;
 	if (is_ver == 0) {
-		dp = malloc(rsize * csize * sizeof(int));
+		dp = malloc(size * sizeof(int));
 		rotate(energy, dp, rsize, csize);
 		int tmp = rsize;
 		rsize = csize;
@@ -77,9 +80,10 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 		__m256i incr = _mm256_set1_epi32(8);
 
 		int j;
+		int prev_row_idx_i = (i-1) * csize - 1;
 		for (j = 1; j < column_lim-8; j+=8) {
 			where = row + j;
-			prev_row_idx = (i-1) * csize - 1 + j;
+			prev_row_idx = prev_row_idx_i + j;
 			// load
 			__m256i y1 = _mm256_loadu_si256((__m256i *) (dp + prev_row_idx));
 			__m256i y2 = _mm256_loadu_si256((__m256i *) (dp + prev_row_idx + 1));
@@ -194,8 +198,7 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 	} else {
 		//convert back indexes
 		for (int i = row_lim; i >= 0; i--) {
-			int d = column_lim - direction;
-			ret_backtrack[i] = d;
+			ret_backtrack[i] = column_lim - direction;
 			direction = backtrack[last_row + direction];
 			last_row -= csize;
 		}
