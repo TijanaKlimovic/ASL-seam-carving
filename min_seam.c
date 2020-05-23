@@ -43,7 +43,7 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 				padded_img[i1_idx + j*3 + 2] = (short) (img[i2_idx + (j-1)*3 + 2]);
 			}
 		}
-	}	
+	}
 
 	//calc_RGB_energy(rsize + 2, csize + 2, padded_img, energy);
 {
@@ -73,7 +73,7 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
             int im = (i - 1) * (m - 2);
             for(j = jj ; j < j_limit ; j += 10){
                 short *row0 = padded + i1m + (j - 1) * 3;
-                short *row1 = padded + i2m * 3 + (j - 1) * 3;
+                short *row1 = padded + i2m + (j - 1) * 3;
                 short *row2 = padded + i3m + (j - 1) * 3;
                 int imj = im + j;
 
@@ -212,14 +212,11 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
                 acc6 = padded[i3m + j3 + k] - padded[i3m + j1 + k];
                 *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
             }
-
         }
-
     }
 
     int jj_limit =  m - K - 9;
     jj_old = jj;
-
 
     for (int i = 1; i < i_limit; i++) { //single level reg block calculation 
     	int i1m = (i - 1) * m * 3;
