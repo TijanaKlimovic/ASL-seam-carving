@@ -5,7 +5,7 @@ then
 	echo "Bad File!"
 	echo "Please follow these instructions: (For each run)"
 	echo "1. Put your team046 repository into a clean state; i.e. you should not have any 'Changes not staged for commit'"
-	echo "2. Create a folder (outside the whole team046 repository folder). This folder will containt the results."
+	echo "2. Create a folder (outside the whole team046 repository folder). This folder will contain the results."
 	echo "3. Copy this file (run_em_all.sh) to that folder."
 	echo "4. Run the script from that folder."
 	echo "5. Don't forget to turn off your CPU's Turbo Boost feature."
