@@ -229,7 +229,7 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 			the_m[where] += min_val;
 
 			#ifdef count_instr
-			pointer_adds == 5;
+			pointer_adds += 5;
 			add_count += 4;
 			#endif
 		}
