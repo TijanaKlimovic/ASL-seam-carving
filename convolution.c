@@ -345,7 +345,7 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
 
     #ifdef count_instr
     //count total
-    add_count += count_ifs + indexing + pointer_adds;
+    add_count += pointer_adds;
     mult_count += pointer_mults;
     printf("NO ADDS FOR calc_energy IS: %llu \n", add_count);
     printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count);
