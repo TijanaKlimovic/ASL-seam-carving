@@ -353,8 +353,8 @@ void calc_RGB_energy(int n, int m, short* padded, int* energy){
     //count total
     add_count += count_ifs + indexing + pointer_adds; 
     mult_count += pointer_mults;
-    printf("NO ADDS paddedOR calc_energy IS: %llu \n", add_count); 
-    printf("NO MULTS paddedOR calc_energy IS: %llu \n", mult_count); 
+    // printf("NO ADDS paddedOR calc_energy IS: %llu \n", add_count); 
+    // printf("NO MULTS paddedOR calc_energy IS: %llu \n", mult_count); 
     #endif
 }
 
