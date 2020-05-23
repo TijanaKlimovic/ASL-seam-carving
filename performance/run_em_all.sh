@@ -55,9 +55,8 @@ do
 
 	for ratio in imgs/*
 	do
-		./time_test.sh "$ratio" "$lower_bound" "$upper_bound" "$step" "$seams" "${br}_${ratio}" "$vec_bool" "$repo"
+		id=$(basename "$ratio")
+		./time_test.sh "$ratio" "$lower_bound" "$upper_bound" "$step" "$seams" "${br}_${id}" "$vec_bool" "${repo}"
 	done
 
 done
-
-
