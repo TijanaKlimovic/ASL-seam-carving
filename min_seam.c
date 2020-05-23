@@ -32,7 +32,28 @@ void rotate(int *energy, int *rotated, int h, int w) {
 int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_backtrack) {
 
 	int *energy = (int *) malloc(rsize * csize * sizeof(int));
-	short *padded_img = padd0_image(rsize, csize, img); //TODO try converting in pad to uchar
+	//short *padded_img = padd0_image(rsize, csize, img); //TODO try converting in pad to uchar
+
+	int padded_size = (rsize+2) * (csize+2) * 3;
+	short* padded_img = (short*) malloc(padded_size*sizeof(short));
+
+	//int padded_image[n+2][m+2][3];
+	for(int i = 0 ; i < rsize+2 ; i++){
+		for(int j = 0 ; j < csize+2 ; j++){
+			for(int k = 0 ; k < 3 ; k++){
+				//if the column is 0 or m+1 or the row is 0 or n+1 we set 0 otherwise copy the value 
+				if(i == 0 || j == 0 || i == rsize+1 || j == csize+1){
+					//padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = 0;
+					padded_img[i*(csize+2)*3 + j*3 + k] = 0;
+				} else{
+					//printf("in pad its %f\n", channels[i*n*m + m*j + k]);
+					//padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = channels[i*n*m + m*(j-1) + k-1];
+					padded_img[i*(csize+2)*3 + j*3 + k] = (short) (img[(i-1)*csize*3 + (j-1)*3 + k]);
+				}
+			}
+		}
+	}	
+
 	calc_RGB_energy(rsize + 2, csize + 2, padded_img, energy);
 
 	// contains index of the value from the prev row/column from where we came here
