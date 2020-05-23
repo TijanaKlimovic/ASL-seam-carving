@@ -8,6 +8,7 @@ then
 	echo "2. Create a folder (outside the whole team046 repository folder). This folder will containt the results."
 	echo "3. Copy this file (run_em_all.sh) to that folder."
 	echo "4. Run the script from that folder."
+	echo "5. Don't forget to turn off your CPU's Turbo Boost feature."
 	exit
 fi
 
@@ -38,7 +39,7 @@ cp "performance/time_test.sh" "$myhome/"
 cp -r "performance/imgs" "$myhome/"
 cd "$myhome"
 
-branches=("t1_1" "t1_2" "t1_3" "t1_4" "t1_5" "t1_6" "t1_1" "t1_2" "t2_3_2" "t_2_4" "t2_5" "t2_6" "t2_7")
+branches=("t1_1" "t1_2" "t1_3" "t1_4" "t1_5" "t1_6" "t2_3_2" "t_2_4" "t2_5" "t2_6" "t2_7")
 vec_bool=0
 
 for br in ${branches[@]}

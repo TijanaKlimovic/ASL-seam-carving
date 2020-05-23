@@ -40,22 +40,28 @@ fi
 
 mkdir "$run_id" #create new workspace
 
-#compile code with optimization
 if [ "$vec_bool" -eq 0 ]
 then
+    #compile code with no optimization
+    echo "gcc $src_folder/*.c -o $run_id/seam_carving_noop -lm"
+    gcc "$src_folder"/*.c -o "$run_id"/seam_carving_noop -lm
+    #compile code with optimization
     echo "gcc -Ofast -fno-tree-vectorize $src_folder/*.c -o $run_id/seam_carving -lm"
     gcc -Ofast -fno-tree-vectorize "$src_folder"/*.c -o "$run_id"/seam_carving -lm
+    # compile code with instrumentation
+    echo "gcc -D count_instr -Ofast $src_folder/*.c -o $run_id/seam_carving_ctr -lm"
+    gcc -D count_instr -Ofast "$src_folder"/*.c -o "$run_id"/seam_carving_ctr -lm
 else
+    #compile code with no optimization
+    echo "gcc -march=native $src_folder/*.c -o $run_id/seam_carving_noop -lm"
+    gcc -march=native "$src_folder"/*.c -o "$run_id"/seam_carving_noop -lm
+    #compile code with optimization
     echo "gcc -Ofast -march=native $src_folder/*.c -o $run_id/seam_carving -lm"
     gcc -Ofast -march=native "$src_folder"/*.c -o "$run_id"/seam_carving -lm
+    # compile code with instrumentation
+    echo "gcc -D count_instr -Ofast -march=native $src_folder/*.c -o $run_id/seam_carving_ctr -lm"
+    gcc -D count_instr -Ofast -march=native "$src_folder"/*.c -o "$run_id"/seam_carving_ctr -lm
 fi
-
-#compile code with no optimization
-echo "gcc $src_folder/*.c -o $run_id/seam_carving_noop -lm"
-gcc "$src_folder"/*.c -o "$run_id"/seam_carving_noop -lm
-# compile code with instrumentation
-echo "gcc -D count_instr -Ofast $src_folder/*.c -o $run_id/seam_carving_ctr -lm"
-gcc -D count_instr -Ofast "$src_folder"/*.c -o "$run_id"/seam_carving_ctr -lm
 
 mkdir -p "$run_id/resized" #it puts here the resized images
 mkdir -p "$run_id/out" # it puts here the seam carved resized images -> if we don't have timing flag switched on
