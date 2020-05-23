@@ -77,7 +77,8 @@ do
         out="$run_id/out/${size}_${fname}"
         # run it without timing but with instrumentation
         echo "$run_id/seam_carving_ctr $resized $out $seams $seams 0"
-        cnt=$("$run_id"/seam_carving_ctr "$resized" "$out" "$seams" "$seams" 0 | tr "=ADSULT" " " | tr "M" "+" | bc)
+        # cnt=$("$run_id"/seam_carving_ctr "$resized" "$out" "$seams" "$seams" 0 | tr "=ADSULT" " " | tr "M" "+" | bc)
+        cnt=$("$run_id"/seam_carving_ctr "$resized" "$out" "$seams" "$seams" 0 | tail -n 1 | awk -F "=" '{print $2}')
         # run it with timing -O3
         echo "$run_id/seam_carving $resized $out $seams $seams 1"
         o3time=$("$run_id"/seam_carving "$resized" "$out" "$seams" "$seams" 1 | tail -n 1 | awk '{print $3}')
