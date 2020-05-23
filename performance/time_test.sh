@@ -11,9 +11,9 @@ then
 fi
 
 # compile code without instrumentation
-gcc -O3 -fno-tree-vectorize ../*.c -o seam_carving -lm
+gcc -O3 -march=native ../*.c -o seam_carving -lm
 # compile code with instrumentation
-gcc -D count_instr -O3 -fno-tree-vectorize ../*.c -o seam_carving_ctr -lm
+#gcc -D count_instr -O3 -fno-tree-vectorize ../*.c -o seam_carving_ctr -lm
 
 img=$1
 lower_bound=$2
@@ -51,8 +51,8 @@ for size in $(seq $lower_bound $step $upper_bound)
      echo "./seam_carving $resized $out $seams $seams 1"
      ./seam_carving $resized $out $seams $seams 1 >> cycles.txt
      # run it without timing but with instrumentation
-     echo "./seam_carving_ctr $resized $out $seams $seams 0"
-     ./seam_carving_ctr $resized $out $seams $seams 0 >> counts.txt
+     # echo "./seam_carving_ctr $resized $out $seams $seams 0"
+     # ./seam_carving_ctr $resized $out $seams $seams 0 >> counts.txt
  done
 
 
