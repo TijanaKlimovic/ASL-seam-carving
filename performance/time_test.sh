@@ -4,9 +4,9 @@
 # Resizes image from 'lower_bound' width (keeping aspect ratio) to 'upper_bound' width by steps of 'step'.
 # At each resized image removes 'seams_to_remove' seams.
 
-if [ "$#" -ne 7 ]
+if [ "$#" -ne 8 ]
 then
-    echo "Usage: ./time_test.sh <img_folder> <lower_bound_img_width> <upper_bound_img_width> <step> <seams_to_remove> <run_id> <vec_bool>"
+    echo "Usage: ./time_test.sh <img_folder> <lower_bound_img_width> <upper_bound_img_width> <step> <seams_to_remove> <run_id> <vec_bool> <src_folder>"
     exit
 fi
 
@@ -17,11 +17,19 @@ step="$4"
 seams="$5"
 run_id="$6"
 vec_bool="$7"
+src_folder="$8"
 
 if [ ! -d "$1" ]
 then
     echo "$1 doesn't exist"
-    echo "Usage: ./time_test.sh <img_folder> <lower_bound_img_width> <upper_bound_img_width> <step> <seams_to_remove> <run_id> <vec_bool>"
+    echo "Usage: ./time_test.sh <img_folder> <lower_bound_img_width> <upper_bound_img_width> <step> <seams_to_remove> <run_id> <vec_bool> <src_folder>"
+    exit
+fi
+
+if [ ! -d "$src_folder" ]
+then
+    echo "$src_folder doesn't exist"
+    echo "Usage: ./time_test.sh <img_folder> <lower_bound_img_width> <upper_bound_img_width> <step> <seams_to_remove> <run_id> <vec_bool> <src_folder>"
     exit
 fi
 
@@ -35,19 +43,19 @@ mkdir "$run_id" #create new workspace
 #compile code with optimization
 if [ "$vec_bool" -eq 0 ]
 then
-    echo "gcc -Ofast -fno-tree-vectorize ../*.c -o $run_id/seam_carving -lm"
-    gcc -Ofast -fno-tree-vectorize ../*.c -o "$run_id"/seam_carving -lm
+    echo "gcc -Ofast -fno-tree-vectorize $src_folder/*.c -o $run_id/seam_carving -lm"
+    gcc -Ofast -fno-tree-vectorize "$src_folder"/*.c -o "$run_id"/seam_carving -lm
 else
-    echo "gcc -Ofast -march=native ../*.c -o $run_id/seam_carving -lm"
-    gcc -Ofast -march=native ../*.c -o "$run_id"/seam_carving -lm
+    echo "gcc -Ofast -march=native $src_folder/*.c -o $run_id/seam_carving -lm"
+    gcc -Ofast -march=native "$src_folder"/*.c -o "$run_id"/seam_carving -lm
 fi
 
 #compile code with no optimization
-echo "gcc ../*.c -o $run_id/seam_carving_noop -lm"
-gcc ../*.c -o "$run_id"/seam_carving_noop -lm
+echo "gcc $src_folder/*.c -o $run_id/seam_carving_noop -lm"
+gcc "$src_folder"/*.c -o "$run_id"/seam_carving_noop -lm
 # compile code with instrumentation
-echo "gcc -D count_instr -Ofast ../*.c -o $run_id/seam_carving_ctr -lm"
-gcc -D count_instr -Ofast ../*.c -o "$run_id"/seam_carving_ctr -lm
+echo "gcc -D count_instr -Ofast $src_folder/*.c -o $run_id/seam_carving_ctr -lm"
+gcc -D count_instr -Ofast "$src_folder"/*.c -o "$run_id"/seam_carving_ctr -lm
 
 mkdir -p "$run_id/resized" #it puts here the resized images
 mkdir -p "$run_id/out" # it puts here the seam carved resized images -> if we don't have timing flag switched on
