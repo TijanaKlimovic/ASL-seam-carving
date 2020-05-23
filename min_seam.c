@@ -21,14 +21,6 @@ extern unsigned long long mult_count; 	//count the total number of mult instruct
 #define MIN21(X, Y, M, IDX) if (X < Y) {M = X; IDX = -1;} else {M = Y; IDX = 0;}
 #define MIN3(X, Y, Z, M, IDX) if ((X < Y) && (X < Z)) {M = X; IDX = -1;} else {MIN2(Y, Z, M, IDX)}
 
-void rotate(int *energy, int *rotated, int h, int w) { 
-    for (int i = 0; i < h; i++) { 
-        for (int j = 0; j < w; j++) { 
-            rotated[j * h + (h - i - 1)] = energy[i * w + j]; 
-        } 
-    } 
-}
-
 int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_backtrack) {
 
 	int *energy = (int *) malloc(rsize * csize * sizeof(int));
@@ -46,8 +38,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 					//padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = 0;
 					padded_img[i*(csize+2)*3 + j*3 + k] = 0;
 				} else{
-					//printf("in pad its %f\n", channels[i*n*m + m*j + k]);
-					//padded_image[i*(n+2)*(m+2) + (m+2)*j + k] = channels[i*n*m + m*(j-1) + k-1];
 					padded_img[i*(csize+2)*3 + j*3 + k] = (short) (img[(i-1)*csize*3 + (j-1)*3 + k]);
 				}
 			}
@@ -63,7 +53,12 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 	int *dp;
 	if (is_ver == 0) {
 		dp = malloc(rsize * csize * sizeof(int));
-		rotate(energy, dp, rsize, csize);
+	    for (int i = 0; i < rsize; i++) { 
+	        for (int j = 0; j < csize; j++) { 
+	            dp[j * rsize + (rsize - i - 1)] = energy[i * csize + j]; 
+	        } 
+	    } 
+
 		int tmp = rsize;
 		rsize = csize;
 		csize = tmp;
