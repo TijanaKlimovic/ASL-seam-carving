@@ -1,5 +1,7 @@
 Reduction of image 9.png (size 800 x 533) by 40 x 40.
 
+Compile: gcc *.c -lm -march=native -o main
+
 Cache L1 bottleneck
 
 C0    FE             Frontend_Bound   % Slots                   3.70 ?
