@@ -40,7 +40,8 @@ cp "performance/time_test.sh" "$myhome/"
 cp -r "performance/imgs" "$myhome/"
 cd "$myhome"
 
-branches=("t1_1" "t1_2" "t1_3" "t1_4" "t1_5" "t1_6" "t2_3_2" "t_2_4" "t2_5" "t2_6" "t2_7")
+branches=("t1_1" "t1_2" "t1_3" "t1_4" "t1_5" "t2_3" "t2_3_2" "t_2_4" "t2_5" "t2_5_sr")
+instrumnt=("1" "1" "0" "1" "1" "1" "1" "0" "1" "0")
 vec_bool=0
 
 for br in ${branches[@]}
