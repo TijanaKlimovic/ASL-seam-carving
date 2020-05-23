@@ -44,7 +44,7 @@ void calc_energy(int n, int m, int* F, int* part_grad){
             *(part_grad + i*m + j) = ABS(acc1 + acc2 + acc3);
             //H_x
             acc4 = F[(i - 1) * m + j + 1] - F[(i - 1) * m + (j - 1)];
-            acc5 = (F[i * m + j + 1] - (F[i * m + j - 1]) << 1);
+            acc5 = (F[i * m + j + 1] - F[i * m + j - 1]) << 1;
             acc6 = F[(i + 1) * m + j + 1] - F[(i + 1) * m + j - 1];
             *(part_grad + i*m + j) += ABS(acc4 + acc5 + acc6);
 
