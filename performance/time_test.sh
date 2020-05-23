@@ -38,8 +38,8 @@ then
     echo "gcc -Ofast -fno-tree-vectorize ../*.c -o $run_id/seam_carving -lm"
     gcc -Ofast -fno-tree-vectorize ../*.c -o "$run_id"/seam_carving -lm
 else
-    echo "gcc -Ofast ../*.c -o $run_id/seam_carving -lm"
-    gcc -Ofast ../*.c -o "$run_id"/seam_carving -lm
+    echo "gcc -Ofast -march=native ../*.c -o $run_id/seam_carving -lm"
+    gcc -Ofast -march=native ../*.c -o "$run_id"/seam_carving -lm
 fi
 
 #compile code with no optimization
