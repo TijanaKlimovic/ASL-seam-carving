@@ -46,8 +46,8 @@ fi
 echo "gcc ../*.c -o $run_id/seam_carving_noop -lm"
 gcc ../*.c -o "$run_id"/seam_carving_noop -lm
 # compile code with instrumentation
-echo "gcc -D count_instr -O3 ../*.c -o $run_id/seam_carving_ctr -lm"
-gcc -D count_instr -O3 ../*.c -o "$run_id"/seam_carving_ctr -lm
+echo "gcc -D count_instr -Ofast ../*.c -o $run_id/seam_carving_ctr -lm"
+gcc -D count_instr -Ofast ../*.c -o "$run_id"/seam_carving_ctr -lm
 
 mkdir -p "$run_id/resized" #it puts here the resized images
 mkdir -p "$run_id/out" # it puts here the seam carved resized images -> if we don't have timing flag switched on
