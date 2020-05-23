@@ -208,7 +208,8 @@ unsigned char *optimal_image(int width, int height, int width_diff,
 		for (int i = 1; i < width_diff * height_diff; ++i) {
 			free(T[i].i);
 		}
-	}
 
-	
+		free(T);
+		return res;
+	}
 }
