@@ -1,0 +1,189 @@
+Reduction of image 9.png (size 800 x 533) by 40 x 40.
+
+Compile: gcc *.c -lm -march=native -o main
+
+Cache L1 bottleneck
+
+C0    FE             Frontend_Bound   % Slots                   2.97 ?
+C0    BAD            Bad_Speculation  % Slots                   7.26 ?
+C0    BE             Backend_Bound    % Slots                   9.24 ?
+C0    RET            Retiring         % Slots                  80.53   <==
+C0-T0 MUX                             %                        33.33  
+C0-T1 MUX                             %                        33.33
+
+Cache L2 bottleneck
+
+C0    FE             Frontend_Bound                      % Slots                   2.89 ?
+C0    BAD            Bad_Speculation                     % Slots                   7.29 ?
+C0    BE             Backend_Bound                       % Slots                   9.17 ?
+C0    RET            Retiring                            % Slots                  80.57  
+C0    FE             Frontend_Bound.Frontend_Latency     % Slots                   1.61 ?
+C0    FE             Frontend_Bound.Frontend_Bandwidth   % Slots                   1.28 ?
+C0    BAD            Bad_Speculation.Branch_Mispredicts  % Slots                   5.82 ?
+C0    BAD            Bad_Speculation.Machine_Clears      % Slots                   1.47 ?
+C0    BE/Mem         Backend_Bound.Memory_Bound          % Slots                   2.25 ?
+C0    BE/Core        Backend_Bound.Core_Bound            % Slots                   6.92 ?
+C0    RET            Retiring.Base                       % Slots                  80.06   <==
+C0    RET            Retiring.Microcode_Sequencer        % Slots                   0.50 ?
+C0-T0 MUX                                                %                        10.00  
+C0-T1 MUX                                                %                        10.00
+
+Cache L3 bottleneck
+
+C0    FE             Frontend_Bound                          % Slots                   2.87 ?
+C0    BAD            Bad_Speculation                         % Slots                   7.29 ?
+C0    BE             Backend_Bound                           % Slots                   9.47 ?
+C0    RET            Retiring                                % Slots                  80.46  
+C0    FE             Frontend_Bound.Frontend_Latency         % Slots                   1.59 ?
+C0    FE             Frontend_Bound.Frontend_Bandwidth       % Slots                   1.24 ?
+C0    BAD            Bad_Speculation.Branch_Mispredicts      % Slots                   5.81 ?
+C0    BAD            Bad_Speculation.Machine_Clears          % Slots                   1.48 ?
+C0    BE/Mem         Backend_Bound.Memory_Bound              % Slots                   2.38 ?
+C0    BE/Core        Backend_Bound.Core_Bound                % Slots                   7.09 ?
+C0    RET            Retiring.Base                           % Slots                  79.96  
+C0    RET            Retiring.Microcode_Sequencer            % Slots                   0.50 ?
+C0    FE             Frontend_Bound.Frontend_Bandwidth.MITE  % CoreClocks              5.07 ?
+C0    FE             Frontend_Bound.Frontend_Bandwidth.DSB   % CoreClocks              7.66 ?
+C0    FE             Frontend_Bound.Frontend_Bandwidth.LSD   % CoreClocks              0.00 ?
+C0-T0 FE             Frontend_Bound.Frontend_Latency.ICache_Misses    % Clocks                  0.06 ?
+C0-T0 FE             Frontend_Bound.Frontend_Latency.ITLB_Misses      % Clocks                  0.11 ?
+C0-T0 FE             Frontend_Bound.Frontend_Latency.Branch_Resteers  % Clocks_est              1.01 ?
+C0-T0 FE             Frontend_Bound.Frontend_Latency.DSB_Switches     % Clocks                  4.07 ?
+C0-T0 FE             Frontend_Bound.Frontend_Latency.LCP              % Clocks                  0.00 ?
+C0-T0 FE             Frontend_Bound.Frontend_Latency.MS_Switches      % Clocks                  0.47 ?
+C0-T0 BE/Mem         Backend_Bound.Memory_Bound.L1_Bound              % Stalls                  1.91 ?
+C0-T0 BE/Mem         Backend_Bound.Memory_Bound.L2_Bound              % Stalls                  0.04 ?
+C0-T0 BE/Mem         Backend_Bound.Memory_Bound.L3_Bound              % Stalls                  0.31 ?
+C0-T0 BE/Mem         Backend_Bound.Memory_Bound.DRAM_Bound            % Stalls                  0.76 ?
+C0-T0 BE/Mem         Backend_Bound.Memory_Bound.PMM_Bound             % Stalls                  0.00 ?
+C0-T0 BE/Mem         Backend_Bound.Memory_Bound.Store_Bound           % Stalls                  0.22 ?
+C0-T0 BE/Core        Backend_Bound.Core_Bound.Divider                 % Clocks                  0.00 ?
+C0-T0 BE/Core        Backend_Bound.Core_Bound.Ports_Utilization       % Clocks                 11.42 ?
+C0-T0 RET            Retiring.Base.FP_Arith                           % Uops                    0.00 ?
+C0-T0 RET            Retiring.Base.Other                              % Uops                  100.00   <==
+C0-T0 RET            Retiring.Microcode_Sequencer.Assists             % Slots_est               0.04 ?
+C0-T0 MUX                                                             %                         3.03  
+C0-T1 FE             Frontend_Bound.Frontend_Latency.ICache_Misses    % Clocks                 12.08 ?
+C0-T1 FE             Frontend_Bound.Frontend_Latency.ITLB_Misses      % Clocks                  7.93 ?
+C0-T1 FE             Frontend_Bound.Frontend_Latency.Branch_Resteers  % Clocks_est             13.61 ?
+C0-T1 FE             Frontend_Bound.Frontend_Latency.DSB_Switches     % Clocks                  1.56 ?
+C0-T1 FE             Frontend_Bound.Frontend_Latency.LCP              % Clocks                  0.18 ?
+C0-T1 FE             Frontend_Bound.Frontend_Latency.MS_Switches      % Clocks                  5.39 ?
+C0-T1 BE/Mem         Backend_Bound.Memory_Bound.L1_Bound              % Stalls                 10.52 ?
+C0-T1 BE/Mem         Backend_Bound.Memory_Bound.L2_Bound              % Stalls                  1.70 ?
+C0-T1 BE/Mem         Backend_Bound.Memory_Bound.L3_Bound              % Stalls                  5.33 ?
+C0-T1 BE/Mem         Backend_Bound.Memory_Bound.DRAM_Bound            % Stalls                 13.47 ?
+C0-T1 BE/Mem         Backend_Bound.Memory_Bound.PMM_Bound             % Stalls                  0.00 ?
+C0-T1 BE/Mem         Backend_Bound.Memory_Bound.Store_Bound           % Stalls                  1.50 ?
+C0-T1 BE/Core        Backend_Bound.Core_Bound.Divider                 % Clocks                  0.23 ?
+C0-T1 BE/Core        Backend_Bound.Core_Bound.Ports_Utilization       % Clocks                 19.95 ?
+C0-T1 RET            Retiring.Base.FP_Arith                           % Uops                    0.36 ?
+C0-T1 RET            Retiring.Base.Other                              % Uops                   99.64 ?
+C0-T1 RET            Retiring.Microcode_Sequencer.Assists             % Slots_est               0.00 ?
+C0-T1 MUX                                                             %                         3.03
+
+###############################################Analysis###############################################
+
+Cache L1
+
+Retiring = UOPS_RETIRED.RETIRE_SLOTS (EventSel=C2H, UMask=02H)
+
+Cache L2
+
+Retiring.Base = max( 0 , Retiring - Microcode_Sequencer )
+Base = INST_RETIRED.PREC_DIST (EventSel=C0H, UMask=01H)
+Microcode_Sequencer = IDQ.MS_UOPS (EventSel=79H, UMask=30H)
+
+Cache L3
+
+Retiring.Base.Other = 1 - FP_Arith
+FP_Arith = FP_Scalar + FP_Vector
+FP_Scalar = ( FP_ARITH_INST_RETIRED.SCALAR_SINGLE + FP_ARITH_INST_RETIRED.SCALAR_DOUBLE ) / #Retired_Slots
+FP_Vector = ( FP_ARITH_INST_RETIRED.128B_PACKED_DOUBLE + FP_ARITH_INST_RETIRED.128B_PACKED_SINGLE + FP_ARITH_INST_RETIRED.256B_PACKED_DOUBLE + FP_ARITH_INST_RETIRED.256B_PACKED_SINGLE ) / #Retired_Slots
+FP_ARITH_INST_RETIRED.SCALAR_SINGLE (EventSel=C7H, UMask=02H)
+FP_ARITH_INST_RETIRED.SCALAR_DOUBLE (EventSel=C7H, UMask=01H)
+FP_ARITH_INST_RETIRED.128B_PACKED_DOUBLE (EventSel=C7H, UMask=04H)
+FP_ARITH_INST_RETIRED.128B_PACKED_SINGLE (EventSel=C7H, UMask=08H)
+FP_ARITH_INST_RETIRED.256B_PACKED_DOUBLE (EventSel=C7H, UMask=10H)
+FP_ARITH_INST_RETIRED.256B_PACKED_SINGLE (EventSel=C7H, UMask=20H)
+
+###############################################Commands & Results###############################################
+
+Cache L1
+
+sudo python pmu-tools/toplev.py --core S0-C0 -l1 -v --no-desc taskset -c 0 ./main validation/no_alpha_images/9.png 9_outn.png 40 40 0
+perf record -e cpu/event=0xc2,umask=0x02,name=UOPS_RETIRED.RETIRE_SLOTS/ ./main validation/no_alpha_images/9.png 9_outn.png 40 40 0
+perf report -n --stdio
+
+# Samples: 1M of event 'UOPS_RETIRED.RETIRE_SLOTS'
+# Event count (approx.): 5073509027595
+#
+# Overhead       Samples  Command  Shared Object      Symbol                                        
+# ........  ............  .......  .................  ..............................................
+#
+    86.10%       1461508  main     main               [.] calc_energy
+     5.62%        101002  main     main               [.] calc_RGB_energy
+     3.61%         77480  main     main               [.] padd0_image
+     2.05%         47750  main     main               [.] min_seam
+     1.55%         36827  main     main               [.] calculate
+
+Cache L2
+
+perf record -e cpu/event=0xc0,umask=0x01,name=INST_RETIRED.PREC_DIST/ ./main validation/no_alpha_images/9.png 9_outn.png 40 40 0
+perf report -n --stdio
+
+# Samples: 1M of event 'INST_RETIRED.PREC_DIST'
+# Event count (approx.): 4972712723453
+#
+# Overhead       Samples  Command  Shared Object      Symbol                                        
+# ........  ............  .......  .................  ..............................................
+#
+    86.02%       1493403  main     main               [.] calc_energy
+     5.65%        103469  main     main               [.] calc_RGB_energy
+     3.83%         81448  main     main               [.] padd0_image
+     2.18%         51127  main     main               [.] min_seam
+     1.58%         36924  main     main               [.] calculate
+
+perf record -e cpu/event=0x79,umask=0x30,name=IDQ.MS_UOPS/ ./main validation/no_alpha_images/9.png 9_outn.png 40 40 0
+perf report -n --stdio
+
+# Samples: 317K of event 'IDQ.MS_UOPS'
+# Event count (approx.): 29272967470
+#
+# Overhead       Samples  Command  Shared Object      Symbol                                        
+# ........  ............  .......  .................  ..............................................
+#
+    20.87%         66058  main     [kernel.kallsyms]  [k] page_fault
+    14.11%         44020  main     main               [.] calc_energy
+    11.39%         36076  main     [kernel.kallsyms]  [k] clear_page_erms
+     9.56%         30225  main     [kernel.kallsyms]  [k] prepare_exit_to_usermode
+     7.91%         25040  main     [kernel.kallsyms]  [k] swapgs_restore_regs_and_return_to_usermode
+     7.67%         24274  main     [kernel.kallsyms]  [k] error_entry
+     7.49%         23708  main     [kernel.kallsyms]  [k] sync_regs
+     4.47%         14633  main     main               [.] padd0_image
+     3.27%         10308  main     [kernel.kallsyms]  [k] handle_mm_fault
+     1.72%          5473  main     main               [.] calc_RGB_energy
+     1.30%          4145  main     [kernel.kallsyms]  [k] get_page_from_freelist
+     0.74%          2623  main     [kernel.kallsyms]  [k] release_pages
+     0.65%          2042  main     [kernel.kallsyms]  [k] __inc_numa_state
+     0.60%          1880  main     [kernel.kallsyms]  [k] up_read
+     0.60%          1891  main     [kernel.kallsyms]  [k] __do_page_fault
+     0.60%          1886  main     [kernel.kallsyms]  [k] __pagevec_lru_add_fn
+     0.57%          1805  main     [kernel.kallsyms]  [k] __lru_cache_add
+
+###############################################Conclusions###############################################
+
+Retiring
+~ 86% overhead in convolution.c (calc_energy function)
+~ 21% overall page faults 
+
+
+
+
+
+
+
+
+
+
+
