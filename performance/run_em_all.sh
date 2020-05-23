@@ -5,7 +5,7 @@ then
 	echo "Bad File!"
 	echo "Please follow these instructions: (For each run)"
 	echo "1. Put your team046 repository into a clean state; i.e. you should not have any 'Changes not staged for commit'"
-	echo "2. Create a folder (outside the whole team046 repository folder). This folder will containt the results."
+	echo "2. Create a folder (outside the whole team046 repository folder). This folder will contain the results."
 	echo "3. Copy this file (run_em_all.sh) to that folder."
 	echo "4. Run the script from that folder."
 	echo "5. Don't forget to turn off your CPU's Turbo Boost feature."
@@ -35,11 +35,13 @@ fi
 
 cd "$repo"
 git checkout master
+git pull
 cp "performance/time_test.sh" "$myhome/"
 cp -r "performance/imgs" "$myhome/"
 cd "$myhome"
 
-branches=("t1_1" "t1_2" "t1_3" "t1_4" "t1_5" "t1_6" "t2_3_2" "t_2_4" "t2_5" "t2_6" "t2_7")
+branches=("t1_1" "t1_2" "t1_3" "t1_4" "t1_5" "t2_3" "t2_3_2" "t_2_4" "t2_5" "t2_5_sr")
+# instrumnt=("1" "1" "0" "1" "1" "1" "1" "0" "1" "0")
 vec_bool=0
 
 for br in ${branches[@]}
@@ -52,6 +54,7 @@ do
 
 	cd "$repo"
 	git checkout "$br"
+	git pull
 	cd "$myhome"
 
 	for ratio in imgs/*
