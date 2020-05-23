@@ -35,6 +35,7 @@ fi
 
 cd "$repo"
 git checkout master
+git pull
 cp "performance/time_test.sh" "$myhome/"
 cp -r "performance/imgs" "$myhome/"
 cd "$myhome"
@@ -52,6 +53,7 @@ do
 
 	cd "$repo"
 	git checkout "$br"
+	git pull
 	cd "$myhome"
 
 	for ratio in imgs/*
