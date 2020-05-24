@@ -46,7 +46,6 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 	}
 
 	//calc_RGB_energy(rsize + 2, csize + 2, padded_img, energy);
-{
 	int n = rsize + 2;
 	int m = csize + 2;
 	short *padded = padded_img;
@@ -72,9 +71,9 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
             int i3m = (i + 1) * m * 3;
             int im = (i - 1) * (m - 2);
             for(j = jj ; j < j_limit ; j += 10){
-                short *row0 = padded + i1m + (j - 1) * 3;
-                short *row1 = padded + i2m + (j - 1) * 3;
-                short *row2 = padded + i3m + (j - 1) * 3;
+                short *row0 = padded_img + i1m + (j - 1) * 3;
+                short *row1 = padded_img + i2m + (j - 1) * 3;
+                short *row2 = padded_img + i3m + (j - 1) * 3;
                 int imj = im + j;
 
                 //loads are all unaligned because we're dealing with shorts
@@ -176,40 +175,40 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 
                 // channel R
                 //H_y
-                acc1 = -(padded[i1m  + j1] + ((padded[i1m + j2]) << 1));
-                acc2 = padded[i3m + j1] - padded[i1m + j3];
-                acc3 = ((padded[i3m + j2]) << 1) + padded[i3m + j3];
+                acc1 = -(padded_img[i1m  + j1] + ((padded_img[i1m + j2]) << 1));
+                acc2 = padded_img[i3m + j1] - padded_img[i1m + j3];
+                acc3 = ((padded_img[i3m + j2]) << 1) + padded_img[i3m + j3];
                 *(energy_pos) = (int) ABS(acc1 + acc2 + acc3);
                 //H_x
-                acc4 = padded[i1m + j3] - padded[i1m + j1];
-                acc5 = (padded[i2m + j3] - padded[i2m + j1]) << 1;
-                acc6 = padded[i3m + j3] - padded[i3m + j1];
+                acc4 = padded_img[i1m + j3] - padded_img[i1m + j1];
+                acc5 = (padded_img[i2m + j3] - padded_img[i2m + j1]) << 1;
+                acc6 = padded_img[i3m + j3] - padded_img[i3m + j1];
                 *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
 
                 // channel G
                 //H_y
                 int k = 1;
-                acc1 = -(padded[i1m  + j1 + k] + ((padded[i1m + j2 + k]) << 1));
-                acc2 = padded[i3m + j1 + k] - padded[i1m + j3 + k];
-                acc3 = ((padded[i3m + j2 + k]) << 1) + padded[i3m + j3 + k];
+                acc1 = -(padded_img[i1m  + j1 + k] + ((padded_img[i1m + j2 + k]) << 1));
+                acc2 = padded_img[i3m + j1 + k] - padded_img[i1m + j3 + k];
+                acc3 = ((padded_img[i3m + j2 + k]) << 1) + padded_img[i3m + j3 + k];
                 *(energy_pos) += (int) ABS(acc1 + acc2 + acc3);
                 //H_x
-                acc4 = padded[i1m + j3 + k] - padded[i1m + j1 + k];
-                acc5 = (padded[i2m + j3 + k] - padded[i2m + j1 + k]) << 1;
-                acc6 = padded[i3m + j3 + k] - padded[i3m + j1 + k];
+                acc4 = padded_img[i1m + j3 + k] - padded_img[i1m + j1 + k];
+                acc5 = (padded_img[i2m + j3 + k] - padded_img[i2m + j1 + k]) << 1;
+                acc6 = padded_img[i3m + j3 + k] - padded_img[i3m + j1 + k];
                 *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
 
                 // channel B
                 //H_y
                 k = 2;
-                acc1 = -(padded[i1m  + j1 + k] + ((padded[i1m + j2 + k]) << 1));
-                acc2 = padded[i3m + j1 + k] - padded[i1m + j3 + k];
-                acc3 = ((padded[i3m + j2 + k]) << 1) + padded[i3m + j3 + k];
+                acc1 = -(padded_img[i1m  + j1 + k] + ((padded_img[i1m + j2 + k]) << 1));
+                acc2 = padded_img[i3m + j1 + k] - padded_img[i1m + j3 + k];
+                acc3 = ((padded_img[i3m + j2 + k]) << 1) + padded_img[i3m + j3 + k];
                 *(energy_pos) += (int) ABS(acc1 + acc2 + acc3);
                 //H_x
-                acc4 = padded[i1m + j3 + k] - padded[i1m + j1 + k];
-                acc5 = (padded[i2m + j3 + k] - padded[i2m + j1 + k]) << 1;
-                acc6 = padded[i3m + j3 + k] - padded[i3m + j1 + k];
+                acc4 = padded_img[i1m + j3 + k] - padded_img[i1m + j1 + k];
+                acc5 = (padded_img[i2m + j3 + k] - padded_img[i2m + j1 + k]) << 1;
+                acc6 = padded_img[i3m + j3 + k] - padded_img[i3m + j1 + k];
                 *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
             }
         }
@@ -224,9 +223,9 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
         int i3m = (i + 1) * m * 3;
         int im = (i - 1) * (m - 2);
         for (jj = jj_old; jj < jj_limit; jj += 10) {
-            short *row0 = padded + i1m + (jj - 1) * 3;
-            short *row1 = padded + i2m + (jj - 1) * 3;
-            short *row2 = padded + i3m + (jj - 1) * 3;
+            short *row0 = padded_img + i1m + (jj - 1) * 3;
+            short *row1 = padded_img + i2m + (jj - 1) * 3;
+            short *row2 = padded_img + i3m + (jj - 1) * 3;
             int imj = im + jj;
 
             //loads are all unaligned because we're dealing with shorts
@@ -330,45 +329,44 @@ int min_seam(int rsize, int csize, unsigned char *img, int is_ver, int *ret_back
 
             // channel R
             //H_y
-            acc1 = -(padded[i1m + j1] + ((padded[i1m + j2]) << 1));
-            acc2 = padded[i3m + j1] - padded[i1m + j3];
-            acc3 = ((padded[i3m + j2]) << 1) + padded[i3m + j3];
+            acc1 = -(padded_img[i1m + j1] + ((padded_img[i1m + j2]) << 1));
+            acc2 = padded_img[i3m + j1] - padded_img[i1m + j3];
+            acc3 = ((padded_img[i3m + j2]) << 1) + padded_img[i3m + j3];
             *(energy_pos) = (int) ABS(acc1 + acc2 + acc3);
             //H_x
-            acc4 = padded[i1m + j3] - padded[i1m + j1];
-            acc5 = (padded[i2m + j3] - padded[i2m + j1]) << 1;
-            acc6 = padded[i3m + j3] - padded[i3m + j1];
+            acc4 = padded_img[i1m + j3] - padded_img[i1m + j1];
+            acc5 = (padded_img[i2m + j3] - padded_img[i2m + j1]) << 1;
+            acc6 = padded_img[i3m + j3] - padded_img[i3m + j1];
             *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
 
             // channel G
             //H_y
             int k = 1;
-            acc1 = -(padded[i1m  + j1 + k] + ((padded[i1m + j2 + k]) << 1));
-            acc2 = padded[i3m + j1 + k] - padded[i1m + j3 + k];
-            acc3 = ((padded[i3m + j2 + k]) << 1) + padded[i3m + j3 + k];
+            acc1 = -(padded_img[i1m  + j1 + k] + ((padded_img[i1m + j2 + k]) << 1));
+            acc2 = padded_img[i3m + j1 + k] - padded_img[i1m + j3 + k];
+            acc3 = ((padded_img[i3m + j2 + k]) << 1) + padded_img[i3m + j3 + k];
             *(energy_pos) += (int) ABS(acc1 + acc2 + acc3);
             //H_x
-            acc4 = padded[i1m + j3 + k] - padded[i1m + j1 + k];
-            acc5 = (padded[i2m + j3 + k] - padded[i2m + j1 + k]) << 1;
-            acc6 = padded[i3m + j3 + k] - padded[i3m + j1 + k];
+            acc4 = padded_img[i1m + j3 + k] - padded_img[i1m + j1 + k];
+            acc5 = (padded_img[i2m + j3 + k] - padded_img[i2m + j1 + k]) << 1;
+            acc6 = padded_img[i3m + j3 + k] - padded_img[i3m + j1 + k];
             *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
 
             // channel B
             //H_y
             k = 2;
-            acc1 = -(padded[i1m  + j1 + k] + ((padded[i1m + j2 + k]) << 1));
-            acc2 = padded[i3m + j1 + k] - padded[i1m + j3 + k];
-            acc3 = ((padded[i3m + j2 + k]) << 1) + padded[i3m + j3 + k];
+            acc1 = -(padded_img[i1m  + j1 + k] + ((padded_img[i1m + j2 + k]) << 1));
+            acc2 = padded_img[i3m + j1 + k] - padded_img[i1m + j3 + k];
+            acc3 = ((padded_img[i3m + j2 + k]) << 1) + padded_img[i3m + j3 + k];
             *(energy_pos) += (int) ABS(acc1 + acc2 + acc3);
             //H_x
-            acc4 = padded[i1m + j3 + k] - padded[i1m + j1 + k];
-            acc5 = (padded[i2m + j3 + k] - padded[i2m + j1 + k]) << 1;
-            acc6 = padded[i3m + j3 + k] - padded[i3m + j1 + k];
+            acc4 = padded_img[i1m + j3 + k] - padded_img[i1m + j1 + k];
+            acc5 = (padded_img[i2m + j3 + k] - padded_img[i2m + j1 + k]) << 1;
+            acc6 = padded_img[i3m + j3 + k] - padded_img[i3m + j1 + k];
             *(energy_pos) += (int) ABS(acc4 + acc5 + acc6);
         }
 
     }
-}
 
 	// contains index of the value from the prev row/column from where we came here
 	int *backtrack = (int *) malloc(size * sizeof(int)); //different from what we returnCOUNT(mult_count, 2)
