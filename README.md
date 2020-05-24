@@ -2,16 +2,14 @@
 
 Optimizing the hell out of seam carving.
 
-##Running
-
+## Running
 Compile: gcc -Wall \*.c -o seam_carving -lm
 
 Usage: ./seam_carving \<input_file_path\> \<output_file_name\> \<with_diff\> \<height_diff\>
 
 Expects: a PNG image with 3 channels (without alpha channel)
 
-##Project outline
-
+## Project outline
 The project contains two approach paths: 
 
 * track 1: RGB as a 3-dimentional matrix with the channel as the first dimention, scalar replacement, unrolling, restructured computations, blocking
