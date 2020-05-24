@@ -50,6 +50,9 @@ then, e.g. for calculting the horizontal sobel filter:
 ```
 we need `NE - NW + 2 * (E - W) + SE - SW`, which translated into our registers would look like: `Reg[2] - Reg[0] + 2 * (Reg[4] - Reg[3]) + Reg[7] - Reg[5]` (side note: we implement \*2 operation by adding the number to itself)
 
+### Extension
+So we've seen that with 8 registers, we can calculate the convolution for 5 pixels. Thus, we can extend this and use all the 16 registers to calculate the convolution for 10 pixels.
+
 ## 3. Blocking
 Describe (+ stride)
 
