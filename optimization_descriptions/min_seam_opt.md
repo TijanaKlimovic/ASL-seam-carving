@@ -8,5 +8,9 @@ Even though this extra rotation adds an overhead, at bigger images we clearly ga
 ## 2. SIMD (AVX2)
 We checked and saw that compiling with -O3 -march=native the compiler vectorizess (AVX2) min_seam.c. We also tried vectorizing by hand so maybe we can achieve better result but our results were the same or maybe slightly worse.
 
-## 3. Scalar replacement
+We vectorized:
 
+* the dynamic programming part that computes the minimum seams for the entire energy map (considers minimum from 3 possible choices on row above)
+* the find of the minimum seam (done on the last row, meaning on the total seam value)
+
+## 3. Scalar replacement
