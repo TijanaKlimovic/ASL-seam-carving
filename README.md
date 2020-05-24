@@ -3,7 +3,9 @@
 Optimizing the hell out of seam carving.
 
 Compile: gcc -Wall \*.c -o seam_carving -lm
+
 Usage: ./seam_carving \<input_file_path\> \<output_file_name\> \<with_diff\> \<height_diff\>
+
 Expects: a PNG image with 3 channels (without alpha channel)
 
 The project contains two approach paths: 
