@@ -1,0 +1,180 @@
+resized_1000.png PNG 980x980 980x980+0+0 8-bit sRGB 1.032MB 0.020u 0:00.030
+../no_alpha_ref_png/resized_1000.png PNG 980x980 980x980+0+0 8-bit sRGB 492KB 0.020u 0:00.019
+Image: resized_1000.png
+  Channel distortion: MAE
+    red: 1080.18 (0.0164825)
+    green: 890.587 (0.0135895)
+    blue: 1034.61 (0.0157871)
+    all: 1001.79 (0.0152864)
+resized_1000.png=>comp/resized_1000.png PNG 980x980 980x980+0+0 8-bit sRGB 394KB 0.520u 0:00.260
+resized_1200.png PNG 1180x1180 1180x1180+0+0 8-bit sRGB 1.414MB 0.030u 0:00.030
+../no_alpha_ref_png/resized_1200.png PNG 1180x1180 1180x1180+0+0 8-bit sRGB 644KB 0.030u 0:00.029
+Image: resized_1200.png
+  Channel distortion: MAE
+    red: 1000.9 (0.0152727)
+    green: 857.593 (0.013086)
+    blue: 955.931 (0.0145866)
+    all: 938.14 (0.0143151)
+resized_1200.png=>comp/resized_1200.png PNG 1180x1180 1180x1180+0+0 8-bit sRGB 529KB 0.740u 0:00.379
+resized_1400.png PNG 1380x1380 1380x1380+0+0 8-bit sRGB 1.785MB 0.050u 0:00.050
+../no_alpha_ref_png/resized_1400.png PNG 1380x1380 1380x1380+0+0 8-bit sRGB 830KB 0.040u 0:00.039
+Image: resized_1400.png
+  Channel distortion: MAE
+    red: 880.702 (0.0134387)
+    green: 735.602 (0.0112246)
+    blue: 821.165 (0.0125302)
+    all: 812.49 (0.0123978)
+resized_1400.png=>comp/resized_1400.png PNG 1380x1380 1380x1380+0+0 8-bit sRGB 671KB 1.290u 0:00.510
+resized_1600.png PNG 1580x1580 1580x1580+0+0 8-bit sRGB 2.182MB 0.060u 0:00.059
+../no_alpha_ref_png/resized_1600.png PNG 1580x1580 1580x1580+0+0 8-bit sRGB 1.022MB 0.050u 0:00.050
+Image: resized_1600.png
+  Channel distortion: MAE
+    red: 747.768 (0.0114102)
+    green: 615.657 (0.00939432)
+    blue: 702.893 (0.0107255)
+    all: 688.773 (0.01051)
+resized_1600.png=>comp/resized_1600.png PNG 1580x1580 1580x1580+0+0 8-bit sRGB 828KB 1.000u 0:00.539
+resized_1800.png PNG 1780x1780 1780x1780+0+0 8-bit sRGB 2.596MB 0.070u 0:00.080
+../no_alpha_ref_png/resized_1800.png PNG 1780x1780 1780x1780+0+0 8-bit sRGB 1.231MB 0.080u 0:00.079
+Image: resized_1800.png
+  Channel distortion: MAE
+    red: 735.316 (0.0112202)
+    green: 620.195 (0.00946357)
+    blue: 691.551 (0.0105524)
+    all: 682.354 (0.0104121)
+resized_1800.png=>comp/resized_1800.png PNG 1780x1780 1780x1780+0+0 8-bit sRGB 979KB 1.620u 0:00.730
+resized_2000.png PNG 1980x1980 1980x1980+0+0 8-bit sRGB 3.01MB 0.080u 0:00.089
+../no_alpha_ref_png/resized_2000.png PNG 1980x1980 1980x1980+0+0 8-bit sRGB 1.437MB 0.080u 0:00.079
+Image: resized_2000.png
+  Channel distortion: MAE
+    red: 700.542 (0.0106896)
+    green: 579.9 (0.00884871)
+    blue: 641.609 (0.00979033)
+    all: 640.684 (0.00977621)
+resized_2000.png=>comp/resized_2000.png PNG 1980x1980 1980x1980+0+0 8-bit sRGB 1.144MB 1.440u 0:00.789
+resized_200.png PNG 180x180 180x180+0+0 8-bit sRGB 62.4KB 0.000u 0:00.000
+../no_alpha_ref_png/resized_200.png PNG 180x180 180x180+0+0 8-bit sRGB 32.5KB 0.000u 0:00.010
+Image: resized_200.png
+  Channel distortion: MAE
+    red: 4046.58 (0.0617468)
+    green: 3815.84 (0.058226)
+    blue: 4289.62 (0.0654555)
+    all: 4050.68 (0.0618094)
+resized_200.png=>comp/resized_200.png PNG 180x180 180x180+0+0 8-bit sRGB 25.2KB 0.100u 0:00.009
+resized_2200.png PNG 2180x2180 2180x2180+0+0 8-bit sRGB 3.492MB 0.110u 0:00.120
+../no_alpha_ref_png/resized_2200.png PNG 2180x2180 2180x2180+0+0 8-bit sRGB 1.683MB 0.100u 0:00.109
+Image: resized_2200.png
+  Channel distortion: MAE
+    red: 616.56 (0.0094081)
+    green: 516.415 (0.00787999)
+    blue: 581.594 (0.00887456)
+    all: 571.523 (0.00872089)
+resized_2200.png=>comp/resized_2200.png PNG 2180x2180 2180x2180+0+0 8-bit sRGB 1.323MB 1.690u 0:00.949
+resized_2400.png PNG 2380x2380 2380x2380+0+0 8-bit sRGB 3.971MB 0.130u 0:00.140
+../no_alpha_ref_png/resized_2400.png PNG 2380x2380 2380x2380+0+0 8-bit sRGB 1.91MB 0.110u 0:00.109
+Image: resized_2400.png
+  Channel distortion: MAE
+    red: 568.9 (0.00868086)
+    green: 474.951 (0.00724728)
+    blue: 536.997 (0.00819405)
+    all: 526.949 (0.00804073)
+resized_2400.png=>comp/resized_2400.png PNG 2380x2380 2380x2380+0+0 8-bit sRGB 1.503MB 1.930u 0:01.089
+resized_2600.png PNG 2580x2580 2580x2580+0+0 8-bit sRGB 4.467MB 0.150u 0:00.149
+../no_alpha_ref_png/resized_2600.png PNG 2580x2580 2580x2580+0+0 8-bit sRGB 2.167MB 0.120u 0:00.130
+Image: resized_2600.png
+  Channel distortion: MAE
+    red: 565.254 (0.00862522)
+    green: 482.446 (0.00736165)
+    blue: 540.521 (0.00824782)
+    all: 529.407 (0.00807823)
+resized_2600.png=>comp/resized_2600.png PNG 2580x2580 2580x2580+0+0 8-bit sRGB 1.697MB 2.300u 0:01.280
+resized_2800.png PNG 2780x2780 2780x2780+0+0 8-bit sRGB 4.99MB 0.160u 0:00.179
+../no_alpha_ref_png/resized_2800.png PNG 2780x2780 2780x2780+0+0 8-bit sRGB 2.425MB 0.150u 0:00.149
+Image: resized_2800.png
+  Channel distortion: MAE
+    red: 520.519 (0.00794262)
+    green: 440.067 (0.00671499)
+    blue: 494.26 (0.00754193)
+    all: 484.949 (0.00739984)
+resized_2800.png=>comp/resized_2800.png PNG 2780x2780 2780x2780+0+0 8-bit sRGB 1.899MB 2.420u 0:01.359
+resized_3000.png PNG 2980x2980 2980x2980+0+0 8-bit sRGB 5.504MB 0.220u 0:00.219
+../no_alpha_ref_png/resized_3000.png PNG 2980x2980 2980x2980+0+0 8-bit sRGB 2.677MB 0.200u 0:00.199
+Image: resized_3000.png
+  Channel distortion: MAE
+    red: 662.651 (0.0101114)
+    green: 578.008 (0.00881983)
+    blue: 613.933 (0.00936802)
+    all: 618.197 (0.00943308)
+resized_3000.png=>comp/resized_3000.png PNG 2980x2980 2980x2980+0+0 8-bit sRGB 2.09MB 2.960u 0:01.639
+resized_3200.png PNG 3180x3180 3180x3180+0+0 8-bit sRGB 6.074MB 0.240u 0:00.239
+../no_alpha_ref_png/resized_3200.png PNG 3180x3180 3180x3180+0+0 8-bit sRGB 2.94MB 0.230u 0:00.230
+Image: resized_3200.png
+  Channel distortion: MAE
+    red: 548.642 (0.00837174)
+    green: 469.352 (0.00716185)
+    blue: 514 (0.00784314)
+    all: 510.664 (0.00779224)
+resized_3200.png=>comp/resized_3200.png PNG 3180x3180 3180x3180+0+0 8-bit sRGB 2.295MB 3.660u 0:01.989
+resized_3400.png PNG 3380x3380 3380x3380+0+0 8-bit sRGB 6.639MB 0.260u 0:00.260
+../no_alpha_ref_png/resized_3400.png PNG 3380x3380 3380x3380+0+0 8-bit sRGB 3.23MB 0.250u 0:00.259
+Image: resized_3400.png
+  Channel distortion: MAE
+    red: 562.271 (0.00857971)
+    green: 491.937 (0.00750648)
+    blue: 531.625 (0.00811208)
+    all: 528.611 (0.00806609)
+resized_3400.png=>comp/resized_3400.png PNG 3380x3380 3380x3380+0+0 8-bit sRGB 2.529MB 3.900u 0:02.190
+resized_3600.png PNG 3580x3580 3580x3580+0+0 8-bit sRGB 7.224MB 0.250u 0:00.269
+../no_alpha_ref_png/resized_3600.png PNG 3580x3580 3580x3580+0+0 8-bit sRGB 3.483MB 0.250u 0:00.239
+Image: resized_3600.png
+  Channel distortion: MAE
+    red: 428.958 (0.00654548)
+    green: 359.295 (0.0054825)
+    blue: 407.846 (0.00622333)
+    all: 398.7 (0.00608377)
+resized_3600.png=>comp/resized_3600.png PNG 3580x3580 3580x3580+0+0 8-bit sRGB 2.793MB 4.260u 0:02.390
+resized_3800.png PNG 3780x3780 3780x3780+0+0 8-bit sRGB 7.833MB 0.280u 0:00.290
+../no_alpha_ref_png/resized_3800.png PNG 3780x3780 3780x3780+0+0 8-bit sRGB 3.781MB 0.260u 0:00.259
+Image: resized_3800.png
+  Channel distortion: MAE
+    red: 565.98 (0.0086363)
+    green: 499.339 (0.00761943)
+    blue: 536.396 (0.00818487)
+    all: 533.905 (0.00814687)
+resized_3800.png=>comp/resized_3800.png PNG 3780x3780 3780x3780+0+0 8-bit sRGB 2.946MB 3.970u 0:02.230
+resized_4000.png PNG 3980x3980 3980x3980+0+0 8-bit sRGB 8.443MB 0.310u 0:00.320
+../no_alpha_ref_png/resized_4000.png PNG 3980x3980 3980x3980+0+0 8-bit sRGB 4.048MB 0.280u 0:00.280
+Image: resized_4000.png
+  Channel distortion: MAE
+    red: 910.533 (0.0138938)
+    green: 815.87 (0.0124494)
+    blue: 852.582 (0.0130096)
+    all: 859.661 (0.0131176)
+resized_4000.png=>comp/resized_4000.png PNG 3980x3980 3980x3980+0+0 8-bit sRGB 3.068MB 4.270u 0:02.410
+resized_400.png PNG 380x380 380x380+0+0 8-bit sRGB 251KB 0.000u 0:00.000
+../no_alpha_ref_png/resized_400.png PNG 380x380 380x380+0+0 8-bit sRGB 112KB 0.010u 0:00.010
+Image: resized_400.png
+  Channel distortion: MAE
+    red: 2675.69 (0.0408285)
+    green: 2412.33 (0.0368097)
+    blue: 2587.44 (0.0394819)
+    all: 2558.49 (0.03904)
+resized_400.png=>comp/resized_400.png PNG 380x380 380x380+0+0 8-bit sRGB 101KB 0.170u 0:00.050
+resized_600.png PNG 580x580 580x580+0+0 8-bit sRGB 478KB 0.010u 0:00.010
+../no_alpha_ref_png/resized_600.png PNG 580x580 580x580+0+0 8-bit sRGB 208KB 0.010u 0:00.009
+Image: resized_600.png
+  Channel distortion: MAE
+    red: 2049.07 (0.0312667)
+    green: 1823.76 (0.0278288)
+    blue: 1885.09 (0.0287646)
+    all: 1919.3 (0.0292867)
+resized_600.png=>comp/resized_600.png PNG 580x580 580x580+0+0 8-bit sRGB 186KB 0.300u 0:00.109
+resized_800.png PNG 780x780 780x780+0+0 8-bit sRGB 757KB 0.010u 0:00.019
+../no_alpha_ref_png/resized_800.png PNG 780x780 780x780+0+0 8-bit sRGB 338KB 0.010u 0:00.010
+Image: resized_800.png
+  Channel distortion: MAE
+    red: 1520.86 (0.0232068)
+    green: 1309.18 (0.0199769)
+    blue: 1401.09 (0.0213793)
+    all: 1410.38 (0.021521)
+resized_800.png=>comp/resized_800.png PNG 780x780 780x780+0+0 8-bit sRGB 290KB 0.380u 0:00.170
