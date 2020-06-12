@@ -17,6 +17,7 @@
 #ifdef count_instr 
 extern unsigned long long add_count; //count the total number of add instructions
 extern unsigned long long mult_count;  //count the total number of mult instructions
+extern unsigned long long shift_count; // count the total number of shift instructions
 #endif
 
 //------------------------------------------------------------------
@@ -30,11 +31,8 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
     // i,j are the current pixel
 
     #ifdef count_instr //counting adds and mults of this function
-    unsigned long long count_ifs = 0; //includes explicit ifs and for loop ifs -> ADDS
-    unsigned long long indexing = 0; //includes increments of i.j,k variables  -> ADDS
     unsigned long long pointer_adds = 0; //pointer arithmetic                  -> ADDS
     unsigned long long pointer_mults = 0; //                                   -> MULTS
-    unsigned long long shifts = 0;
     #endif
  
     int block_width_L1 = 1598;      //working set size is 4(m+2)+m
@@ -47,7 +45,7 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
     int ii_limit = n - K;
 
     #ifdef count_instr 
-    add_count += 6;
+    add_count += 4;
     #endif
 
     for (j = 1; j < width_limit_L1; j = j + block_width_L1) {
@@ -99,14 +97,12 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
                 *(part_grad + ii * m + j_L3) = dst; //2
                 *(part_grad + ii * m + j_L3 + 1) = dst2; //3
 
-                #ifdef count_instr 
-                count_ifs += 5; //4 from abs and 1 for comparing in for loop
-                indexing += 1;
+                #ifdef count_instr
                 pointer_adds += 39; 
                 pointer_mults += 16;
                 add_count += 22;
                 mult_count += 2; //-1 multiplications 
-                shifts += 6;
+                shift_count += 6;
                 #endif 
             }
 
@@ -134,27 +130,16 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
 
                 *(part_grad + ii * m + j_L3) = dst;
 
-                #ifdef count_instr 
-                count_ifs += 3; //abs and for loop condition
-                indexing += 1;  //jl INCREMENTS
+                #ifdef count_instr
                 pointer_adds += 24; 
                 pointer_mults += 10;
                 add_count += 11;
                 mult_count += 1;
-                shifts += 3;
+                shift_count += 3;
                 #endif
 
             }
-
-        #ifdef count_instr 
-        count_ifs+= 2; //when not taken check must be made too and for loop condition for ii
-        indexing += 1;  //ii increments 
-        #endif
         }
-        #ifdef count_instr 
-        count_ifs+= 2; //when not taken check must be made too and for loop condition for j
-        indexing += 1;  //j increments 
-        #endif
     }
 
     //bad non cooparating js
@@ -162,7 +147,6 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
     j_old = j;
 
     #ifdef count_instr 
-    count_ifs++; //js last for loop comparison 
     add_count += 3; //j_limit
     #endif
 
@@ -209,25 +193,15 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
             *(part_grad + ii * m + j) = dst;
             *(part_grad + ii * m + j + 1) = dst2;
 
-            #ifdef count_instr 
-            count_ifs += 5; //4 from abs and 1 for comparing in for loop
-            indexing += 1;
+            #ifdef count_instr
             pointer_adds += 39; 
             pointer_mults += 16;
             add_count += 22;
             mult_count += 2; //-1 multiplications 
-            shifts += 6;
+            shift_count += 6;
             #endif 
-        }        
-        #ifdef count_instr 
-        count_ifs += 2; //one for j that isnt taken and 1 for ii for condition 
-        indexing += 1; //ii increments
-        #endif 
+        }
     }
-
-    #ifdef count_instr 
-    count_ifs ++; //one for ii not taken
-    #endif 
 
     j_old = j;
 
@@ -255,29 +229,20 @@ void calc_energy(int n, int m, int * F, int * part_grad) {
 
             *(part_grad + ii * m + j) = dst;
 
-            #ifdef count_instr 
-            count_ifs += 3; //abs and for loop condition
-            indexing += 1;  //j INCREMENTS
+            #ifdef count_instr
             pointer_adds += 24; 
             pointer_mults += 10;
             add_count += 11;
             mult_count += 1;
-            shifts += 3;
+            shift_count += 3;
             #endif
-        }     
-        #ifdef count_instr 
-        count_ifs+= 2; //when not taken check must be made too and for loop condition for ii
-        indexing += 1;  //ii increments 
-        #endif   
+        }
     }
 
     #ifdef count_instr
     //count total
-    count_ifs++;
     add_count += pointer_adds;
     mult_count += pointer_mults;
-    printf("NO ADDS FOR calc_energy IS: %llu \n", add_count);
-    printf("NO MULTS FOR calc_energy IS: %llu \n", mult_count);
     #endif
 }
 
