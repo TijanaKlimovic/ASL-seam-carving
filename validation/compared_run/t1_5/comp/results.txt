@@ -151,3 +151,30 @@ Image: resized_4000.png
     blue: 852.582 (0.0130096)
     all: 859.661 (0.0131176)
 resized_4000.png=>comp/resized_4000.png PNG 3980x3980 3980x3980+0+0 8-bit sRGB 3.068MB 4.210u 0:02.359
+t1_5/resized_400.png PNG 380x380 380x380+0+0 8-bit sRGB 251KB 0.020u 0:00.009
+ref/resized_400.jpg JPEG 380x380 380x380+0+0 8-bit sRGB 17.6KB 0.000u 0:00.010
+Image: t1_5/resized_400.png
+  Channel distortion: MAE
+    red: 2668.74 (0.0407224)
+    green: 2408.6 (0.0367528)
+    blue: 2583.36 (0.0394196)
+    all: 2553.57 (0.0389649)
+t1_5/resized_400.png=>t1_5/comp/resized_400.png PNG 380x380 380x380+0+0 8-bit sRGB 101KB 0.230u 0:00.060
+t1_5/resized_600.png PNG 580x580 580x580+0+0 8-bit sRGB 478KB 0.010u 0:00.009
+ref/resized_600.jpg JPEG 580x580 580x580+0+0 8-bit sRGB 30.8KB 0.000u 0:00.000
+Image: t1_5/resized_600.png
+  Channel distortion: MAE
+    red: 2038.83 (0.0311106)
+    green: 1824.01 (0.0278325)
+    blue: 1878.64 (0.0286663)
+    all: 1913.83 (0.0292031)
+t1_5/resized_600.png=>t1_5/comp/resized_600.png PNG 580x580 580x580+0+0 8-bit sRGB 187KB 0.340u 0:00.120
+t1_5/resized_800.png PNG 780x780 780x780+0+0 8-bit sRGB 757KB 0.020u 0:00.019
+ref/resized_800.jpg JPEG 780x780 780x780+0+0 8-bit sRGB 48KB 0.000u 0:00.010
+Image: t1_5/resized_800.png
+  Channel distortion: MAE
+    red: 1507.3 (0.023)
+    green: 1308.53 (0.0199669)
+    blue: 1392.98 (0.0212555)
+    all: 1402.94 (0.0214075)
+t1_5/resized_800.png=>t1_5/comp/resized_800.png PNG 780x780 780x780+0+0 8-bit sRGB 293KB 0.410u 0:00.179
